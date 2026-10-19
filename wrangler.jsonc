@@ -1,0 +1,11 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "pepplotter",
+  "compatibility_date": "2026-10-15",
+  // 纯静态资源 Worker：部署 out/（next build + NEXT_OUTPUT=export 产物）
+  // 无 main、无服务端代码；_headers 文件由 Workers Assets 原生支持
+  "assets": {
+    "directory": "./out",
+    "not_found_handling": "404-page"
+  }
+}

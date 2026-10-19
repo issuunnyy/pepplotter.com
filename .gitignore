@@ -1,0 +1,54 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+# 临时验证用的构建目录（见 FIXLOG「环境坑」）
+/.next-v*/
+/.next-verify/
+
+# backup archives produced by scripts/backup.sh
+/backups/
+*.tar.gz
+*.zip
+
+# workbuddy local runtime data
+/.workbuddy/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+/node
+/node.exe
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+.env*
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts

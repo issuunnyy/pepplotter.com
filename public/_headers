@@ -1,0 +1,8 @@
+# Cloudflare Pages 安全响应头（与 next.config.ts 的 securityHeaders 保持一致）
+# 仅静态导出部署时生效；本地 dev / next start 由 next.config.ts 的 headers() 承接
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
+  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload

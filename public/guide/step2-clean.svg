@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#090e17" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+  </defs>
+
+  <rect width="800" height="450" fill="url(#bg)" />
+
+  <!-- Subtle grid lines -->
+  <g stroke="rgba(51, 65, 85, 0.2)" stroke-width="1">
+    <line x1="0" y1="150" x2="800" y2="150" />
+    <line x1="0" y1="300" x2="800" y2="300" />
+    <line x1="266" y1="0" x2="266" y2="450" />
+    <line x1="533" y1="0" x2="533" y2="450" />
+  </g>
+
+  <!-- Left Side: Abdominal Mapping with 2-inch clearance -->
+  <g transform="translate(60, 40)">
+    <!-- Waist curve -->
+    <path d="M40,110 C80,70 200,70 240,110" fill="none" stroke="#475569" stroke-width="5" stroke-linecap="round" />
+    <path d="M40,110 C20,200 60,280 140,290" fill="none" stroke="#475569" stroke-width="5" stroke-linecap="round" />
+    <path d="M240,110 C260,200 220,280 140,290" fill="none" stroke="#475569" stroke-width="5" stroke-linecap="round" />
+
+    <!-- Navel -->
+    <circle cx="140" cy="180" r="7" fill="#f87171" />
+    <!-- 2-inch No-go zone ring -->
+    <circle cx="140" cy="180" r="50" fill="rgba(239, 68, 68, 0.12)" stroke="#ef4444" stroke-width="2.5" stroke-dasharray="6 4" />
+    <text x="140" y="184" text-anchor="middle" fill="#fee2e2" font-family="system-ui, sans-serif" font-size="11" font-weight="900">NAVEL</text>
+    <text x="140" y="248" text-anchor="middle" fill="#fca5a5" font-family="system-ui, sans-serif" font-size="11" font-weight="bold">❌ 2-Inch No-Go Zone</text>
+
+    <!-- Safe target zones -->
+    <rect x="35" y="210" width="45" height="40" rx="8" fill="rgba(16, 185, 129, 0.2)" stroke="#10b981" stroke-width="2" />
+    <circle cx="57" cy="230" r="6" fill="#10b981" />
+    <text x="57" y="268" text-anchor="middle" fill="#6ee7b7" font-family="system-ui, sans-serif" font-size="10" font-weight="bold">Week 1</text>
+
+    <rect x="200" y="210" width="45" height="40" rx="8" fill="rgba(6, 182, 212, 0.2)" stroke="#06b6d4" stroke-width="2" />
+    <circle cx="222" cy="230" r="6" fill="#06b6d4" />
+    <text x="222" y="268" text-anchor="middle" fill="#67e8f9" font-family="system-ui, sans-serif" font-size="10" font-weight="bold">Week 2</text>
+
+    <text x="140" y="325" text-anchor="middle" fill="#cbd5e1" font-family="system-ui, sans-serif" font-size="13" font-weight="bold">Rotate Sites Weekly</text>
+    <text x="140" y="345" text-anchor="middle" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="11">Prevents lipohypertrophy lumps</text>
+  </g>
+
+  <!-- Divider -->
+  <line x1="400" y1="70" x2="400" y2="380" stroke="#334155" stroke-width="1.5" stroke-dasharray="6 4" />
+
+  <!-- Right Side: Swab technique and natural evaporation -->
+  <g transform="translate(450, 70)">
+    <!-- Skin cross-section pad -->
+    <rect x="0" y="50" width="280" height="110" rx="16" fill="#1e293b" stroke="#334155" stroke-width="2" />
+    
+    <!-- Alcohol wet swirl (Center to outward) -->
+    <path d="M140,105 C145,100 155,105 150,115 C138,125 120,110 125,95 C132,75 165,75 175,95 C185,120 155,145 120,140 C85,135 75,90 110,70" 
+          fill="none" stroke="#38bdf8" stroke-width="3" stroke-linecap="round" stroke-dasharray="6 4" />
+
+    <!-- Center dot -->
+    <circle cx="140" cy="105" r="5" fill="#38bdf8" />
+    <text x="140" y="125" text-anchor="middle" fill="#7dd3fc" font-family="system-ui, sans-serif" font-size="10" font-weight="bold">Start</text>
+
+    <!-- Swab Pad Icon -->
+    <rect x="180" y="70" width="40" height="24" rx="4" fill="#10b981" stroke="#34d399" stroke-width="1.5" />
+    <text x="200" y="86" text-anchor="middle" fill="#064e3b" font-family="system-ui, sans-serif" font-size="9" font-weight="900">PAD</text>
+
+    <!-- Outward arrows -->
+    <text x="140" y="40" text-anchor="middle" fill="#f8fafc" font-family="system-ui, sans-serif" font-size="15" font-weight="bold">Spiral Center → Outward</text>
+
+    <!-- Dry Evaporation Banner -->
+    <rect x="0" y="190" width="280" height="70" rx="12" fill="#064e3b" stroke="#10b981" stroke-width="2" />
+    <text x="140" y="218" text-anchor="middle" fill="#d1fae5" font-family="system-ui, sans-serif" font-size="15" font-weight="900">Wait 15s For Matte Skin</text>
+    <text x="140" y="242" text-anchor="middle" fill="#a7f3d0" font-family="system-ui, sans-serif" font-size="12">Wet alcohol = intense sting! Never blow.</text>
+  </g>
+
+  <!-- Top Badge -->
+  <rect x="40" y="30" width="210" height="30" rx="15" fill="#1e293b" stroke="#334155" stroke-width="1.5" />
+  <circle cx="56" cy="45" r="5" fill="#38bdf8" />
+  <text x="70" y="50" fill="#f1f5f9" font-family="system-ui, sans-serif" font-size="12" font-weight="700">STEP 2 • Cleanse &amp; Air-Dry</text>
+</svg>
