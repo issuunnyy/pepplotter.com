@@ -222,6 +222,7 @@ export default function Home() {
   };
 
   // Automatically synchronize Tab 1 target dose into Tab 2 injection schedule in real-time
+  // Only trigger when targetDoseMcg is explicitly modified in Tab 1, preserving custom ladder doses on split-toggle
   useEffect(() => {
     if (safeTargetDoseMcg > 0) {
       const calculatedDoseMg = isSplitDoseMode
@@ -235,7 +236,8 @@ export default function Home() {
         }))
       );
     }
-  }, [safeTargetDoseMcg, isSplitDoseMode]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [safeTargetDoseMcg]);
 
   // Manual one-click synchronization from current calculator dose to Tab 2 schedule
   const syncCurrentDoseToSchedule = () => {
@@ -1055,6 +1057,15 @@ const splitList: InjectionEntry[] = [];
        {reconResult.syringeUnits} unit mark
           </strong>{' '}
           ({reconResult.drawVolumeMl} mL) on your {syringeType} syringe.
+          <span className="block mt-2">
+            <button
+              type="button"
+              onClick={() => handleTabChange('guide')}
+              className="inline-flex items-center gap-1 text-xs text-emerald-400 hover:text-emerald-300 font-semibold underline underline-offset-2 decoration-emerald-500/40 hover:decoration-emerald-300 transition-colors cursor-pointer"
+            >
+              <span>First time injecting? View Step-by-Step Sub-Q Visual Guide &rarr;</span>
+            </button>
+          </span>
    </>
             )}
          </p>
@@ -1324,6 +1335,26 @@ const splitList: InjectionEntry[] = [];
           <p className="text-xs text-slate-400 max-w-2xl mx-auto leading-relaxed">
             PepPlotter is an independent mathematical simulation and harm-reduction calculator created solely for laboratory research and educational study. It does not provide medical advice, diagnosis, or prescription instructions. Always prioritize natural health, nutrition, and exercise, and consult a licensed healthcare professional before administering any compound.
           </p>
+
+          {/* Feedback & Support Bar */}
+          <div className="flex flex-wrap items-center justify-center gap-3 mt-6">
+            <a
+              href="mailto:support@pepplotter.com?subject=PepPlotter%20Feedback%20%26%20Feature%20Request"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 hover:border-slate-600 rounded-xl text-xs font-semibold text-slate-200 transition-all shadow-sm"
+            >
+              <span>💬</span>
+              <span>Suggest a Feature / Request Peptide</span>
+            </a>
+            <a
+              href="https://buymeacoffee.com/ssuunnyy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/40 hover:border-amber-400 text-amber-300 rounded-xl text-xs font-semibold transition-all shadow-sm shadow-amber-500/10"
+            >
+              <span>☕</span>
+              <span>Support Independent Harm-Reduction ($3)</span>
+            </a>
+          </div>
 
           {/* Compliance and Legal Links */}
           <div className="flex flex-wrap items-center justify-center gap-6 mt-6 text-xs text-slate-400">

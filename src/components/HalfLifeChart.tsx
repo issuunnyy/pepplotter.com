@@ -250,8 +250,8 @@ ref={svgRef}
             const cy = getY(pt.concentration);
             return (
               <g key={idx} className="cursor-pointer">
-                <circle cx={cx} cy={cy} r="5" fill="#f43f5e" stroke="#ffffff" strokeWidth="2" />
-                <circle cx={cx} cy={cy} r="10" fill="#f43f5e" opacity="0.25" />
+                <circle cx={cx} cy={cy} r="5" fill="#10b981" stroke="#ffffff" strokeWidth="2" />
+                <circle cx={cx} cy={cy} r="10" fill="#10b981" opacity="0.25" />
               </g>
             );
           })}
@@ -307,9 +307,9 @@ ref={svgRef}
               </div>
             </div>
             {hoveredPoint.isInjectionPoint && (
-              <div className="border-l border-slate-800 pl-3 flex items-center gap-1.5 text-rose-400 font-semibold">
-                <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
-                Injection Day!
+              <div className="border-l border-slate-800 pl-3 flex items-center gap-1.5 text-emerald-400 font-semibold">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                Dose Administered
               </div>
             )}
           </div>
@@ -320,7 +320,7 @@ ref={svgRef}
       <div className="mt-4 p-3 bg-slate-800/40 border border-slate-700/50 rounded-xl text-xs text-slate-300 leading-relaxed flex items-start gap-2.5">
         <TrendingUp className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
         <div>
-          <strong className="text-cyan-300">Why Plot Half-Life?</strong> Steady-state accumulation happens over 4-5 half-lives (about 4 weeks for Semaglutide, 3-4 weeks for Tirzepatide). Splitting a large weekly dose into twice-weekly (e.g. every 3.5 days) significantly lowers the red peak spike and raises the green trough floor, drastically reducing gastrointestinal nausea while maintaining sustained appetite suppression.
+          <strong className="text-cyan-300">Why Plot Half-Life?</strong> Steady-state accumulation happens over 4-5 half-lives (about 4 weeks for Semaglutide, 3-4 weeks for Tirzepatide). Splitting a large weekly dose into twice-weekly (e.g. every 3.5 days) significantly lowers the post-injection Cmax peak spike and raises the green trough floor, drastically reducing gastrointestinal nausea while maintaining sustained appetite suppression.
           <div className="mt-1.5 text-slate-500">
             Model note: First-order subcutaneous absorption &amp; elimination (Bateman pharmacokinetic model), accurately simulating realistic 24–36h post-injection plasma Tmax peaks.
           </div>

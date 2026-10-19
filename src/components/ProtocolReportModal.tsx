@@ -328,6 +328,23 @@ export const ProtocolReportModal: React.FC<ProtocolReportModalProps> = ({
             </div>
           </div>
 
+          {/* Lightweight Thank You / Support Banner (print:hidden) */}
+          <div className="px-6 py-2.5 bg-gradient-to-r from-amber-950/20 via-slate-900/60 to-emerald-950/20 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-300 print:hidden">
+            <span className="flex items-center gap-1.5 text-slate-300 text-center sm:text-left">
+              <span>☕</span>
+              <span>Found this protocol &amp; calendar tool helpful? PepPlotter is 100% free with zero ads.</span>
+            </span>
+            <a
+              href="https://buymeacoffee.com/ssuunnyy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 px-3 py-1 bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 hover:border-amber-300 text-amber-300 text-xs font-semibold rounded-lg transition-all shrink-0 cursor-pointer"
+            >
+              <span>Support the Developer ($3)</span>
+              <span>&rarr;</span>
+            </a>
+          </div>
+
           {/* Modal Footer Actions */}
           <div className="flex items-center justify-between px-6 py-4 border-t border-slate-800 bg-slate-950/40 print:hidden">
             <button
