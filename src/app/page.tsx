@@ -9,6 +9,7 @@ import { AffiliateSupplies } from '@/components/AffiliateSupplies';
 import { Tooltip } from '@/components/Tooltip';
 import { GuidedTour, TOUR_STEPS } from '@/components/GuidedTour';
 import { ProtocolReportModal } from '@/components/ProtocolReportModal';
+import { FeedbackModal } from '@/components/FeedbackModal';
 import { HarmReductionManifesto } from '@/components/HarmReductionManifesto';
 import { ComparisonTable } from '@/components/ComparisonTable';
 import { SeoGuide } from '@/components/SeoGuide';
@@ -51,8 +52,9 @@ export default function Home() {
     }
   };
 
-  // --- REPORT MODAL STATE ---
+  // --- REPORT & FEEDBACK MODAL STATE ---
   const [isReportModalOpen, setIsReportModalOpen] = useState<boolean>(false);
+  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState<boolean>(false);
 
   // --- GUIDED TOUR STATE ---
   const [isTourActive, setIsTourActive] = useState<boolean>(false);
@@ -1338,13 +1340,14 @@ const splitList: InjectionEntry[] = [];
 
           {/* Feedback & Support Bar */}
           <div className="flex flex-wrap items-center justify-center gap-3 mt-6">
-            <a
-              href="mailto:support@pepplotter.com?subject=PepPlotter%20Feedback%20%26%20Feature%20Request"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 hover:border-slate-600 rounded-xl text-xs font-semibold text-slate-200 transition-all shadow-sm"
+            <button
+              type="button"
+              onClick={() => setIsFeedbackModalOpen(true)}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 hover:border-slate-600 rounded-xl text-xs font-semibold text-slate-200 transition-all shadow-sm cursor-pointer"
             >
               <span>💬</span>
               <span>Suggest a Feature / Request Peptide</span>
-            </a>
+            </button>
             <a
               href="https://buymeacoffee.com/ssuunnyy"
               target="_blank"
@@ -1396,6 +1399,12 @@ const splitList: InjectionEntry[] = [];
           syringeType={syringeType}
           result={reconResult}
           frequencyDays={activePreset.standardFrequencyDays}
+        />
+
+        {/* In-Page Community Feedback & Feature Request Modal */}
+        <FeedbackModal
+          isOpen={isFeedbackModalOpen}
+          onClose={() => setIsFeedbackModalOpen(false)}
         />
       </main>
     </div>
