@@ -37,7 +37,8 @@ import {
   ArrowRight,
   Calendar,
   FileText,
-  HeartPulse
+  HeartPulse,
+  MessageSquare
 } from 'lucide-react';
 
 export default function Home() {
@@ -387,20 +388,11 @@ const splitList: InjectionEntry[] = [];
     }
   };
 
-  // Copy shareable dosage summary with permanent interactive deep link
-  const copySummary = () => {
+  // Copy clean, permanent interactive deep link
+  const copyShareUrl = () => {
     const shareUrl = `https://pepplotter.com/?preset=${selectedPresetId}&vial=${safeVialMg}&water=${safeWaterMl}&dose=${safeTargetDoseMcg}&syringe=${syringeType}${activeTab === 'plotter' ? '&tab=plotter' : activeTab === 'guide' ? '&tab=guide' : ''}`;
 
-    let text: string;
-    if (reconResult.error) {
-      text = `PepPlotter — protocol blocked:\n${BLOCK_MESSAGES[reconResult.error!]}\nNo dosing instruction was generated.\n🔗 Verify: ${shareUrl}`;
-    } else if (reconResult.overCapacity) {
-      text = `PepPlotter — warning for ${activePreset.name}:\nDose requires ${reconResult.syringesRequired} syringe(s) of ${syringeType} (capacity ${reconResult.syringeCapacity} units).\nSplit the dose or increase reconstitution water. Do NOT draw ${reconResult.drawVolumeMl} mL into a single syringe.\n🔗 Interactive Syringe & Curve: ${shareUrl}`;
-    } else {
-      text = `Peptide Reconstitution Protocol (${activePreset.name}):\n• Vial: ${safeVialMg} mg\n• BAC Water: ${safeWaterMl} mL\n• Target Dose: ${safeTargetDoseMcg} mcg (${(safeTargetDoseMcg / 1000).toFixed(2)} mg)\n• Syringe Draw: ${reconResult.syringeUnits} Units (${reconResult.drawVolumeMl} mL on ${syringeType})\n\n🔗 Interactive Syringe & Curve:\n${shareUrl}`;
-    }
-    // 复制失败时不弹成功态，并降级到 execCommand 兜底
-    safeCopyToClipboard(text).then((ok) => {
+    safeCopyToClipboard(shareUrl).then((ok) => {
       if (!ok) return;
       setCopied(true);
       if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
@@ -505,16 +497,16 @@ const splitList: InjectionEntry[] = [];
           </div>
 
           {/* Quick Actions */}
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => {
                 handleTabChange('guide');
                 document.getElementById('main-tab-switcher')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
               }}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/40 text-cyan-300 rounded-lg text-xs font-semibold transition-all shadow-sm shadow-cyan-500/10 cursor-pointer"
+              className="hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/40 text-cyan-300 rounded-lg text-xs font-semibold transition-all shadow-sm shadow-cyan-500/10 cursor-pointer"
             >
               <ShieldCheck className="w-3.5 h-3.5 text-cyan-400" />
-              <span>🛡️ Sub-Q Visual Guide</span>
+              <span>Sub-Q Guide</span>
             </button>
 
             <button
@@ -522,15 +514,28 @@ const splitList: InjectionEntry[] = [];
               className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 text-emerald-300 rounded-lg text-xs font-semibold transition-all shadow-sm shadow-emerald-500/10 cursor-pointer"
             >
               <Compass className="w-3.5 h-3.5" />
-              <span>How to Use (Tour)</span>
+              <span className="hidden sm:inline">How to Use</span>
+              <span className="inline sm:hidden">Tour</span>
             </button>
 
             <button
-              onClick={copySummary}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-lg text-xs text-slate-300 font-medium transition-colors cursor-pointer"
+              type="button"
+              onClick={() => setIsFeedbackModalOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-700/80 hover:border-emerald-500/50 rounded-lg text-xs font-semibold text-slate-200 transition-all shadow-sm cursor-pointer"
             >
-              {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Share2 className="w-3.5 h-3.5" />}
-              {copied ? 'Copied Protocol!' : 'Share Protocol'}
+              <MessageSquare className="w-3.5 h-3.5 text-emerald-400" />
+              <span className="hidden sm:inline">Request Peptide</span>
+              <span className="inline sm:hidden">Feedback</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={copyShareUrl}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 rounded-lg text-xs text-slate-300 font-medium transition-colors cursor-pointer"
+              title="Copy shareable link with current dosage parameters"
+            >
+              {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Share2 className="w-3.5 h-3.5 text-slate-400" />}
+              {copied ? 'Link Copied!' : 'Copy Link'}
             </button>
           </div>
         </header>
