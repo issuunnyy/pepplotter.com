@@ -1387,7 +1387,7 @@ const splitList: InjectionEntry[] = [];
               className="inline-flex items-center gap-2 px-4 py-2 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/40 hover:border-amber-400 text-amber-300 rounded-xl text-xs font-semibold transition-all shadow-sm shadow-amber-500/10"
             >
               <span>☕</span>
-              <span>Support Independent Harm-Reduction ($3)</span>
+              <span>Support Independent Harm-Reduction</span>
             </a>
           </div>
 

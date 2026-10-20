@@ -340,7 +340,7 @@ export const ProtocolReportModal: React.FC<ProtocolReportModalProps> = ({
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 px-3 py-1 bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 hover:border-amber-300 text-amber-300 text-xs font-semibold rounded-lg transition-all shrink-0 cursor-pointer"
             >
-              <span>Support the Developer ($3)</span>
+              <span>Support the Developer</span>
               <span>&rarr;</span>
             </a>
           </div>
