@@ -22,6 +22,8 @@ interface SubQVisualGuideProps {
   drawVolumeMl?: number;
   syringeType?: string;
   compoundName?: string;
+  activeStep?: number;
+  onStepChange?: (step: number) => void;
 }
 
 interface StepDetail {
@@ -53,9 +55,19 @@ export function SubQVisualGuide({
   syringeUnits = 10,
   drawVolumeMl = 0.1,
   syringeType = 'U100',
-  compoundName = 'Subcutaneous Peptide'
+  compoundName = 'Subcutaneous Peptide',
+  activeStep: controlledActiveStep,
+  onStepChange,
 }: SubQVisualGuideProps) {
-  const [activeStep, setActiveStep] = useState<number>(1);
+  const [internalActiveStep, setInternalActiveStep] = useState<number>(1);
+  const activeStep = controlledActiveStep !== undefined ? controlledActiveStep : internalActiveStep;
+
+  const setActiveStep = (stepOrFn: number | ((prev: number) => number)) => {
+    const nextStep = typeof stepOrFn === 'function' ? stepOrFn(activeStep) : stepOrFn;
+    setInternalActiveStep(nextStep);
+    onStepChange?.(nextStep);
+  };
+
   const [isCheatSheetMode, setIsCheatSheetMode] = useState<boolean>(false);
 
   // Live Timer Controller (Step 2: 15s Air-Dry; Step 4: 10s Needle Dwell)

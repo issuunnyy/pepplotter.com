@@ -279,11 +279,11 @@ export default function Home() {
     setIsTourActive(true);
   };
 
-  // 引导步骤切换时，把当前高亮目标滚动进视口（替代原硬编码 scrollTo 380）
+  // 引导步骤切换时，把当前高亮目标滚动进视口并同步 Tab 状态
   useEffect(() => {
     if (!isTourActive) return;
     const target = TOUR_STEPS[tourStepIndex];
-    if (tourStepIndex === 4) {
+    if (tourStepIndex >= 4 && tourStepIndex <= 7) {
       handleTabChange('guide');
     } else {
       handleTabChange('calc');
@@ -294,7 +294,7 @@ export default function Home() {
           behavior: 'smooth',
           block: 'center',
         });
-      }, 60);
+      }, 70);
     }
   }, [isTourActive, tourStepIndex]);
 
@@ -499,23 +499,23 @@ const splitList: InjectionEntry[] = [];
           {/* Quick Actions */}
           <div className="flex flex-wrap items-center gap-2">
             <button
-              onClick={() => {
-                handleTabChange('guide');
-                document.getElementById('main-tab-switcher')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-              }}
-              className="hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/40 text-cyan-300 rounded-lg text-xs font-semibold transition-all shadow-sm shadow-cyan-500/10 cursor-pointer"
-            >
-              <ShieldCheck className="w-3.5 h-3.5 text-cyan-400" />
-              <span>Sub-Q Guide</span>
-            </button>
-
-            <button
               onClick={startTour}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 text-emerald-300 rounded-lg text-xs font-semibold transition-all shadow-sm shadow-emerald-500/10 cursor-pointer"
             >
               <Compass className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">How to Use</span>
+              <span className="hidden sm:inline">How to Use (Tour)</span>
               <span className="inline sm:hidden">Tour</span>
+            </button>
+
+            <button
+              onClick={() => {
+                handleTabChange('guide');
+                document.getElementById('main-tab-switcher')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }}
+              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/40 text-cyan-300 rounded-lg text-xs font-semibold transition-all shadow-sm shadow-cyan-500/10 cursor-pointer"
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-cyan-400" />
+              <span>Sub-Q Guide</span>
             </button>
 
             <button
@@ -1024,7 +1024,14 @@ const splitList: InjectionEntry[] = [];
                 />
 
 {/* Plain-English Dosage Recipe Card */}
-      <div className="p-4 bg-slate-900/40 border border-slate-800 rounded-xl text-xs text-slate-300 leading-relaxed flex items-start gap-3">
+      <div 
+        id="step-recipe"
+        className={`p-4 bg-slate-900/40 border rounded-xl text-xs text-slate-300 leading-relaxed flex items-start gap-3 transition-all scroll-mt-24 ${
+          isTourActive && tourStepIndex === 8
+            ? 'border-emerald-400 ring-2 ring-emerald-400/40 bg-emerald-950/20'
+            : 'border-slate-800'
+        }`}
+      >
           <div
             className={`w-6 h-6 rounded-md flex items-center justify-center shrink-0 font-bold ${
    isBlocked || isOverflow
@@ -1086,7 +1093,14 @@ const splitList: InjectionEntry[] = [];
                 </div>
 
                 {/* 1-Click Protocol & Calendar Reminder Banner */}
-                <div className="bg-gradient-to-r from-emerald-950/40 via-slate-900 to-cyan-950/40 border border-emerald-500/40 p-4 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3 shadow-lg shadow-emerald-500/5">
+                <div 
+                  id="step-calendar"
+                  className={`bg-gradient-to-r from-emerald-950/40 via-slate-900 to-cyan-950/40 border p-4 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3 shadow-lg transition-all scroll-mt-24 ${
+                    isTourActive && tourStepIndex === 8
+                      ? 'border-emerald-400 ring-2 ring-emerald-400/50 shadow-emerald-500/30 bg-emerald-950/30'
+                      : 'border-emerald-500/40 shadow-emerald-500/5'
+                  }`}
+                >
                   <div className="flex items-center gap-3 text-left">
                     <div className="w-9 h-9 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 shrink-0">
                       <Calendar className="w-4 h-4" />
@@ -1307,6 +1321,7 @@ const splitList: InjectionEntry[] = [];
             drawVolumeMl={reconResult.drawVolumeMl}
             syringeType={syringeType}
             compoundName={activePreset.name}
+            activeStep={isTourActive && tourStepIndex >= 4 && tourStepIndex <= 7 ? tourStepIndex - 3 : undefined}
           />
         </div>
 
