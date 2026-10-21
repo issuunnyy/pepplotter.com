@@ -13,6 +13,8 @@ import {
   ListOrdered,
   ChevronRight,
   ChevronLeft,
+  ChevronDown,
+  ChevronUp,
   Sparkles,
   Camera
 } from 'lucide-react';
@@ -219,6 +221,26 @@ export function SubQVisualGuide({
   ], [syringeUnits, drawVolumeMl, syringeType]);
 
   const currentStep = STEPS[activeStep - 1] || STEPS[0];
+
+  const handleMobileNextStage = (nextId: number) => {
+    setActiveStep(nextId);
+    setTimeout(() => {
+      const el = document.getElementById(`mobile-stage-${nextId}`);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
+  };
+
+  const handleMobileStageToggle = (stepId: number) => {
+    setActiveStep(stepId);
+    setTimeout(() => {
+      const el = document.getElementById(`mobile-stage-${stepId}`);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
+  };
 
   // Reset timer ONLY when user switches activeStep or unmounts
   useEffect(() => {
@@ -444,246 +466,403 @@ export function SubQVisualGuide({
         </div>
       ) : (
         /* ============================================================ */
-        /* MODE B: 4 LARGE 16:9 CARDS ON LEFT + SYMMETRICAL RIGHT PANEL */
-        /* (Left: 4 High-Def Big Photos; Right: Fixed Symmetrical Height)*/
+        /* MODE B: CLINICAL SUB-Q VISUAL GUIDE                          */
+        /* (Desktop: Dual-Column Master-Detail; Mobile: Accordion)      */
         /* ============================================================ */
-        <div className="bg-slate-900/80 backdrop-blur-md border border-slate-800/90 rounded-2xl p-5 sm:p-7 shadow-2xl relative overflow-hidden">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-7 items-stretch">
-            
-            {/* LEFT COLUMN: 4 Full-Width High-Definition 16:9 Photos Stacked (5 cols, Equal Height to Right) */}
-            <div className="lg:col-span-5 flex flex-col h-full min-h-[580px]">
-              <div className="text-[11px] font-mono font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between px-1 mb-2 shrink-0">
-                <span>Select Macro View</span>
-                <span className="text-emerald-400 font-bold">Stage 0{activeStep} of 04</span>
+        (() => {
+          const renderDetailContent = (step: StepDetail, isMobile: boolean) => (
+            <div className="space-y-4 flex flex-col justify-between h-full">
+              {/* Top: Header */}
+              <div>
+                <div className="flex items-center justify-between gap-2 mb-1">
+                  <span className="text-[11px] font-mono font-bold text-emerald-400 tracking-wider">
+                    {step.badge}
+                  </span>
+                  <span className="text-[10px] text-slate-400 font-mono">
+                    Stage {step.id} of 4
+                  </span>
+                </div>
+
+                <h3 className="text-xl sm:text-2xl font-extrabold text-slate-100 tracking-tight leading-snug">
+                  {step.title}
+                </h3>
+                <p className={`text-xs sm:text-sm text-emerald-300/90 font-medium mt-1 leading-snug ${isMobile ? '' : 'truncate'}`}>
+                  {step.subtitle}
+                </p>
               </div>
 
-              {/* 4 Cards evenly stretch to fill 100% height, bottom perfectly flush with right card */}
-              <div className="flex-1 grid grid-rows-4 gap-3 min-h-0">
-                {STEPS.map((step) => {
-                  const isActive = activeStep === step.id;
-
-                  return (
+              {/* Standardized Action Bar / Timer */}
+              <div className="min-h-12 py-2 sm:py-0 w-full flex items-center rounded-xl bg-slate-900/90 border border-slate-800 px-3">
+                {step.toolbarType === 'dry-timer' || step.toolbarType === 'dwell-timer' ? (
+                  <div className="w-full flex items-center gap-2">
                     <button
-                      key={step.id}
-                      onClick={() => setActiveStep(step.id)}
-                      className={`w-full h-full text-left rounded-2xl overflow-hidden transition-all duration-200 relative group border flex flex-col ${
-                        isActive
-                          ? 'bg-slate-950 border-emerald-400 shadow-xl shadow-emerald-500/20 ring-2 ring-emerald-400/40 opacity-100'
-                          : 'bg-slate-950/60 hover:bg-slate-950/90 border-slate-800 hover:border-slate-700 opacity-65 hover:opacity-100'
+                      type="button"
+                      onClick={handleToggleTimer}
+                      className={`flex-1 h-9 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                        isTimerRunning
+                          ? 'bg-amber-500/20 text-amber-300 border border-amber-500/50 animate-pulse'
+                          : timerCompleted
+                          ? 'bg-emerald-500 text-slate-950 font-extrabold hover:bg-emerald-400 shadow-md shadow-emerald-500/20'
+                          : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-500/30'
                       }`}
                     >
-                      {/* Active Gradient Side Indicator */}
-                      {isActive && (
-                        <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-emerald-400 to-cyan-400 z-10" />
-                      )}
-
-                      {/* Photo Container stretching to fill 100% of cell */}
-                      <div className="relative w-full h-full overflow-hidden bg-slate-950">
-                        <img
-                          src={step.imageSrc}
-                          alt={step.imageAlt}
-                          className={`w-full h-full object-cover transition-transform duration-300 ${
-                            isActive ? 'scale-105' : 'group-hover:scale-105'
-                          }`}
-                          loading="lazy"
-                        />
-                        
-                        {/* Step Glass Badge (Top Left) */}
-                        <div className={`absolute top-2.5 left-2.5 px-2.5 py-1 rounded-lg text-xs font-mono font-extrabold backdrop-blur-md border shadow-md flex items-center gap-1.5 ${
-                          isActive
-                            ? 'bg-slate-950/90 text-emerald-400 border-emerald-500/50'
-                            : 'bg-slate-950/80 text-slate-300 border-slate-700/60'
-                        }`}>
-                          <span>STAGE {step.stepNumber}</span>
-                          {isActive && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />}
-                        </div>
-
-                        {/* Title Overlay Banner (Bottom) */}
-                        <div className="absolute inset-x-0 bottom-0 p-2.5 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent flex items-center justify-between">
-                          <span className={`text-xs sm:text-sm font-bold truncate ${
-                            isActive ? 'text-slate-100' : 'text-slate-300'
-                          }`}>
-                            {step.shortTitle}
-                          </span>
-                          <ChevronRight className={`w-4 h-4 shrink-0 transition-transform ${
-                            isActive ? 'text-emerald-400 translate-x-0.5' : 'text-slate-500 group-hover:text-slate-300'
-                          }`} />
-                        </div>
-                      </div>
+                      <Timer className="w-3.5 h-3.5 shrink-0" />
+                      <span className="truncate">
+                        {isTimerRunning
+                          ? `Timing in Progress... ${timerCount}s remaining`
+                          : timerCompleted
+                          ? step.id === 2
+                            ? '✓ 100% Matte & Evaporated. Ready.'
+                            : '✓ 10s Dwell Complete. Zero Backflow.'
+                          : step.timerLabel}
+                      </span>
                     </button>
+                    {isTimerRunning && (
+                      <button
+                        type="button"
+                        onClick={handleResetTimer}
+                        className="h-9 px-2.5 rounded-lg bg-slate-950 border border-slate-800 text-slate-400 hover:text-slate-200 shrink-0 cursor-pointer"
+                        title="Reset Timer"
+                      >
+                        <RotateCcw className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  <div className="w-full flex flex-wrap items-center justify-between gap-2 text-xs font-mono">
+                    <span className="text-slate-400 flex items-center gap-1.5 min-w-0">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0" />
+                      <strong className="text-slate-200">{step.statusText}</strong>
+                    </span>
+                    <span className="text-emerald-400 font-bold text-[11px] shrink-0">VERIFIED</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Exactly 3 Core SOP Points */}
+              <div className="space-y-2.5">
+                {step.keyPoints.map((point) => (
+                  <div
+                    key={point.num}
+                    className="p-3 rounded-xl bg-slate-900/70 border border-slate-800/80 flex items-start gap-3 text-xs"
+                  >
+                    <span className="w-5 h-5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0 font-mono font-bold text-[10px] mt-0.5">
+                      {point.num}
+                    </span>
+                    <div className="min-w-0">
+                      <strong className="text-slate-200 font-semibold block mb-0.5">
+                        {point.title}
+                      </strong>
+                      <span className="text-slate-400 leading-relaxed block text-[11px]">
+                        {point.description}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Symmetrical DO / DON'T Box */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div className="p-3 rounded-xl bg-emerald-950/20 border border-emerald-500/30">
+                  <div className="flex items-center gap-1.5 text-emerald-300 font-bold mb-1">
+                    <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                    <span>DO (Clinical Best Practice)</span>
+                  </div>
+                  <p className={`text-slate-300 text-[11px] leading-relaxed ${isMobile ? '' : 'line-clamp-2'}`}>
+                    {step.doRule}
+                  </p>
+                </div>
+
+                <div className="p-3 rounded-xl bg-rose-950/20 border border-rose-500/30">
+                  <div className="flex items-center gap-1.5 text-rose-300 font-bold mb-1">
+                    <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                    <span>DON'T (Strict Prohibition)</span>
+                  </div>
+                  <p className={`text-slate-300 text-[11px] leading-relaxed ${isMobile ? '' : 'line-clamp-2'}`}>
+                    {step.dontRule}
+                  </p>
+                </div>
+              </div>
+
+              {/* Symmetrical Anxiety Breaker */}
+              <div className="p-3 rounded-xl bg-slate-900/90 border border-slate-800/90 flex items-start gap-2.5">
+                <HelpCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                <div className="text-xs min-w-0">
+                  <span className="font-semibold text-amber-300 block mb-0.5">
+                    Clinical Insight: "{step.anxietyQ}"
+                  </span>
+                  <p className="text-slate-300 text-[11px] leading-relaxed">
+                    {step.anxietyA}
+                  </p>
+                </div>
+              </div>
+
+              {/* Bottom Navigation & Authority Citation */}
+              {isMobile ? (
+                <div className="pt-3 border-t border-slate-800 space-y-3">
+                  <div className="text-[11px] text-slate-400 flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-slate-500 shrink-0" />
+                    <span>Authority: </span>
+                    <strong className="text-slate-300 font-medium">{step.citation}</strong>
+                  </div>
+
+                  {step.id < 4 ? (
+                    <button
+                      type="button"
+                      onClick={() => handleMobileNextStage(step.id + 1)}
+                      className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-extrabold text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 active:scale-[0.98] transition-all cursor-pointer"
+                    >
+                      <span>Next Stage: Stage 0{step.id + 1}</span>
+                      <ChevronRight className="w-4 h-4 stroke-[2.5]" />
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => handleMobileNextStage(1)}
+                      className="w-full py-3 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 border border-emerald-500/40 text-emerald-300 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer"
+                    >
+                      <span>✓ Protocol Completed · Review Stage 01</span>
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <div className="pt-3 border-t border-slate-800 flex items-center justify-between gap-3 text-xs mt-auto">
+                  <div className="text-[11px] text-slate-400 flex items-center gap-1.5 truncate">
+                    <span className="w-1.5 h-1.5 rounded-full bg-slate-500 shrink-0" />
+                    <span>Authority: </span>
+                    <strong className="text-slate-300 font-medium truncate">{step.citation}</strong>
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      onClick={() => setActiveStep((prev) => (prev > 1 ? prev - 1 : 4))}
+                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 font-medium transition-colors cursor-pointer"
+                    >
+                      <ChevronLeft className="w-3.5 h-3.5" />
+                      <span>Prev</span>
+                    </button>
+
+                    <button
+                      onClick={() => setActiveStep((prev) => (prev < 4 ? prev + 1 : 1))}
+                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-300 font-semibold transition-colors cursor-pointer"
+                    >
+                      <span>Next</span>
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+
+          return (
+            <div>
+              {/* ============================================================ */}
+              {/* DESKTOP VIEW (≥1024px): 4 CARDS LEFT + DETAIL PANEL RIGHT    */}
+              {/* Strictly unchanged visually & functionally                   */}
+              {/* ============================================================ */}
+              <div className="hidden lg:block bg-slate-900/80 backdrop-blur-md border border-slate-800/90 rounded-2xl p-5 sm:p-7 shadow-2xl relative overflow-hidden">
+                <div className="grid grid-cols-12 gap-7 items-stretch">
+                  
+                  {/* LEFT COLUMN: 4 Full-Width High-Definition 16:9 Photos Stacked (5 cols, Equal Height to Right) */}
+                  <div className="col-span-5 flex flex-col h-full min-h-[580px]">
+                    <div className="text-[11px] font-mono font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between px-1 mb-2 shrink-0">
+                      <span>Select Macro View</span>
+                      <span className="text-emerald-400 font-bold">Stage 0{activeStep} of 04</span>
+                    </div>
+
+                    {/* 4 Cards evenly stretch to fill 100% height, bottom perfectly flush with right card */}
+                    <div className="flex-1 grid grid-rows-4 gap-3 min-h-0">
+                      {STEPS.map((step) => {
+                        const isActive = activeStep === step.id;
+
+                        return (
+                          <button
+                            key={step.id}
+                            onClick={() => setActiveStep(step.id)}
+                            className={`w-full h-full text-left rounded-2xl overflow-hidden transition-all duration-200 relative group border flex flex-col ${
+                              isActive
+                                ? 'bg-slate-950 border-emerald-400 shadow-xl shadow-emerald-500/20 ring-2 ring-emerald-400/40 opacity-100'
+                                : 'bg-slate-950/60 hover:bg-slate-950/90 border-slate-800 hover:border-slate-700 opacity-65 hover:opacity-100'
+                            }`}
+                          >
+                            {/* Active Gradient Side Indicator */}
+                            {isActive && (
+                              <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-emerald-400 to-cyan-400 z-10" />
+                            )}
+
+                            {/* Photo Container stretching to fill 100% of cell */}
+                            <div className="relative w-full h-full overflow-hidden bg-slate-950">
+                              <img
+                                src={step.imageSrc}
+                                alt={step.imageAlt}
+                                className={`w-full h-full object-cover transition-transform duration-300 ${
+                                  isActive ? 'scale-105' : 'group-hover:scale-105'
+                                }`}
+                                loading="lazy"
+                              />
+                              
+                              {/* Step Glass Badge (Top Left) */}
+                              <div className={`absolute top-2.5 left-2.5 px-2.5 py-1 rounded-lg text-xs font-mono font-extrabold backdrop-blur-md border shadow-md flex items-center gap-1.5 ${
+                                isActive
+                                  ? 'bg-slate-950/90 text-emerald-400 border-emerald-500/50'
+                                  : 'bg-slate-950/80 text-slate-300 border-slate-700/60'
+                              }`}>
+                                <span>STAGE {step.stepNumber}</span>
+                                {isActive && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />}
+                              </div>
+
+                              {/* Title Overlay Banner (Bottom) */}
+                              <div className="absolute inset-x-0 bottom-0 p-2.5 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent flex items-center justify-between">
+                                <span className={`text-xs sm:text-sm font-bold truncate ${
+                                  isActive ? 'text-slate-100' : 'text-slate-300'
+                                }`}>
+                                  {step.shortTitle}
+                                </span>
+                                <ChevronRight className={`w-4 h-4 shrink-0 transition-transform ${
+                                  isActive ? 'text-emerald-400 translate-x-0.5' : 'text-slate-500 group-hover:text-slate-300'
+                                }`} />
+                              </div>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* RIGHT COLUMN: Symmetrical, High-Precision Clinical Guidance (7 cols) */}
+                  <div className="col-span-7 flex flex-col justify-between h-full min-h-[680px] bg-slate-950/70 border border-slate-800/90 rounded-2xl p-5 sm:p-7 shadow-inner">
+                    <AnimatePresence mode="wait">
+                      <motion.div
+                        key={currentStep.id}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.15 }}
+                        className="space-y-4 flex flex-col justify-between h-full"
+                      >
+                        {renderDetailContent(currentStep, false)}
+                      </motion.div>
+                    </AnimatePresence>
+                  </div>
+
+                </div>
+              </div>
+
+              {/* ============================================================ */}
+              {/* MOBILE VIEW (<1024px): STREAMLINED CLINICAL ACCORDION        */}
+              {/* Direct thumbnail + expandable content in unified stage cards */}
+              {/* ============================================================ */}
+              <div className="block lg:hidden space-y-4">
+                {STEPS.map((step) => {
+                  const isExpanded = activeStep === step.id;
+
+                  return (
+                    <div
+                      key={step.id}
+                      id={`mobile-stage-${step.id}`}
+                      className={`rounded-2xl border transition-all duration-300 overflow-hidden scroll-mt-24 ${
+                        isExpanded
+                          ? 'bg-slate-900/95 border-emerald-500/60 shadow-xl shadow-emerald-500/10 ring-1 ring-emerald-400/30'
+                          : 'bg-slate-900/70 border-slate-800/80 hover:border-slate-700/80'
+                      }`}
+                    >
+                      {/* Stage Header / Accordion Toggle Button */}
+                      <button
+                        type="button"
+                        onClick={() => handleMobileStageToggle(step.id)}
+                        className="w-full text-left cursor-pointer focus:outline-none group block relative"
+                        aria-expanded={isExpanded}
+                      >
+                        {/* High-Definition 16:9 Image */}
+                        <div className="relative aspect-[16/9] w-full overflow-hidden bg-slate-950">
+                          <img
+                            src={step.imageSrc}
+                            alt={step.imageAlt}
+                            className={`w-full h-full object-cover transition-transform duration-300 ${
+                              isExpanded ? 'scale-105' : 'group-hover:scale-105'
+                            }`}
+                            loading="lazy"
+                          />
+
+                          {/* Gradient Overlay */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
+
+                          {/* Stage Badge (Top Left) */}
+                          <div
+                            className={`absolute top-3 left-3 px-2.5 py-1 rounded-lg text-xs font-mono font-extrabold backdrop-blur-md border shadow-md flex items-center gap-1.5 ${
+                              isExpanded
+                                ? 'bg-slate-950/90 text-emerald-400 border-emerald-500/50'
+                                : 'bg-slate-950/80 text-slate-300 border-slate-700/60'
+                            }`}
+                          >
+                            <span>STAGE {step.stepNumber}</span>
+                            {isExpanded && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />}
+                          </div>
+
+                          {/* Tap Status Indicator (Top Right) */}
+                          <div
+                            className={`absolute top-3 right-3 px-2.5 py-1 rounded-lg text-xs font-semibold backdrop-blur-md border flex items-center gap-1.5 transition-colors ${
+                              isExpanded
+                                ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50'
+                                : 'bg-slate-950/70 text-slate-300 border-slate-700/60'
+                            }`}
+                          >
+                            <span>{isExpanded ? 'Active Guide' : 'Tap to View'}</span>
+                            {isExpanded ? (
+                              <ChevronUp className="w-3.5 h-3.5 text-emerald-400" />
+                            ) : (
+                              <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+                            )}
+                          </div>
+
+                          {/* Bottom Title Bar */}
+                          <div className="absolute inset-x-0 bottom-0 p-3.5 flex items-center justify-between">
+                            <div className="min-w-0 pr-2">
+                              <span className="text-[10px] font-mono text-emerald-400 font-bold block uppercase tracking-wider">
+                                {step.badge}
+                              </span>
+                              <h4 className="text-sm sm:text-base font-bold text-slate-100 truncate mt-0.5">
+                                {step.shortTitle}
+                              </h4>
+                            </div>
+                            <div
+                              className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 border transition-transform ${
+                                isExpanded
+                                  ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-400 rotate-180'
+                                  : 'bg-slate-900/80 border-slate-700 text-slate-400'
+                              }`}
+                            >
+                              <ChevronDown className="w-4 h-4" />
+                            </div>
+                          </div>
+                        </div>
+                      </button>
+
+                      {/* Accordion Body: Full Detail View */}
+                      <AnimatePresence initial={false}>
+                        {isExpanded && (
+                          <motion.div
+                            key={`mobile-content-${step.id}`}
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.25, ease: 'easeInOut' }}
+                            className="overflow-hidden"
+                          >
+                            <div className="p-4 sm:p-5 border-t border-slate-800 bg-slate-950/80 space-y-4">
+                              {renderDetailContent(step, true)}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
                   );
                 })}
               </div>
             </div>
-
-            {/* RIGHT COLUMN: Symmetrical, High-Precision Clinical Guidance (7 cols) */}
-            <div className="lg:col-span-7 flex flex-col justify-between h-full min-h-[680px] bg-slate-950/70 border border-slate-800/90 rounded-2xl p-5 sm:p-7 shadow-inner">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={currentStep.id}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.15 }}
-                  className="space-y-4 flex flex-col justify-between h-full"
-                >
-                  {/* Top: Header */}
-                  <div>
-                    <div className="flex items-center justify-between gap-2 mb-1">
-                      <span className="text-[11px] font-mono font-bold text-emerald-400 tracking-wider">
-                        {currentStep.badge}
-                      </span>
-                      <span className="text-[10px] text-slate-400 font-mono">
-                        Stage {currentStep.id} of 4
-                      </span>
-                    </div>
-
-                    <h3 className="text-xl sm:text-2xl font-extrabold text-slate-100 tracking-tight leading-snug">
-                      {currentStep.title}
-                    </h3>
-                    <p className="text-xs sm:text-sm text-emerald-300/90 font-medium mt-1 leading-snug truncate">
-                      {currentStep.subtitle}
-                    </p>
-                  </div>
-
-                  {/* Standardized 48px Height Action Bar (Zero layout shifts) */}
-                  <div className="h-12 w-full flex items-center rounded-xl bg-slate-900/90 border border-slate-800 px-3">
-                    {currentStep.toolbarType === 'dry-timer' || currentStep.toolbarType === 'dwell-timer' ? (
-                      <div className="w-full flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={handleToggleTimer}
-                          className={`flex-1 h-9 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
-                            isTimerRunning
-                              ? 'bg-amber-500/20 text-amber-300 border border-amber-500/50 animate-pulse'
-                              : timerCompleted
-                              ? 'bg-emerald-500 text-slate-950 font-extrabold hover:bg-emerald-400 shadow-md shadow-emerald-500/20'
-                              : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-500/30'
-                          }`}
-                        >
-                          <Timer className="w-3.5 h-3.5 shrink-0" />
-                          <span className="truncate">
-                            {isTimerRunning
-                              ? `Timing in Progress... ${timerCount}s remaining`
-                              : timerCompleted
-                              ? currentStep.id === 2
-                                ? '✓ 100% Matte & Evaporated. Ready.'
-                                : '✓ 10s Dwell Complete. Zero Backflow.'
-                              : currentStep.timerLabel}
-                          </span>
-                        </button>
-                        {isTimerRunning && (
-                          <button
-                            type="button"
-                            onClick={handleResetTimer}
-                            className="h-9 px-2.5 rounded-lg bg-slate-950 border border-slate-800 text-slate-400 hover:text-slate-200 shrink-0 cursor-pointer"
-                            title="Reset Timer"
-                          >
-                            <RotateCcw className="w-3.5 h-3.5" />
-                          </button>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="w-full flex flex-wrap items-center justify-between gap-2 text-xs font-mono">
-                        <span className="text-slate-400 flex items-center gap-1.5 min-w-0">
-                          <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0" />
-                          <strong className="text-slate-200">{currentStep.statusText}</strong>
-                        </span>
-                        <span className="text-emerald-400 font-bold text-[11px] shrink-0">VERIFIED</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Exactly 3 Core SOP Points (Symmetrical paragraph length) */}
-                  <div className="space-y-2.5">
-                    {currentStep.keyPoints.map((point) => (
-                      <div
-                        key={point.num}
-                        className="p-3 rounded-xl bg-slate-900/70 border border-slate-800/80 flex items-start gap-3 text-xs"
-                      >
-                        <span className="w-5 h-5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0 font-mono font-bold text-[10px] mt-0.5">
-                          {point.num}
-                        </span>
-                        <div className="min-w-0">
-                          <strong className="text-slate-200 font-semibold block mb-0.5">
-                            {point.title}
-                          </strong>
-                          <span className="text-slate-400 leading-relaxed block text-[11px]">
-                            {point.description}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Symmetrical DO / DON'T Box */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                    <div className="p-3 rounded-xl bg-emerald-950/20 border border-emerald-500/30">
-                      <div className="flex items-center gap-1.5 text-emerald-300 font-bold mb-1">
-                        <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
-                        <span>DO (Clinical Best Practice)</span>
-                      </div>
-                      <p className="text-slate-300 text-[11px] leading-relaxed line-clamp-2">
-                        {currentStep.doRule}
-                      </p>
-                    </div>
-
-                    <div className="p-3 rounded-xl bg-rose-950/20 border border-rose-500/30">
-                      <div className="flex items-center gap-1.5 text-rose-300 font-bold mb-1">
-                        <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
-                        <span>DON'T (Strict Prohibition)</span>
-                      </div>
-                      <p className="text-slate-300 text-[11px] leading-relaxed line-clamp-2">
-                        {currentStep.dontRule}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Symmetrical Anxiety Breaker */}
-                  <div className="p-3 rounded-xl bg-slate-900/90 border border-slate-800/90 flex items-start gap-2.5">
-                    <HelpCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                    <div className="text-xs min-w-0">
-                      <span className="font-semibold text-amber-300 block mb-0.5 truncate">
-                        Clinical Insight: "{currentStep.anxietyQ}"
-                      </span>
-                      <p className="text-slate-300 text-[11px] leading-relaxed">
-                        {currentStep.anxietyA}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Bottom Navigation & Authority Citation */}
-                  <div className="pt-3 border-t border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs mt-auto">
-                    <div className="text-[11px] text-slate-400 flex items-center gap-1.5 truncate">
-                      <span className="w-1.5 h-1.5 rounded-full bg-slate-500 shrink-0" />
-                      <span>Authority: </span>
-                      <strong className="text-slate-300 font-medium truncate">{currentStep.citation}</strong>
-                    </div>
-
-                    <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
-                      <button
-                        onClick={() => setActiveStep((prev) => (prev > 1 ? prev - 1 : 4))}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 font-medium transition-colors"
-                      >
-                        <ChevronLeft className="w-3.5 h-3.5" />
-                        <span>Prev</span>
-                      </button>
-
-                      <button
-                        onClick={() => setActiveStep((prev) => (prev < 4 ? prev + 1 : 1))}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-300 font-semibold transition-colors"
-                      >
-                        <span>Next</span>
-                        <ChevronRight className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </div>
-                </motion.div>
-              </AnimatePresence>
-            </div>
-
-          </div>
-        </div>
+          );
+        })()
       )}
 
       {/* Safety Disclaimer Permanent Footer */}
