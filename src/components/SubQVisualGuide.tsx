@@ -64,6 +64,16 @@ export function SubQVisualGuide({
   const [internalActiveStep, setInternalActiveStep] = useState<number>(1);
   const activeStep = controlledActiveStep !== undefined ? controlledActiveStep : internalActiveStep;
 
+  // Mobile accordion expanded step: null = all collapsed; 1..4 = that step expanded
+  const [mobileExpandedStep, setMobileExpandedStep] = useState<number | null>(null);
+
+  // Sync mobile expanded step when controlledActiveStep (e.g. Guided Tour) changes
+  useEffect(() => {
+    if (controlledActiveStep !== undefined) {
+      setMobileExpandedStep(controlledActiveStep);
+    }
+  }, [controlledActiveStep]);
+
   const setActiveStep = (stepOrFn: number | ((prev: number) => number)) => {
     const nextStep = typeof stepOrFn === 'function' ? stepOrFn(activeStep) : stepOrFn;
     setInternalActiveStep(nextStep);
@@ -223,6 +233,7 @@ export function SubQVisualGuide({
   const currentStep = STEPS[activeStep - 1] || STEPS[0];
 
   const handleMobileNextStage = (nextId: number) => {
+    setMobileExpandedStep(nextId);
     setActiveStep(nextId);
     setTimeout(() => {
       const el = document.getElementById(`mobile-stage-${nextId}`);
@@ -233,13 +244,23 @@ export function SubQVisualGuide({
   };
 
   const handleMobileStageToggle = (stepId: number) => {
-    setActiveStep(stepId);
-    setTimeout(() => {
-      const el = document.getElementById(`mobile-stage-${stepId}`);
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setMobileExpandedStep((prev) => {
+      const isCurrentlyExpanded = prev === stepId;
+      if (isCurrentlyExpanded) {
+        // True collapse to null
+        return null;
+      } else {
+        // Expand target stage and sync desktop step
+        setActiveStep(stepId);
+        setTimeout(() => {
+          const el = document.getElementById(`mobile-stage-${stepId}`);
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }, 100);
+        return stepId;
       }
-    }, 100);
+    });
   };
 
   // Reset timer ONLY when user switches activeStep or unmounts
@@ -607,22 +628,46 @@ export function SubQVisualGuide({
                   </div>
 
                   {step.id < 4 ? (
-                    <button
-                      type="button"
-                      onClick={() => handleMobileNextStage(step.id + 1)}
-                      className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-extrabold text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 active:scale-[0.98] transition-all cursor-pointer"
-                    >
-                      <span>Next Stage: Stage 0{step.id + 1}</span>
-                      <ChevronRight className="w-4 h-4 stroke-[2.5]" />
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleMobileStageToggle(step.id)}
+                        className="py-3.5 px-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all cursor-pointer shrink-0"
+                        title="Collapse this stage"
+                      >
+                        <ChevronUp className="w-4 h-4 text-emerald-400" />
+                        <span>Collapse</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleMobileNextStage(step.id + 1)}
+                        className="flex-1 py-3.5 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-extrabold text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 active:scale-[0.98] transition-all cursor-pointer"
+                      >
+                        <span>Next Stage: Stage 0{step.id + 1}</span>
+                        <ChevronRight className="w-4 h-4 stroke-[2.5]" />
+                      </button>
+                    </div>
                   ) : (
-                    <button
-                      type="button"
-                      onClick={() => handleMobileNextStage(1)}
-                      className="w-full py-3 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 border border-emerald-500/40 text-emerald-300 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer"
-                    >
-                      <span>✓ Protocol Completed · Review Stage 01</span>
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleMobileStageToggle(step.id)}
+                        className="py-3 px-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all cursor-pointer shrink-0"
+                        title="Collapse this stage"
+                      >
+                        <ChevronUp className="w-4 h-4 text-emerald-400" />
+                        <span>Collapse</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleMobileNextStage(1)}
+                        className="flex-1 py-3 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 border border-emerald-500/40 text-emerald-300 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer"
+                      >
+                        <span>✓ Done · Review Stage 01</span>
+                      </button>
+                    </div>
                   )}
                 </div>
               ) : (
@@ -755,7 +800,7 @@ export function SubQVisualGuide({
               {/* ============================================================ */}
               <div className="block lg:hidden space-y-4">
                 {STEPS.map((step) => {
-                  const isExpanded = activeStep === step.id;
+                  const isExpanded = mobileExpandedStep === step.id;
 
                   return (
                     <div
@@ -808,7 +853,7 @@ export function SubQVisualGuide({
                                 : 'bg-slate-950/70 text-slate-300 border-slate-700/60'
                             }`}
                           >
-                            <span>{isExpanded ? 'Active Guide' : 'Tap to View'}</span>
+                            <span>{isExpanded ? 'Collapse' : 'Tap to View'}</span>
                             {isExpanded ? (
                               <ChevronUp className="w-3.5 h-3.5 text-emerald-400" />
                             ) : (
