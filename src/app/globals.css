@@ -19,72 +19,61 @@ body {
 }
 
 /* ============================================================ */
-/* PRINT OPTIMIZATION (Prevent duplicate pages & clean PDF/Fridge) */
+/* PRINT OPTIMIZATION: PRISTINE 1-PAGE FRIDGE PROTOCOL SHEET   */
 /* ============================================================ */
 @media print {
   @page {
     size: A4 portrait;
-    margin: 1.2cm;
+    margin: 8mm;
   }
 
+  html,
   body {
     background: #ffffff !important;
     color: #0f172a !important;
     overflow: visible !important;
-  }
-
-  /* When printing from modal, hide the entire underlying website page */
-  body:has(#protocol-modal-root) > div:first-child > main,
-  body:has(#protocol-modal-root) > div:first-child > header,
-  body:has(#protocol-modal-root) > div:first-child > footer {
-    display: none !important;
-  }
-
-  /* Hide modal backdrop effects and interactive action buttons during print */
-  .print-hide,
-  [data-print-hide="true"] {
-    display: none !important;
-  }
-
-  /* Optimize modal card for 1-page pristine paper print */
-  #protocol-modal-root {
-    position: static !important;
-    background: transparent !important;
-    backdrop-filter: none !important;
+    height: auto !important;
+    margin: 0 !important;
     padding: 0 !important;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  }
+
+  /* 1. Hide everything on the webpage during print */
+  header,
+  footer,
+  nav,
+  main,
+  #tab-panel-calc,
+  #tab-panel-plotter,
+  #tab-panel-guide,
+  #subq-guide,
+  #protocol-modal-root,
+  .print-hide,
+  .print\:hidden {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  /* 2. Show ONLY the dedicated Printable Fridge Sheet */
+  #printable-fridge-sheet {
     display: block !important;
+    visibility: visible !important;
+    position: static !important;
     width: 100% !important;
     max-width: 100% !important;
-    inset: auto !important;
-  }
-
-  #protocol-modal-card {
-    position: static !important;
-    max-height: none !important;
-    height: auto !important;
-    overflow: visible !important;
-    border: 2px solid #0f172a !important;
-    box-shadow: none !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
     background: #ffffff !important;
     color: #0f172a !important;
     break-inside: avoid !important;
     page-break-inside: avoid !important;
   }
 
-  #protocol-modal-card * {
-    color: #0f172a !important;
-    border-color: #cbd5e1 !important;
-    background-color: transparent !important;
+  /* Ensure ink-friendly crisp text and borders */
+  #printable-fridge-sheet * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
     box-shadow: none !important;
     text-shadow: none !important;
-  }
-
-  #protocol-modal-card .print-text-emerald {
-    color: #059669 !important;
-  }
-
-  #protocol-modal-card .print-text-dark {
-    color: #0f172a !important;
-    font-weight: 700 !important;
   }
 }

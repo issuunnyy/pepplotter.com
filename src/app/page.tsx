@@ -473,8 +473,8 @@ const splitList: InjectionEntry[] = [];
         />
       )}
 
-      {/* Main Container */}
-      <main className="w-full max-w-5xl px-4 sm:px-6 py-8 md:py-12">
+      {/* Main Container (Strictly hidden during printing to isolate Fridge Sheet) */}
+      <main className="w-full max-w-5xl px-4 sm:px-6 py-8 md:py-12 print:hidden">
         {/* Top Brand Header */}
         <header className="flex flex-wrap items-center justify-between gap-4 pb-8 mb-8 border-b border-slate-800/80">
           <div className="flex items-center gap-3">
@@ -1539,27 +1539,27 @@ const splitList: InjectionEntry[] = [];
             © 2026 PepPlotter • Public Health &amp; Precision Pharmacokinetic Systems. All rights reserved.
           </div>
         </footer>
-
-        {/* Protocol Report & Calendar Sync Modal */}
-        <ProtocolReportModal
-          isOpen={isReportModalOpen}
-          onClose={() => setIsReportModalOpen(false)}
-          compoundName={activePreset.name}
-          brandNames={activePreset.brandNames}
-          vialMg={safeVialMg}
-          waterMl={safeWaterMl}
-          targetDoseMcg={safeTargetDoseMcg}
-          syringeType={syringeType}
-          result={reconResult}
-          frequencyDays={activePreset.standardFrequencyDays}
-        />
-
-        {/* In-Page Community Feedback & Feature Request Modal */}
-        <FeedbackModal
-          isOpen={isFeedbackModalOpen}
-          onClose={() => setIsFeedbackModalOpen(false)}
-        />
       </main>
+
+      {/* Protocol Report & Calendar Sync Modal (Mounted outside main for clean print isolation) */}
+      <ProtocolReportModal
+        isOpen={isReportModalOpen}
+        onClose={() => setIsReportModalOpen(false)}
+        compoundName={activePreset.name}
+        brandNames={activePreset.brandNames}
+        vialMg={safeVialMg}
+        waterMl={safeWaterMl}
+        targetDoseMcg={safeTargetDoseMcg}
+        syringeType={syringeType}
+        result={reconResult}
+        frequencyDays={activePreset.standardFrequencyDays}
+      />
+
+      {/* In-Page Community Feedback & Feature Request Modal */}
+      <FeedbackModal
+        isOpen={isFeedbackModalOpen}
+        onClose={() => setIsFeedbackModalOpen(false)}
+      />
     </div>
   );
 }
