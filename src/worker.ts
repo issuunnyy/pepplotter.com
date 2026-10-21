@@ -9,6 +9,16 @@ export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
 
+    // 1. Technical SEO & Canonical Domain Consolidation (HTTP 301 Permanent Redirect)
+    // Divert any *.workers.dev or *.pages.dev test subdomains to canonical https://pepplotter.com
+    if (url.hostname.endsWith('.workers.dev') || url.hostname.endsWith('.pages.dev')) {
+      const canonicalUrl = new URL(request.url);
+      canonicalUrl.hostname = 'pepplotter.com';
+      canonicalUrl.protocol = 'https:';
+      canonicalUrl.port = '';
+      return Response.redirect(canonicalUrl.toString(), 301);
+    }
+
     // Only intercept /api/feedback POST requests
     if (url.pathname === '/api/feedback' && request.method === 'POST') {
       try {
