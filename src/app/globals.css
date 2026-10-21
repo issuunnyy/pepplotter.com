@@ -24,7 +24,7 @@ body {
 @media print {
   @page {
     size: A4 portrait;
-    margin: 8mm;
+    margin: 6mm 8mm;
   }
 
   html,
@@ -48,6 +48,7 @@ body {
   #tab-panel-guide,
   #subq-guide,
   #protocol-modal-root,
+  #feedback-modal-root,
   .print-hide,
   .print\:hidden {
     display: none !important;
@@ -67,6 +68,8 @@ body {
     color: #0f172a !important;
     break-inside: avoid !important;
     page-break-inside: avoid !important;
+    page-break-after: avoid !important;
+    page-break-before: avoid !important;
   }
 
   /* Ensure ink-friendly crisp text and borders */

@@ -10,6 +10,7 @@ import { Tooltip } from '@/components/Tooltip';
 import { GuidedTour, TOUR_STEPS } from '@/components/GuidedTour';
 import { ProtocolReportModal } from '@/components/ProtocolReportModal';
 import { FeedbackModal } from '@/components/FeedbackModal';
+import { PrintableProtocolSheet } from '@/components/PrintableProtocolSheet';
 import { HarmReductionManifesto } from '@/components/HarmReductionManifesto';
 import { ComparisonTable } from '@/components/ComparisonTable';
 import { SeoGuide } from '@/components/SeoGuide';
@@ -38,7 +39,8 @@ import {
   Calendar,
   FileText,
   HeartPulse,
-  MessageSquare
+  MessageSquare,
+  Printer
 } from 'lucide-react';
 
 export default function Home() {
@@ -458,7 +460,7 @@ const splitList: InjectionEntry[] = [];
       />
 
       {/* Glow Ambient Lights — Wrapped in overflow-hidden container to prevent mobile viewport scroll */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10 max-w-[100vw]">
+      <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10 max-w-[100vw] print:hidden">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-[900px] h-[380px] bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.14),transparent_70%)]" />
         <div className="absolute top-40 right-0 w-full max-w-[600px] h-[340px] bg-[radial-gradient(ellipse_at_center,rgba(6,182,212,0.12),transparent_70%)]" />
       </div>
@@ -1151,13 +1153,24 @@ const splitList: InjectionEntry[] = [];
                     </div>
                   </div>
 
-                  <button
-                    onClick={() => setIsReportModalOpen(true)}
-                    className="w-full sm:w-auto px-4 py-2 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-slate-950 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 shadow-md shadow-emerald-500/20 transition-all shrink-0 cursor-pointer"
-                  >
-                    <FileText className="w-3.5 h-3.5" />
-                    <span>View Protocol & Reminders</span>
-                  </button>
+                  <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                    <button
+                      onClick={() => window.print()}
+                      title="Print 1-page A4 Protocol & PK Sheet"
+                      className="flex-1 sm:flex-initial px-3.5 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition-all shrink-0 cursor-pointer group"
+                    >
+                      <Printer className="w-3.5 h-3.5 text-emerald-400 group-hover:scale-110 transition-transform" />
+                      <span>Print A4 Sheet</span>
+                    </button>
+
+                    <button
+                      onClick={() => setIsReportModalOpen(true)}
+                      className="flex-1 sm:flex-initial px-4 py-2 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-slate-950 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 shadow-md shadow-emerald-500/20 transition-all shrink-0 cursor-pointer"
+                    >
+                      <FileText className="w-3.5 h-3.5" />
+                      <span>View Protocol &amp; Reminders</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1350,6 +1363,15 @@ const splitList: InjectionEntry[] = [];
               >
                 <Split className="w-4 h-4" />
                 <span>{isSplitDoseMode ? 'Split-Dosing Active (2x / Week)' : 'Simulate 2x / Week Split Dosing'}</span>
+              </button>
+
+              <button
+                onClick={() => window.print()}
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all shadow-sm cursor-pointer group"
+                title="Print 1-page A4 sheet combining Tab 1 Reconstitution and Tab 2 PK curve"
+              >
+                <Printer className="w-3.5 h-3.5 text-cyan-400 group-hover:scale-110 transition-transform" />
+                <span>Print A4 PK Sheet</span>
               </button>
             </div>
           </div>
@@ -1559,6 +1581,25 @@ const splitList: InjectionEntry[] = [];
       <FeedbackModal
         isOpen={isFeedbackModalOpen}
         onClose={() => setIsFeedbackModalOpen(false)}
+      />
+
+      {/* Dedicated Printable Protocol & PK Sheet (A4 Single-Page Fridge Sheet) */}
+      <PrintableProtocolSheet
+        compoundName={activePreset.name}
+        brandNames={activePreset.brandNames}
+        vialMg={safeVialMg}
+        waterMl={safeWaterMl}
+        targetDoseMcg={safeTargetDoseMcg}
+        syringeType={syringeType}
+        reconResult={reconResult}
+        halfLifeHours={halfLifeHours}
+        peakConcentration={pkResult.peakConcentration}
+        troughConcentration={pkResult.troughConcentration}
+        averageConcentration={pkResult.averageConcentration}
+        simulationDays={simulationDays}
+        dataPoints={pkResult.dataPoints}
+        injections={injections}
+        frequencyDays={activePreset.standardFrequencyDays}
       />
     </div>
   );

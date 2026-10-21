@@ -128,11 +128,7 @@ export const ProtocolReportModal: React.FC<ProtocolReportModalProps> = ({
   };
 
   return (
-    <>
-      {/* ============================================================ */}
-      {/* 1. SCREEN MODAL DIALOG (Interactive Screen View, print:hidden) */}
-      {/* ============================================================ */}
-      <div id="protocol-modal-root" className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200 print:hidden">
+    <div id="protocol-modal-root" className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200 print:hidden">
         <div
           id="protocol-modal-card"
           ref={dialogRef}
@@ -362,10 +358,11 @@ export const ProtocolReportModal: React.FC<ProtocolReportModalProps> = ({
             <div className="flex items-center gap-2">
               <button
                 onClick={handlePrint}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs font-semibold text-slate-300 transition-colors cursor-pointer"
+                title="Print 1-page A4 sheet combining Tab 1 Reconstitution and Tab 2 PK curve"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs font-semibold text-slate-300 transition-colors cursor-pointer group"
               >
-                <Printer className="w-3.5 h-3.5" />
-                <span>Print Fridge Sheet</span>
+                <Printer className="w-3.5 h-3.5 text-emerald-400 group-hover:scale-110 transition-transform" />
+                <span>Print A4 Protocol &amp; PK Sheet</span>
               </button>
 
               <button
@@ -378,224 +375,5 @@ export const ProtocolReportModal: React.FC<ProtocolReportModalProps> = ({
           </div>
       </div>
     </div>
-
-      {/* ============================================================ */}
-      {/* 2. DEDICATED PRINTABLE FRIDGE SHEET (Ink-Friendly A4 Memo)  */}
-      {/* Hidden on screen; visible ONLY when printing (window.print)  */}
-      {/* ============================================================ */}
-      <div
-        id="printable-fridge-sheet"
-        className="hidden print:block text-slate-900 bg-white p-6 max-w-[210mm] mx-auto text-xs leading-normal"
-        style={{ fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}
-      >
-        {/* Document Header */}
-        <div className="border-b-2 border-slate-900 pb-3 mb-4 flex items-start justify-between">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-base font-black tracking-tight text-slate-950 uppercase">
-                PepPlotter Refrigerator Protocol Cheat Sheet
-              </span>
-              <span className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-slate-900 text-white rounded">
-                Fridge Magnet Memo
-              </span>
-            </div>
-            <p className="text-[11px] text-slate-600 mt-0.5">
-              Keep attached to refrigerator exterior | Standard Clinical Dosing &amp; Administration Log
-            </p>
-          </div>
-          <div className="text-right">
-            <span className="text-[11px] font-mono font-bold text-slate-800 block">
-              {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
-            </span>
-            <span className="text-[10px] text-slate-500 uppercase tracking-wider block">
-              Printed Reference
-            </span>
-          </div>
-        </div>
-
-        {/* Compound & Mixing Specifications */}
-        <div className="bg-slate-50 border border-slate-300 rounded-lg p-3 mb-4">
-          <div className="flex items-center justify-between border-b border-slate-200 pb-2 mb-2">
-            <div>
-              <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Compound Name</span>
-              <div className="text-base font-black text-slate-900 leading-tight">
-                {compoundName}
-                {brandNames ? (
-                  <span className="text-xs font-normal text-slate-600 ml-2">({brandNames})</span>
-                ) : null}
-              </div>
-            </div>
-            <div className="text-right">
-              <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Vial Concentration</span>
-              <div className="text-sm font-bold font-mono text-slate-900">
-                {waterMl > 0 ? (vialMg / waterMl).toFixed(2) : 0} mg/mL
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px]">
-            <div>
-              <span className="text-slate-500 block">Vial Mass:</span>
-              <strong className="text-slate-900 font-mono">{vialMg} mg powder</strong>
-            </div>
-            <div>
-              <span className="text-slate-500 block">Recon Water (BAC):</span>
-              <strong className="text-slate-900 font-mono">{waterMl} mL added</strong>
-            </div>
-            <div>
-              <span className="text-slate-500 block">Recon Date:</span>
-              <span className="font-mono text-slate-800">____ / ____ / 202___</span>
-            </div>
-            <div>
-              <span className="text-slate-500 block">28-Day Discard:</span>
-              <span className="font-mono text-slate-800">____ / ____ / 202___</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Core Administration Action Boxes (High Contrast) */}
-        <div className="grid grid-cols-3 gap-3 mb-4">
-          <div className="border-2 border-slate-900 rounded-lg p-2.5 bg-slate-50/50">
-            <span className="text-[10px] uppercase font-bold text-slate-600 block">
-              1. Single Target Dose
-            </span>
-            <span className="text-base font-black font-mono text-slate-950 mt-0.5 block">
-              {doseDisplay}
-            </span>
-            <span className="text-[10px] text-slate-500">Prescribed administration</span>
-          </div>
-
-          <div className="border-2 border-emerald-700 bg-emerald-50/40 rounded-lg p-2.5">
-            <span className="text-[10px] uppercase font-bold text-emerald-800 block">
-              2. Syringe Draw Target
-            </span>
-            {blocked ? (
-              <span className="text-base font-black text-rose-700 font-mono mt-0.5 block">BLOCKED</span>
-            ) : (
-              <>
-                <span className="text-lg font-black font-mono text-emerald-950 mt-0.5 block leading-tight">
-                  ★ {result.syringeUnits} UNITS
-                </span>
-                <span className="text-[10px] text-emerald-800 font-medium">
-                  {result.drawVolumeMl} mL on {syringeType}
-                </span>
-              </>
-            )}
-          </div>
-
-          <div className="border-2 border-slate-900 rounded-lg p-2.5 bg-slate-50/50">
-            <span className="text-[10px] uppercase font-bold text-slate-600 block">
-              3. Frequency &amp; Supply
-            </span>
-            <span className="text-base font-black font-mono text-slate-950 mt-0.5 block">
-              Every {frequencyDays} Day{frequencyDays > 1 ? 's' : ''}
-            </span>
-            <span className="text-[10px] text-slate-500">
-              ≈ {result.totalVialDoses} Doses per vial
-            </span>
-          </div>
-        </div>
-
-        {/* Clinical Storage & 4-Step Quick SOP */}
-        <div className="grid grid-cols-12 gap-3 mb-4">
-          {/* Storage & Warning */}
-          <div className="col-span-5 border border-slate-300 rounded-lg p-2.5 bg-slate-50 text-[11px] space-y-1.5">
-            <div className="font-bold text-slate-900 flex items-center gap-1.5 uppercase text-[10px] tracking-wider">
-              <span>❄️ Refrigerator Storage Rules</span>
-            </div>
-            <p className="text-slate-700 leading-snug">
-              • Store upright at <strong>36°F to 46°F (2°C to 8°C)</strong>.
-            </p>
-            <p className="text-slate-700 leading-snug">
-              • <strong>Never freeze</strong> reconstituted peptide solutions.
-            </p>
-            <p className="text-slate-700 leading-snug">
-              • Protect from direct sunlight; store inside original box.
-            </p>
-            <p className="text-slate-700 leading-snug">
-              • Discard unused contents <strong>28 days</strong> after first puncture.
-            </p>
-          </div>
-
-          {/* 4-Step Administration Guide */}
-          <div className="col-span-7 border border-slate-300 rounded-lg p-2.5 text-[11px] space-y-1">
-            <div className="font-bold text-slate-900 uppercase text-[10px] tracking-wider">
-              Subcutaneous (Sub-Q) 4-Step SOP
-            </div>
-            <p className="text-slate-800 leading-tight">
-              <strong>1. Clean:</strong> Swab vial rubber stopper with 70% alcohol wipe; let dry 15s. Swab lower abdomen skin 2&quot; away from navel.
-            </p>
-            <p className="text-slate-800 leading-tight">
-              <strong>2. Draw:</strong> Invert vial, keep needle submerged, pull plunger precisely to <strong>{result.syringeUnits} UNITS</strong> ({result.drawVolumeMl} mL). Tap out bubbles.
-            </p>
-            <p className="text-slate-800 leading-tight">
-              <strong>3. Inject:</strong> Gently pinch skin fold, insert needle at 90° angle, depress plunger steadily, and <strong>hold for 5–10 seconds</strong> before withdrawing.
-            </p>
-            <p className="text-slate-800 leading-tight">
-              <strong>4. Dispose:</strong> Drop used syringe immediately into a puncture-resistant sharps container. Never recap.
-            </p>
-          </div>
-        </div>
-
-        {/* 8-Week Physical Injection Tracker (Pen Check-Off Table) */}
-        <div className="border border-slate-300 rounded-lg overflow-hidden mb-4">
-          <div className="bg-slate-100 px-3 py-1.5 border-b border-slate-300 flex items-center justify-between">
-            <span className="text-[10px] uppercase font-bold text-slate-700 tracking-wider">
-              Weekly Administration Tracker (Pen Log)
-            </span>
-            <span className="text-[10px] text-slate-500">
-              Rotate injection sites (L/R Abdomen, Thigh) each administration
-            </span>
-          </div>
-
-          <table className="w-full text-left text-[11px] border-collapse">
-            <thead>
-              <tr className="border-b border-slate-300 bg-slate-50/70 text-[10px] uppercase text-slate-600 font-bold">
-                <th className="py-1 px-2 w-12 text-center border-r border-slate-200">Dose #</th>
-                <th className="py-1 px-2 w-28 border-r border-slate-200">Scheduled Date</th>
-                <th className="py-1 px-2 w-28 border-r border-slate-200">Target Units</th>
-                <th className="py-1 px-2 border-r border-slate-200">Site (L/R Abdomen / Thigh)</th>
-                <th className="py-1 px-2 w-28 border-r border-slate-200">Date/Time Given</th>
-                <th className="py-1 px-2 w-16 text-center">Done (✓)</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-200 font-mono text-[11px]">
-              {[1, 2, 3, 4, 5, 6, 7, 8].map((doseNum) => (
-                <tr key={doseNum} className="hover:bg-slate-50">
-                  <td className="py-1 px-2 text-center font-bold text-slate-900 border-r border-slate-200">
-                    #{doseNum}
-                  </td>
-                  <td className="py-1 px-2 text-slate-700 border-r border-slate-200">
-                    ___ / ___ / 202___
-                  </td>
-                  <td className="py-1 px-2 font-bold text-slate-900 border-r border-slate-200">
-                    {result.syringeUnits} U ({doseDisplay})
-                  </td>
-                  <td className="py-1 px-2 text-slate-500 border-r border-slate-200 font-sans text-[10px]">
-                    [ ] L-Abdomen &nbsp; [ ] R-Abdomen &nbsp; [ ] Thigh
-                  </td>
-                  <td className="py-1 px-2 text-slate-400 border-r border-slate-200">
-                    ____ : ____
-                  </td>
-                  <td className="py-1 px-2 text-center text-slate-400 font-sans text-sm">
-                    [ &nbsp; ]
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Footer & Compliance Notice */}
-        <div className="border-t border-slate-300 pt-2 flex items-center justify-between text-[9px] text-slate-500 leading-tight">
-          <div>
-            <strong>PepPlotter (pepplotter.com)</strong> • Clinical Pharmacokinetic Simulator &amp; Reconstitution Calculator.
-          </div>
-          <div className="text-right">
-            For personal informational and research logging purposes only. Not medical advice.
-          </div>
-        </div>
-      </div>
-    </>
   );
 };
