@@ -56,11 +56,12 @@ export const SyringeVisualizer: React.FC<SyringeVisualizerProps> = React.memo(fu
           {isMajor && (
             <text
               x={x}
+              dx={unitVal === maxUnits ? -2 : 0}
               y={barrelY + 37}
               fontSize="11"
               fontWeight="800"
               fill="#ffffff"
-              textAnchor="middle"
+              textAnchor={unitVal === maxUnits ? 'end' : 'middle'}
               fontFamily="monospace"
               style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.95))' }}
             >
@@ -114,7 +115,7 @@ export const SyringeVisualizer: React.FC<SyringeVisualizerProps> = React.memo(fu
       {/* SVG Canvas */}
       <div className="w-full max-w-full overflow-hidden py-2">
         <svg
-          viewBox="0 0 620 160"
+          viewBox="0 0 640 160"
           className="w-full h-auto select-none block"
         >
           <defs>
