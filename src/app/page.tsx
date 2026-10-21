@@ -1349,26 +1349,28 @@ const splitList: InjectionEntry[] = [];
             />
 
             {/* Injection Schedule Table & Manager */}
-            <div className="bg-slate-900/70 border border-slate-800 rounded-2xl p-5">
-              <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-800">
-                <div className="flex items-center gap-2">
-                  <CalendarDays className="w-4 h-4 text-cyan-400" />
-                  <h3 className="text-sm font-bold text-slate-200 uppercase tracking-wider">
+            <div className="bg-slate-900/70 border border-slate-800 rounded-2xl p-4 sm:p-5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 mb-4 border-b border-slate-800">
+                <div className="flex items-center gap-2 min-w-0">
+                  <CalendarDays className="w-4 h-4 text-cyan-400 shrink-0" />
+                  <h3 className="text-xs sm:text-sm font-bold text-slate-200 uppercase tracking-wider truncate">
                     Scheduled Administration Log ({injections.filter((inj) => inj.day <= simulationDays).length} Injections)
                   </h3>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
                   <button
                     onClick={() => setIsReportModalOpen(true)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 text-emerald-300 rounded-lg text-xs font-semibold transition-all cursor-pointer"
+                    className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 text-emerald-300 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap"
                   >
-                    <Calendar className="w-3.5 h-3.5" /> Sync Schedule to Calendar
+                    <Calendar className="w-3.5 h-3.5 shrink-0" />
+                    <span>Sync to Calendar</span>
                   </button>
                   <button
                     onClick={addInjection}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 rounded-lg text-xs font-semibold transition-all cursor-pointer"
+                    className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap"
                   >
-                    <Plus className="w-3.5 h-3.5" /> Add Injection
+                    <Plus className="w-3.5 h-3.5 shrink-0" />
+                    <span>Add Injection</span>
                   </button>
                 </div>
               </div>
