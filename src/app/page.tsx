@@ -1092,6 +1092,27 @@ const splitList: InjectionEntry[] = [];
               <span>First time injecting? View Step-by-Step Sub-Q Visual Guide &rarr;</span>
             </button>
           </span>
+
+          {/* Connected Blood Level (PK Simulator) Quick Bridge */}
+          <div className="mt-3 pt-3 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-2.5">
+            <div className="flex items-center gap-2 text-xs">
+              <Activity className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+              <span className="text-slate-300">
+                Body Blood Level for <strong>{((safeTargetDoseMcg || activePreset.defaultDoseMcg) / 1000).toFixed(2)} mg</strong>:
+                <span className="text-cyan-300 font-mono font-bold ml-1.5">
+                  Est. Peak ~{pkResult.peakConcentration.toFixed(2)} mg / Trough ~{pkResult.troughConcentration.toFixed(2)} mg
+                </span>
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => handleTabChange('plotter')}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/30 text-cyan-300 hover:text-white text-xs font-bold transition-all cursor-pointer group"
+            >
+              <span>Simulate Blood Accumulation in Tab 2</span>
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+            </button>
+          </div>
    </>
             )}
          </p>
@@ -1149,91 +1170,173 @@ const splitList: InjectionEntry[] = [];
           aria-labelledby="tab-btn-plotter"
           className={activeTab === 'plotter' ? 'space-y-6' : 'hidden'}
         >
-            {/* Top Toolbar: Compound & Split Dose Toggle */}
-            <div className="bg-slate-900/70 border border-slate-800 p-5 rounded-2xl flex flex-wrap items-center justify-between gap-4">
-              <div className="flex flex-wrap items-center gap-3">
-                <div>
-                  <label className="block text-[10px] uppercase font-bold tracking-wider text-slate-400 mb-1">
-                    Select Target Compound
-                  </label>
-                  <select
-                    value={plotCompoundId}
-                    onChange={(e) => {
-                      setPlotCompoundId(e.target.value);
-                      const found = COMPOUND_PRESETS.find((p) => p.id === e.target.value);
-                      if (found && found.id !== 'custom') {
-                        setCustomHalfLifeDays(found.halfLifeHours / 24);
-                      }
-                    }}
-                    className="bg-slate-950 border border-slate-700 text-slate-100 text-xs font-semibold rounded-xl px-3 py-2 outline-none focus:border-cyan-500"
-                  >
-                    {COMPOUND_PRESETS.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.name} ({p.brandNames})
-                      </option>
-                    ))}
-                  </select>
+          {/* Live Linkage & Pharmacokinetics Context Card */}
+          <div className="bg-gradient-to-r from-cyan-950/40 via-slate-900/90 to-emerald-950/30 border border-cyan-500/30 rounded-2xl p-4 sm:p-5 shadow-lg relative overflow-hidden">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+              
+              {/* Left: Current Active Sync Status */}
+              <div className="space-y-1.5 min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="flex h-2 w-2 relative">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+                  </span>
+                  <span className="text-[11px] font-mono uppercase font-bold text-cyan-400 tracking-wider">
+                    Live Linked to Reconstitution Calculator
+                  </span>
+                  <span className="text-[10px] bg-cyan-500/10 text-cyan-300 px-2 py-0.5 rounded-full border border-cyan-500/20 font-mono">
+                    Auto-Synchronized
+                  </span>
                 </div>
 
-                {plotCompoundId === 'custom' && (
-                  <div>
-                    <label className="block text-[10px] uppercase font-bold tracking-wider text-slate-400 mb-1">
-                      Custom Half-Life (Days)
-                    </label>
-                    <input
-                      type="number"
-                      step="0.5"
-                      min="0.1"
-                      value={customHalfLifeDays}
-                      onChange={(e) => setCustomHalfLifeDays(parseFloat(e.target.value) || 1)}
-                      className="w-28 bg-slate-950 border border-slate-700 text-slate-100 text-xs font-mono rounded-xl px-3 py-2 outline-none"
-                    />
-                  </div>
-                )}
+                <div className="flex flex-wrap items-baseline gap-2 pt-0.5">
+                  <span className="text-lg sm:text-xl font-extrabold text-white">
+                    {plotPreset.name}
+                  </span>
+                  <span className="text-sm sm:text-base font-bold text-cyan-300 font-mono">
+                    {((safeTargetDoseMcg || activePreset.defaultDoseMcg) / 1000).toFixed(2)} mg / injection ({safeTargetDoseMcg || activePreset.defaultDoseMcg} mcg)
+                  </span>
+                  <span className="text-xs text-slate-400">
+                    • Reconstituted as {safeVialMg} mg in {safeWaterMl} mL ({reconResult.syringeUnits} units draw)
+                  </span>
+                </div>
 
-                <div>
-                  <label className="block text-[10px] uppercase font-bold tracking-wider text-slate-400 mb-1">
-                    Timeline Span
-                  </label>
-                  <select
-                    value={simulationDays}
-                    onChange={(e) => setSimulationDays(parseInt(e.target.value))}
-                    className="bg-slate-950 border border-slate-700 text-slate-100 text-xs font-semibold rounded-xl px-3 py-2 outline-none"
+                {/* Clinical Relationship Callout */}
+                <p className="text-[11px] text-slate-300/90 leading-relaxed max-w-3xl pt-0.5">
+                  <strong className="text-cyan-200">How PK Simulation connects to your Calculator:</strong>{' '}
+                  Your vial size ({safeVialMg}mg) and added water ({safeWaterMl}mL) determine your physical syringe draw ({reconResult.syringeUnits} units). Once injected subcutaneously, your body metabolizes the <strong className="text-white font-mono">{((safeTargetDoseMcg || activePreset.defaultDoseMcg) / 1000).toFixed(2)} mg</strong> active drug according to its <strong className="text-cyan-300">{plotPreset.halfLifeHours / 24}d half-life</strong>.
+                </p>
+              </div>
+
+              {/* Right: Quick Target Dose Switcher right in PK Simulator */}
+              <div className="flex flex-col sm:items-start lg:items-end gap-1.5 shrink-0 pt-2 lg:pt-0 border-t lg:border-t-0 border-slate-800">
+                <span className="text-[10px] font-mono uppercase text-slate-400 font-bold tracking-wider">
+                  Quick-Adjust Injected Dose:
+                </span>
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {[
+                    { val: 250, label: '0.25mg' },
+                    { val: 500, label: '0.5mg' },
+                    { val: 1000, label: '1.0mg' },
+                    { val: 1700, label: '1.7mg' },
+                    { val: 2500, label: '2.5mg' },
+                  ].map((item) => {
+                    const isSelected = safeTargetDoseMcg === item.val;
+                    return (
+                      <button
+                        key={item.val}
+                        type="button"
+                        onClick={() => {
+                          setTargetDoseMcg(item.val);
+                        }}
+                        className={`px-2.5 py-1 text-xs rounded-lg font-mono font-bold transition-all cursor-pointer ${
+                          isSelected
+                            ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/30'
+                            : 'bg-slate-950/80 hover:bg-slate-800 text-slate-300 border border-slate-800 hover:border-slate-700'
+                        }`}
+                      >
+                        {item.label}
+                      </button>
+                    );
+                  })}
+                  <button
+                    type="button"
+                    onClick={() => handleTabChange('calc')}
+                    className="px-2 py-1 text-[11px] text-slate-400 hover:text-cyan-300 transition-colors flex items-center gap-0.5 cursor-pointer font-medium"
+                    title="Switch to Reconstitution Calculator"
                   >
-                    <option value={14}>2 Weeks (14 Days)</option>
-                    <option value={28}>4 Weeks (28 Days)</option>
-                    <option value={42}>6 Weeks (42 Days)</option>
-                    <option value={60}>8 Weeks (60 Days)</option>
-                  </select>
+                    <span>Edit in Tab 1 &rarr;</span>
+                  </button>
                 </div>
               </div>
 
-              {/* Action Buttons: Sync Current Dose & Split Dose */}
-              <div className="flex flex-wrap items-center gap-2">
-                <button
-                  onClick={syncCurrentDoseToSchedule}
-                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 transition-all shadow-sm cursor-pointer"
-                  title="Synchronize current target dose from calculator to all schedule entries"
-                >
-                  <RotateCcw className="w-3.5 h-3.5 text-cyan-400" />
-                  <span>
-                    Sync Current Dose ({((safeTargetDoseMcg || activePreset.defaultDoseMcg) / (isSplitDoseMode ? 2000 : 1000)).toFixed(2)}mg) to Schedule
-                  </span>
-                </button>
+            </div>
+          </div>
 
-                <button
-                  onClick={toggleSplitDosing}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
-                    isSplitDoseMode
-                      ? 'bg-cyan-500/20 border-cyan-500/50 text-cyan-300 shadow-sm'
-                      : 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-300'
-                  }`}
+          {/* Top Toolbar: Compound & Split Dose Toggle */}
+          <div className="bg-slate-900/70 border border-slate-800 p-5 rounded-2xl flex flex-wrap items-center justify-between gap-4">
+            <div className="flex flex-wrap items-center gap-3">
+              <div>
+                <label className="block text-[10px] uppercase font-bold tracking-wider text-slate-400 mb-1">
+                  Select Target Compound
+                </label>
+                <select
+                  value={plotCompoundId}
+                  onChange={(e) => {
+                    const found = COMPOUND_PRESETS.find((p) => p.id === e.target.value);
+                    if (found) {
+                      applyPreset(found);
+                    }
+                  }}
+                  className="bg-slate-950 border border-slate-700 text-slate-100 text-xs font-semibold rounded-xl px-3 py-2 outline-none focus:border-cyan-500 cursor-pointer"
                 >
-                  <Split className="w-4 h-4" />
-                  <span>{isSplitDoseMode ? 'Split-Dosing Active (2x / Week)' : 'Simulate 2x / Week Split Dosing'}</span>
-                </button>
+                  {COMPOUND_PRESETS.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name} ({p.brandNames})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {plotCompoundId === 'custom' && (
+                <div>
+                  <label className="block text-[10px] uppercase font-bold tracking-wider text-slate-400 mb-1">
+                    Custom Half-Life (Days)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.5"
+                    min="0.1"
+                    value={customHalfLifeDays}
+                    onChange={(e) => setCustomHalfLifeDays(parseFloat(e.target.value) || 1)}
+                    className="w-28 bg-slate-950 border border-slate-700 text-slate-100 text-xs font-mono rounded-xl px-3 py-2 outline-none"
+                  />
+                </div>
+              )}
+
+              <div>
+                <label className="block text-[10px] uppercase font-bold tracking-wider text-slate-400 mb-1">
+                  Timeline Span
+                </label>
+                <select
+                  value={simulationDays}
+                  onChange={(e) => setSimulationDays(parseInt(e.target.value))}
+                  className="bg-slate-950 border border-slate-700 text-slate-100 text-xs font-semibold rounded-xl px-3 py-2 outline-none cursor-pointer"
+                >
+                  <option value={14}>2 Weeks (14 Days)</option>
+                  <option value={28}>4 Weeks (28 Days)</option>
+                  <option value={42}>6 Weeks (42 Days)</option>
+                  <option value={60}>8 Weeks (60 Days)</option>
+                </select>
               </div>
             </div>
+
+            {/* Action Buttons: Sync Current Dose & Split Dose */}
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                onClick={syncCurrentDoseToSchedule}
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 transition-all shadow-sm cursor-pointer"
+                title="Synchronize current target dose from calculator to all schedule entries"
+              >
+                <RotateCcw className="w-3.5 h-3.5 text-cyan-400" />
+                <span>
+                  Sync All Injections to {((safeTargetDoseMcg || activePreset.defaultDoseMcg) / (isSplitDoseMode ? 2000 : 1000)).toFixed(2)}mg
+                </span>
+              </button>
+
+              <button
+                onClick={toggleSplitDosing}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
+                  isSplitDoseMode
+                    ? 'bg-cyan-500/20 border-cyan-500/50 text-cyan-300 shadow-sm'
+                    : 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-300'
+                }`}
+              >
+                <Split className="w-4 h-4" />
+                <span>{isSplitDoseMode ? 'Split-Dosing Active (2x / Week)' : 'Simulate 2x / Week Split Dosing'}</span>
+              </button>
+            </div>
+          </div>
 
             {/* Interactive Half-Life Chart */}
             <HalfLifeChart
