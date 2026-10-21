@@ -40,36 +40,50 @@ export const TOUR_STEPS: TourStep[] = [
     tip: 'No more confusing math or conversion panic.',
   },
   {
+    targetId: 'step-pk-sync',
+    title: 'Step 5: In-Body Pharmacokinetics (Auto-Synced)',
+    description:
+      'Notice how your target dose is automatically linked to the PK Simulator! Here PepPlotter models how active molecules accumulate in your bloodstream over a 4-week steady state based on half-life.',
+    tip: 'Vial size and water volume determine your syringe draw; target dose determines bodily blood levels.',
+  },
+  {
+    targetId: 'step-pk-chart',
+    title: 'Step 6: Plasma Curve & 2x/Week Split Dosing',
+    description:
+      'Inspect your blood accumulation curve! You can toggle "Simulate 2x / Week Split Dosing" to see how dividing doses flattens peak spikes and prevents gastrointestinal nausea while keeping steady appetite suppression.',
+    tip: 'Split-dosing is widely utilized in clinical peptide protocols to mitigate peak nausea.',
+  },
+  {
     targetId: 'subq-guide',
-    title: 'Step 5: Visual Stage 01 — Aseptic Supplies Setup',
+    title: 'Step 7: Visual Stage 01 — Aseptic Supplies Setup',
     description:
       'Gather your sterile vial, 31G insulin syringe, and dual 70% alcohol pads on a clean surface. Let refrigerated vials warm for 5–10 minutes.',
     tip: 'Warming to room temperature eliminates cold-fluid injection sting.',
   },
   {
     targetId: 'subq-guide',
-    title: 'Step 6: Visual Stage 02 — Site Prep & 15s Air-Dry',
+    title: 'Step 8: Visual Stage 02 — Site Prep & 15s Air-Dry',
     description:
-      'Select lower abdomen (≥2 inches from navel) or outer thigh. Wipe in an outward spiral and wait 15 seconds for alcohol to completely evaporate.',
+      'Select lower abdomen (≥2 inches from navel) or outer thigh. Wipe in an outward spiral and wait a full 15 seconds for alcohol to completely evaporate.',
     tip: 'Wet alcohol causes stinging and degrades peptides on entry.',
   },
   {
     targetId: 'subq-guide',
-    title: 'Step 7: Visual Stage 03 — Inverted Precision Draw',
+    title: 'Step 9: Visual Stage 03 — Inverted Precision Draw',
     description:
       'Invert the vial vertically. Submerge needle tip in liquid pool and draw plunger smoothly to your calculated unit mark without large air bubbles.',
     tip: 'Flick syringe gently to float bubbles to the top.',
   },
   {
     targetId: 'subq-guide',
-    title: 'Step 8: Visual Stage 04 — 90° Injection & 10s Dwell',
+    title: 'Step 10: Visual Stage 04 — 90° Injection & 10s Dwell',
     description:
       'Pinch a 2-inch skin fold. Insert 31G needle at 90°, depress plunger steadily, and hold for a full 10-second dwell before withdrawing.',
     tip: 'The 10-second dwell prevents retrograde medication leakage.',
   },
   {
     targetId: 'step-calendar',
-    title: 'Step 9: Your Exact Recipe & 1-Click Calendar Sync',
+    title: 'Step 11: Exact Recipe & 1-Click Calendar Sync',
     description:
       'Your full clinical workflow is complete! Review your plain-English recipe card and click "View Protocol & Reminders" to sync recurring injection alerts to Google / Apple Calendar or print a fridge protocol.',
     tip: '100% free with zero ads. Never miss an injection day or forget your exact units!',

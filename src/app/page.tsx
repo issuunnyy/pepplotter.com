@@ -283,7 +283,9 @@ export default function Home() {
   useEffect(() => {
     if (!isTourActive) return;
     const target = TOUR_STEPS[tourStepIndex];
-    if (tourStepIndex >= 4 && tourStepIndex <= 7) {
+    if (tourStepIndex >= 4 && tourStepIndex <= 5) {
+      handleTabChange('plotter');
+    } else if (tourStepIndex >= 6 && tourStepIndex <= 9) {
       handleTabChange('guide');
     } else {
       handleTabChange('calc');
@@ -571,7 +573,7 @@ const splitList: InjectionEntry[] = [];
               className="group inline-flex items-center gap-2 px-4 py-1.5 bg-slate-900/90 hover:bg-slate-800 border border-slate-700 hover:border-emerald-500/50 rounded-full text-xs text-slate-300 transition-all shadow-md"
             >
               <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span>First time mixing? <strong>Follow our 5-Step Guided Walkthrough</strong></span>
+              <span>First time mixing? <strong>Follow our Interactive Guided Walkthrough</strong></span>
               <ArrowRight className="w-3.5 h-3.5 text-emerald-400 group-hover:translate-x-1 transition-transform" />
             </button>
           </div>
@@ -1039,7 +1041,7 @@ const splitList: InjectionEntry[] = [];
       <div 
         id="step-recipe"
         className={`p-4 bg-slate-900/40 border rounded-xl text-xs text-slate-300 leading-relaxed flex items-start gap-3 transition-all scroll-mt-24 ${
-          isTourActive && tourStepIndex === 8
+          isTourActive && tourStepIndex === 10
             ? 'border-emerald-400 ring-2 ring-emerald-400/40 bg-emerald-950/20'
             : 'border-slate-800'
         }`}
@@ -1129,7 +1131,7 @@ const splitList: InjectionEntry[] = [];
                 <div 
                   id="step-calendar"
                   className={`bg-gradient-to-r from-emerald-950/40 via-slate-900 to-cyan-950/40 border p-4 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3 shadow-lg transition-all scroll-mt-24 ${
-                    isTourActive && tourStepIndex === 8
+                    isTourActive && tourStepIndex === 10
                       ? 'border-emerald-400 ring-2 ring-emerald-400/50 shadow-emerald-500/30 bg-emerald-950/30'
                       : 'border-emerald-500/40 shadow-emerald-500/5'
                   }`}
@@ -1171,7 +1173,14 @@ const splitList: InjectionEntry[] = [];
           className={activeTab === 'plotter' ? 'space-y-6' : 'hidden'}
         >
           {/* Live Linkage & Pharmacokinetics Context Card */}
-          <div className="bg-gradient-to-r from-cyan-950/40 via-slate-900/90 to-emerald-950/30 border border-cyan-500/30 rounded-2xl p-4 sm:p-5 shadow-lg relative overflow-hidden">
+          <div 
+            id="step-pk-sync"
+            className={`bg-gradient-to-r from-cyan-950/40 via-slate-900/90 to-emerald-950/30 border rounded-2xl p-4 sm:p-5 shadow-lg relative overflow-hidden scroll-mt-24 transition-all ${
+              isTourActive && tourStepIndex === 4
+                ? 'border-cyan-400 ring-2 ring-cyan-400/50 shadow-cyan-500/20'
+                : 'border-cyan-500/30'
+            }`}
+          >
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
               
               {/* Left: Current Active Sync Status */}
@@ -1254,7 +1263,14 @@ const splitList: InjectionEntry[] = [];
           </div>
 
           {/* Top Toolbar: Compound & Split Dose Toggle */}
-          <div className="bg-slate-900/70 border border-slate-800 p-5 rounded-2xl flex flex-wrap items-center justify-between gap-4">
+          <div 
+            id="step-pk-chart"
+            className={`bg-slate-900/70 border rounded-2xl p-5 flex flex-wrap items-center justify-between gap-4 scroll-mt-24 transition-all ${
+              isTourActive && tourStepIndex === 5
+                ? 'border-cyan-400 ring-2 ring-cyan-400/50 shadow-cyan-500/20'
+                : 'border-slate-800'
+            }`}
+          >
             <div className="flex flex-wrap items-center gap-3">
               <div>
                 <label className="block text-[10px] uppercase font-bold tracking-wider text-slate-400 mb-1">
@@ -1438,7 +1454,7 @@ const splitList: InjectionEntry[] = [];
             drawVolumeMl={reconResult.drawVolumeMl}
             syringeType={syringeType}
             compoundName={activePreset.name}
-            activeStep={isTourActive && tourStepIndex >= 4 && tourStepIndex <= 7 ? tourStepIndex - 3 : undefined}
+            activeStep={isTourActive && tourStepIndex >= 6 && tourStepIndex <= 9 ? tourStepIndex - 5 : undefined}
           />
         </div>
 
