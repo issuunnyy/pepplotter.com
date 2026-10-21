@@ -58,6 +58,7 @@ export default function Home() {
   // --- REPORT & FEEDBACK MODAL STATE ---
   const [isReportModalOpen, setIsReportModalOpen] = useState<boolean>(false);
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState<boolean>(false);
+  const [isSheetPreviewOpen, setIsSheetPreviewOpen] = useState<boolean>(false);
 
   // --- GUIDED TOUR STATE ---
   const [isTourActive, setIsTourActive] = useState<boolean>(false);
@@ -1155,12 +1156,12 @@ const splitList: InjectionEntry[] = [];
 
                   <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
                     <button
-                      onClick={() => window.print()}
-                      title="Print 1-page A4 Protocol & PK Sheet"
+                      onClick={() => setIsSheetPreviewOpen(true)}
+                      title="Preview 1-page A4 Protocol Sheet (Screenshot & Print)"
                       className="flex-1 sm:flex-initial px-3.5 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition-all shrink-0 cursor-pointer group"
                     >
-                      <Printer className="w-3.5 h-3.5 text-emerald-400 group-hover:scale-110 transition-transform" />
-                      <span>Print A4 Sheet</span>
+                      <FileText className="w-3.5 h-3.5 text-emerald-400 group-hover:scale-110 transition-transform" />
+                      <span>Preview A4 Sheet</span>
                     </button>
 
                     <button
@@ -1366,12 +1367,12 @@ const splitList: InjectionEntry[] = [];
               </button>
 
               <button
-                onClick={() => window.print()}
+                onClick={() => setIsSheetPreviewOpen(true)}
                 className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all shadow-sm cursor-pointer group"
-                title="Print 1-page A4 sheet combining Tab 1 Reconstitution and Tab 2 PK curve"
+                title="Preview 1-page A4 sheet combining Tab 1 Reconstitution and Tab 2 PK curve (Screenshot & Print)"
               >
-                <Printer className="w-3.5 h-3.5 text-cyan-400 group-hover:scale-110 transition-transform" />
-                <span>Print A4 PK Sheet</span>
+                <FileText className="w-3.5 h-3.5 text-cyan-400 group-hover:scale-110 transition-transform" />
+                <span>Preview A4 Sheet</span>
               </button>
             </div>
           </div>
@@ -1567,6 +1568,10 @@ const splitList: InjectionEntry[] = [];
       <ProtocolReportModal
         isOpen={isReportModalOpen}
         onClose={() => setIsReportModalOpen(false)}
+        onOpenSheetPreview={() => {
+          setIsReportModalOpen(false);
+          setIsSheetPreviewOpen(true);
+        }}
         compoundName={activePreset.name}
         brandNames={activePreset.brandNames}
         vialMg={safeVialMg}
@@ -1583,8 +1588,10 @@ const splitList: InjectionEntry[] = [];
         onClose={() => setIsFeedbackModalOpen(false)}
       />
 
-      {/* Dedicated Printable Protocol & PK Sheet (A4 Single-Page Fridge Sheet) */}
+      {/* Dedicated Printable Protocol & PK Sheet (A4 Single-Page Fridge Sheet & Interactive Modal) */}
       <PrintableProtocolSheet
+        isOpen={isSheetPreviewOpen}
+        onClose={() => setIsSheetPreviewOpen(false)}
         compoundName={activePreset.name}
         brandNames={activePreset.brandNames}
         vialMg={safeVialMg}

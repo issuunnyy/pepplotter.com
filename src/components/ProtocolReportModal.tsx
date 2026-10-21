@@ -11,7 +11,8 @@ import {
   Pill,
   Thermometer,
   AlertTriangle,
-  Share2
+  Share2,
+  FileText
 } from 'lucide-react';
 import { generateGoogleCalendarUrl, downloadIcsFile, CalendarEventParams } from '@/lib/calendar';
 import { safeCopyToClipboard } from '@/lib/calculator';
@@ -21,6 +22,7 @@ import { ReconstitutionResult } from '@/lib/types';
 interface ProtocolReportModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onOpenSheetPreview?: () => void;
   compoundName: string;
   brandNames: string;
   vialMg: number;
@@ -34,6 +36,7 @@ interface ProtocolReportModalProps {
 export const ProtocolReportModal: React.FC<ProtocolReportModalProps> = ({
   isOpen,
   onClose,
+  onOpenSheetPreview,
   compoundName,
   brandNames,
   vialMg,
@@ -357,12 +360,18 @@ export const ProtocolReportModal: React.FC<ProtocolReportModalProps> = ({
 
             <div className="flex items-center gap-2">
               <button
-                onClick={handlePrint}
-                title="Print 1-page A4 sheet combining Tab 1 Reconstitution and Tab 2 PK curve"
+                onClick={() => {
+                  if (onOpenSheetPreview) {
+                    onOpenSheetPreview();
+                  } else {
+                    handlePrint();
+                  }
+                }}
+                title="Preview and print 1-page A4 sheet combining Tab 1 Reconstitution and Tab 2 PK curve"
                 className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs font-semibold text-slate-300 transition-colors cursor-pointer group"
               >
-                <Printer className="w-3.5 h-3.5 text-emerald-400 group-hover:scale-110 transition-transform" />
-                <span>Print A4 Protocol &amp; PK Sheet</span>
+                <FileText className="w-3.5 h-3.5 text-emerald-400 group-hover:scale-110 transition-transform" />
+                <span>Preview &amp; Print A4 Sheet</span>
               </button>
 
               <button
