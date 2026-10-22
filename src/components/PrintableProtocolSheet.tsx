@@ -61,8 +61,8 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
   // --- 1. SVG Syringe Dimensions & Calculations ---
   const barrelStart = 75;
   const barrelWidth = 450;
-  const barrelHeight = 32;
-  const barrelY = 14;
+  const barrelHeight = 26;
+  const barrelY = 16;
   const fillWidth = (clampedUnits / maxSyringeUnits) * barrelWidth;
   const plungerX = barrelStart + fillWidth;
 
@@ -83,18 +83,18 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
             x1={x}
             y1={barrelY}
             x2={x}
-            y2={barrelY + (isMajor ? 12 : 6)}
+            y2={barrelY + (isMajor ? 10 : 5)}
             stroke="#0f172a"
-            strokeWidth={isMajor ? 1.4 : 0.75}
+            strokeWidth={isMajor ? 1.2 : 0.6}
           />
           {isMajor && (
             <text
               x={x}
-              y={barrelY + 22}
+              y={barrelY - 3.5}
               fontSize="7.5"
               fontWeight="700"
               fill="#0f172a"
-              textAnchor="middle"
+              textAnchor={unitVal === 0 ? 'start' : unitVal === maxSyringeUnits ? 'end' : 'middle'}
               fontFamily="monospace"
             >
               {unitVal}
@@ -360,9 +360,9 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
           </div>
 
           <svg
-            viewBox="0 0 650 64"
+            viewBox="0 0 650 68"
             className="w-full h-auto select-none"
-            style={{ maxHeight: '48px' }}
+            style={{ maxHeight: '52px' }}
           >
             {/* Needle & Hub */}
             <polygon points="5,30 35,29 35,31" fill="#475569" />

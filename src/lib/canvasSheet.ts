@@ -23,37 +23,38 @@ export interface SheetCanvasData {
 
 /**
  * Pure HTML5 Canvas 2D Renderer for PepPlotter Protocol Sheet.
- * Perfectly calibrated to native mobile card proportions (aspect ratio ~0.60)
- * with ZERO trailing blank space, authentic syringe vectors, and 100% English text.
+ * Calibrated to native mobile card proportions (aspect ratio ~0.58)
+ * with zero trailing blank space, authentic syringe vectors, numbers placed cleanly
+ * above the barrel (no plunger collision), 100-unit tick explicitly included,
+ * and dynamic text layout preventing any font overlap.
  */
 export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvasData): void {
-  // Mobile-first proportional canvas width (440px base, rendered at 2x Retina: 880px)
-  const width = 440;
+  // Balanced mobile portrait canvas width (460px base, rendered at 2x Retina: 920px)
+  const width = 460;
   const scale = 2; // High-definition 2x Retina clarity
 
-  // We perform an exact layout measurement so canvas height wraps content with 0 blank void
   const padX = 14;
-  const contentW = width - padX * 2; // 412px
+  const contentW = width - padX * 2; // 432px
   const innerPad = 8;
-  const innerW = contentW - innerPad * 2; // 396px
+  const innerW = contentW - innerPad * 2; // 416px
 
   // Pre-calculate Section Heights
   const bH = 46; // 4 action badges
-  const syrBoxH = 74; // Syringe diagram
+  const syrBoxH = 82; // Syringe diagram (with tick numbers cleanly above barrel)
   const sopH = 48; // SOP recipe & sub-q
-  const sec1H = 26 + bH + 6 + syrBoxH + 6 + sopH + 8; // ~214px
+  const sec1H = 26 + bH + 6 + syrBoxH + 6 + sopH + 8; // ~222px
 
-  const cBoxH = 88; // PK curve chart
+  const cBoxH = 92; // PK curve chart
   const tblHeaderH = 16;
   const rows = data.tableRows.slice(0, 4);
   const rowCount = Math.max(rows.length, 1);
   const rowH = 19;
   const tblH = tblHeaderH + rowCount * rowH; // ~92px
-  const sec2H = 26 + cBoxH + 6 + tblH + 8; // ~220px
+  const sec2H = 26 + cBoxH + 6 + tblH + 8; // ~224px
 
   const stripH = 54; // Compound strip
 
-  // Measure exact total height needed
+  // Measure exact total height needed (zero blank bottom void)
   let curY = 14;
   curY += 38; // Header & subtitle
   curY += stripH + 8; // Compound strip
@@ -73,7 +74,7 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
 
   ctx.scale(scale, scale);
 
-  // Background
+  // Clean White Background
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, width, totalHeight);
 
@@ -85,13 +86,15 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
   // ============================================================
   ctx.fillStyle = '#090d16';
   ctx.font = 'bold 11px system-ui, -apple-system, sans-serif';
-  ctx.fillText('PEPPLOTTER PROTOCOL & PK REPORT', padX, curY + 12);
+  const mainTitle = 'PEPPLOTTER PROTOCOL & PK REPORT';
+  ctx.fillText(mainTitle, padX, curY + 12);
 
-  // Badge "MEMO"
+  // Badge "MEMO" (dynamically placed after title to prevent collision)
+  const titleW = ctx.measureText(mainTitle).width;
   const memoText = 'MEMO';
   ctx.font = 'bold 7.5px system-ui, -apple-system, sans-serif';
   const memoW = ctx.measureText(memoText).width + 8;
-  const memoX = padX + 225;
+  const memoX = padX + titleW + 8;
   ctx.fillStyle = '#0f172a';
   ctx.beginPath();
   ctx.roundRect(memoX, curY + 2, memoW, 12, 2.5);
@@ -137,23 +140,43 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
   ctx.fill();
   ctx.stroke();
 
-  // Line 1: Compound name & Concentration
+  // Line 1: Compound Name on left, Concentration on right (zero collision guarantee)
   ctx.fillStyle = '#64748b';
   ctx.font = 'bold 7.5px system-ui, sans-serif';
   ctx.fillText('COMPOUND:', padX + 8, curY + 15);
   ctx.fillStyle = '#090d16';
   ctx.font = 'bold 10px system-ui, sans-serif';
-  const cName = data.brandNames ? `${data.compoundName} (${data.brandNames})` : data.compoundName;
-  ctx.fillText(cName, padX + 64, curY + 15);
+  ctx.fillText(data.compoundName, padX + 62, curY + 15);
+  const nameW = ctx.measureText(data.compoundName).width;
 
+  // Right-aligned concentration
+  const concVal = `${data.concentrationMgMl.toFixed(2)} mg/mL (${data.concentrationMcgMl.toFixed(0)} mcg/mL)`;
   ctx.textAlign = 'right';
-  ctx.fillStyle = '#64748b';
-  ctx.font = 'bold 7.5px system-ui, sans-serif';
-  ctx.fillText('CONCENTRATION: ', width - padX - 135, curY + 15);
   ctx.fillStyle = '#0f172a';
   ctx.font = 'bold 9px monospace';
-  ctx.fillText(`${data.concentrationMgMl.toFixed(2)} mg/mL (${data.concentrationMcgMl.toFixed(0)} mcg/mL)`, width - padX - 8, curY + 15);
+  ctx.fillText(concVal, width - padX - 8, curY + 15);
+  const concValW = ctx.measureText(concVal).width;
+  ctx.fillStyle = '#64748b';
+  ctx.font = 'bold 7.5px system-ui, sans-serif';
+  ctx.fillText('CONC: ', width - padX - 8 - concValW - 2, curY + 15);
+  const totalConcW = concValW + ctx.measureText('CONC: ').width + 12;
   ctx.textAlign = 'left';
+
+  // Brand names placed safely between compound name and concentration
+  if (data.brandNames) {
+    const maxBrandW = width - padX - totalConcW - (padX + 66 + nameW);
+    let brandStr = `(${data.brandNames})`;
+    ctx.font = '7.5px system-ui, sans-serif';
+    ctx.fillStyle = '#64748b';
+    if (ctx.measureText(brandStr).width > maxBrandW && maxBrandW > 30) {
+      while (brandStr.length > 5 && ctx.measureText(brandStr).width > maxBrandW) {
+        brandStr = brandStr.slice(0, -6) + '...)';
+      }
+    }
+    if (maxBrandW > 20) {
+      ctx.fillText(brandStr, padX + 66 + nameW, curY + 15);
+    }
+  }
 
   // Divider inside strip
   ctx.strokeStyle = '#e2e8f0';
@@ -162,37 +185,41 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
   ctx.lineTo(width - padX - 8, curY + 24);
   ctx.stroke();
 
-  // Line 2: 4 columns
+  // Line 2: 4 non-overlapping columns
   const colW = (contentW - 16) / 4;
   const subY = curY + 38;
   ctx.font = '7.5px system-ui, sans-serif';
 
+  // Col 1: Vial
   ctx.fillStyle = '#64748b';
-  ctx.fillText('Vial Powder: ', padX + 8, subY);
+  ctx.fillText('Vial: ', padX + 8, subY);
   ctx.fillStyle = '#0f172a';
   ctx.font = 'bold 8px monospace';
-  ctx.fillText(`${data.vialMg} mg`, padX + 56, subY);
+  ctx.fillText(`${data.vialMg}mg`, padX + 32, subY);
 
+  // Col 2: BAC Water
   ctx.font = '7.5px system-ui, sans-serif';
   ctx.fillStyle = '#64748b';
-  ctx.fillText('BAC Water: ', padX + 8 + colW, subY);
+  ctx.fillText('Water: ', padX + 8 + colW, subY);
   ctx.fillStyle = '#0f172a';
   ctx.font = 'bold 8px monospace';
-  ctx.fillText(`${data.waterMl} mL`, padX + 8 + colW + 50, subY);
+  ctx.fillText(`${data.waterMl}mL`, padX + 8 + colW + 36, subY);
 
+  // Col 3: Recon Date
   ctx.font = '7.5px system-ui, sans-serif';
   ctx.fillStyle = '#64748b';
-  ctx.fillText('Recon Date: ', padX + 8 + colW * 2, subY);
+  ctx.fillText('Recon: ', padX + 8 + colW * 2, subY);
   ctx.fillStyle = '#334155';
   ctx.font = 'bold 8px monospace';
-  ctx.fillText('___/___/202_', padX + 8 + colW * 2 + 52, subY);
+  ctx.fillText('___/___/20_', padX + 8 + colW * 2 + 36, subY);
 
+  // Col 4: Discard Date
   ctx.font = '7.5px system-ui, sans-serif';
   ctx.fillStyle = '#64748b';
   ctx.fillText('Discard: ', padX + 8 + colW * 3, subY);
   ctx.fillStyle = '#334155';
   ctx.font = 'bold 8px monospace';
-  ctx.fillText('___/___/202_', padX + 8 + colW * 3 + 36, subY);
+  ctx.fillText('___/___/20_', padX + 8 + colW * 3 + 40, subY);
 
   // ============================================================
   // 3. SECTION 1: RECONSTITUTION & SYRINGE DRAW
@@ -231,7 +258,7 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
 
   // 4 Action Badges
   const badgeRowY = curY + 28;
-  const badgeW = (innerW - 9) / 4; // ~96px
+  const badgeW = (innerW - 9) / 4; // ~101px
 
   // Box 1: Single Dose
   ctx.fillStyle = '#f8fafc';
@@ -303,7 +330,7 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
   ctx.textAlign = 'left';
 
   // -------------------------------------------------------------
-  // Full Vector Syringe Diagram (Accurate Barrel, Hub & Plunger Flange)
+  // Full Vector Syringe Diagram (Numbers Above Barrel, No Plunger Clashing, Includes 100)
   // -------------------------------------------------------------
   const syrBoxY = badgeRowY + bH + 6;
   ctx.fillStyle = '#f8fafc';
@@ -323,11 +350,11 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
   ctx.fillText(`Target Level: ${data.reconResult.syringeUnits} Units (${data.reconResult.drawVolumeMl} mL)`, width - padX - innerPad - 6, syrBoxY + 12);
   ctx.textAlign = 'left';
 
-  // Syringe Geometry
-  const bStart = padX + innerPad + 44;
-  const bWidth = 270; // 0 to 100 units
-  const bHeight = 22;
-  const bY = syrBoxY + 23;
+  // Syringe Geometry (Barrel starts lower so numbers sit cleanly above it)
+  const bStart = padX + innerPad + 46;
+  const bWidth = 280; // 0 to 100 units
+  const bHeight = 24;
+  const bY = syrBoxY + 32; // Top of barrel
   const maxUnits = data.syringeType === 'U100' ? 100 : 40;
   const clampedUnits = Math.min(Math.max(data.reconResult.syringeUnits, 0), maxUnits);
   const fillW = (clampedUnits / maxUnits) * bWidth;
@@ -336,10 +363,10 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
   // 1. Needle (Steel Shaft)
   ctx.fillStyle = '#64748b';
   ctx.beginPath();
-  ctx.moveTo(bStart - 28, bY + bHeight / 2 - 1);
+  ctx.moveTo(bStart - 30, bY + bHeight / 2 - 1);
   ctx.lineTo(bStart - 8, bY + bHeight / 2 - 1);
   ctx.lineTo(bStart - 8, bY + bHeight / 2 + 1);
-  ctx.lineTo(bStart - 28, bY + bHeight / 2 + 1);
+  ctx.lineTo(bStart - 30, bY + bHeight / 2 + 1);
   ctx.fill();
 
   // 2. Needle Hub (Orange Collar)
@@ -365,7 +392,7 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
   ctx.strokeStyle = '#0f172a';
   ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.roundRect(bStart + bWidth - 1, bY - 4, 4.5, bHeight + 8, 1.5);
+  ctx.roundRect(bStart + bWidth - 1, bY - 4.5, 4.5, bHeight + 9, 1.5);
   ctx.fill();
   ctx.stroke();
 
@@ -380,7 +407,7 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
   ctx.strokeStyle = '#0f172a';
   ctx.lineWidth = 0.8;
   ctx.beginPath();
-  ctx.roundRect(pX, bY + 1.2, 7, bHeight - 2.4, 1);
+  ctx.roundRect(pX, bY + 1.2, 7.5, bHeight - 2.4, 1);
   ctx.fill();
   ctx.stroke();
 
@@ -390,17 +417,17 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
   ctx.beginPath();
   ctx.moveTo(pX + 2.5, bY + 2.5);
   ctx.lineTo(pX + 2.5, bY + bHeight - 2.5);
-  ctx.moveTo(pX + 4.5, bY + 2.5);
-  ctx.lineTo(pX + 4.5, bY + bHeight - 2.5);
+  ctx.moveTo(pX + 5, bY + 2.5);
+  ctx.lineTo(pX + 5, bY + bHeight - 2.5);
   ctx.stroke();
 
-  // 7. Plunger Shaft
-  const plungerThumbX = Math.min(bStart + bWidth + 24 + fillW * 0.15, width - padX - innerPad - 16);
+  // 7. Plunger Shaft (moves smoothly through center, zero number collision)
+  const plungerThumbX = Math.min(bStart + bWidth + 28 + fillW * 0.15, width - padX - innerPad - 16);
   ctx.fillStyle = '#94a3b8';
   ctx.strokeStyle = '#64748b';
   ctx.lineWidth = 0.6;
   ctx.beginPath();
-  ctx.rect(pX + 7, bY + bHeight / 2 - 2, Math.max(plungerThumbX - (pX + 7), 6), 4);
+  ctx.rect(pX + 7.5, bY + bHeight / 2 - 2, Math.max(plungerThumbX - (pX + 7.5), 6), 4);
   ctx.fill();
   ctx.stroke();
 
@@ -409,7 +436,7 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
   ctx.strokeStyle = '#0f172a';
   ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.roundRect(plungerThumbX, bY - 4, 5, bHeight + 8, 1.5);
+  ctx.roundRect(plungerThumbX, bY - 4.5, 5, bHeight + 9, 1.5);
   ctx.fill();
   ctx.stroke();
 
@@ -421,7 +448,7 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
   ctx.lineTo(plungerThumbX + 2, bY + bHeight + 1);
   ctx.stroke();
 
-  // 9. Graduation Ticks & Numbers
+  // 9. Graduation Ticks & Numbers (Placed ABOVE barrel: zero clashing, 100 explicitly rendered!)
   const majorStep = data.syringeType === 'U100' ? 10 : 5;
   const minorStep = data.syringeType === 'U100' ? 2 : 1;
   const totalSteps = Math.round(maxUnits / minorStep);
@@ -431,6 +458,7 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
     const x = bStart + (val / maxUnits) * bWidth;
     const isMajor = val % majorStep === 0;
 
+    // Tick lines extending DOWN from top edge of barrel
     ctx.strokeStyle = '#0f172a';
     ctx.lineWidth = isMajor ? 1 : 0.5;
     ctx.beginPath();
@@ -438,28 +466,35 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
     ctx.lineTo(x, bY + (isMajor ? 8 : 4));
     ctx.stroke();
 
-    if (isMajor && val > 0 && val < maxUnits) {
+    // Tick Numbers placed strictly ABOVE the barrel (0px to 100px: 100% visible, no plunger collision)
+    if (isMajor && val >= 0 && val <= maxUnits) {
       ctx.fillStyle = '#0f172a';
-      ctx.font = 'bold 6.5px monospace';
-      ctx.textAlign = 'center';
-      ctx.fillText(String(val), x, bY + 16);
+      ctx.font = 'bold 6.8px monospace';
+      if (val === 0) {
+        ctx.textAlign = 'left';
+      } else if (val === maxUnits) {
+        ctx.textAlign = 'right';
+      } else {
+        ctx.textAlign = 'center';
+      }
+      ctx.fillText(String(val), x, bY - 3.5);
     }
   }
   ctx.textAlign = 'left';
 
-  // 10. Target Indicator Arrow & Label
+  // 10. Target Indicator Arrow & Label (Below the barrel)
   if (clampedUnits > 0) {
     ctx.fillStyle = '#047857';
     ctx.beginPath();
     ctx.moveTo(pX, bY + bHeight + 2);
-    ctx.lineTo(pX - 2.5, bY + bHeight + 6);
-    ctx.lineTo(pX + 2.5, bY + bHeight + 6);
+    ctx.lineTo(pX - 3, bY + bHeight + 7);
+    ctx.lineTo(pX + 3, bY + bHeight + 7);
     ctx.closePath();
     ctx.fill();
 
     ctx.font = 'bold 7px monospace';
     ctx.textAlign = 'center';
-    ctx.fillText(`▲ ${data.reconResult.syringeUnits} U`, pX, bY + bHeight + 13);
+    ctx.fillText(`▲ ${data.reconResult.syringeUnits} U`, pX, bY + bHeight + 14);
     ctx.textAlign = 'left';
   }
 
@@ -509,7 +544,7 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
   ctx.fill();
   ctx.stroke();
 
-  // Section 2 Header
+  // Section 2 Header (Title on left, Half-Life on right: zero collision)
   ctx.fillStyle = '#0284c7';
   ctx.beginPath();
   ctx.arc(padX + 11, curY + 14, 3.5, 0, Math.PI * 2);
@@ -519,37 +554,22 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
   ctx.font = 'bold 8.5px system-ui, sans-serif';
   ctx.fillText('2. PK ACCUMULATION & SCHEDULE', padX + 20, curY + 17);
 
-  // 4 Badges on the right: Rendered right-to-left with pill styling
-  ctx.font = 'bold 6.8px monospace';
-  const badges = [
-    { label: `Avg: ~${data.averageConcentration.toFixed(2)}mg`, color: '#0369a1', bg: '#f0f9ff', border: '#bae6fd' },
-    { label: `Trough: ~${data.troughConcentration.toFixed(2)}mg`, color: '#047857', bg: '#ecfdf5', border: '#a7f3d0' },
-    { label: `Peak: ~${data.peakConcentration.toFixed(2)}mg`, color: '#be123c', bg: '#fff1f2', border: '#fecdd3' },
-    { label: `HL: ${(data.halfLifeHours / 24).toFixed(1)}d`, color: '#334155', bg: '#f1f5f9', border: '#cbd5e1' },
-  ];
+  // Half-Life Badge on right
+  const hlBadge = `Half-Life: ${(data.halfLifeHours / 24).toFixed(1)}d (${data.halfLifeHours}h)`;
+  ctx.font = 'bold 7px monospace';
+  const hlW = ctx.measureText(hlBadge).width + 8;
+  const hlX = width - padX - 8 - hlW;
+  ctx.fillStyle = '#f1f5f9';
+  ctx.strokeStyle = '#cbd5e1';
+  ctx.lineWidth = 0.6;
+  ctx.beginPath();
+  ctx.roundRect(hlX, curY + 7, hlW, 14, 2.5);
+  ctx.fill();
+  ctx.stroke();
 
-  let currentRight = width - padX - 8;
-  for (const b of badges) {
-    const textWidth = ctx.measureText(b.label).width;
-    const bW = textWidth + 8;
-    const bBadgeH = 13;
-    const badgeX = currentRight - bW;
-    const badgeY = curY + 8;
-
-    ctx.fillStyle = b.bg;
-    ctx.strokeStyle = b.border;
-    ctx.lineWidth = 0.6;
-    ctx.beginPath();
-    ctx.roundRect(badgeX, badgeY, bW, bBadgeH, 2.5);
-    ctx.fill();
-    ctx.stroke();
-
-    ctx.fillStyle = b.color;
-    ctx.textAlign = 'center';
-    ctx.fillText(b.label, badgeX + bW / 2, badgeY + 9);
-
-    currentRight = badgeX - 4;
-  }
+  ctx.fillStyle = '#334155';
+  ctx.textAlign = 'center';
+  ctx.fillText(hlBadge, hlX + hlW / 2, curY + 17);
   ctx.textAlign = 'left';
 
   // Inner Divider
@@ -568,20 +588,30 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
   ctx.fill();
   ctx.stroke();
 
-  // Chart Title inside
+  // Chart Title inside (left: timeline, right: Peak / Trough / Avg metrics)
   ctx.fillStyle = '#475569';
   ctx.font = 'bold 7.5px system-ui, sans-serif';
-  ctx.fillText(`Plasma Accumulation Trajectory (${data.simulationDays} Days Timeline)`, padX + innerPad + 6, cBoxY + 11);
+  ctx.fillText(`Plasma Trajectory (${data.simulationDays}d Timeline)`, padX + innerPad + 6, cBoxY + 12);
+
+  // PK Metric Badges directly on the chart header (Peak / Trough / Avg)
   ctx.textAlign = 'right';
-  ctx.fillStyle = '#059669';
-  ctx.font = '7px system-ui, sans-serif';
-  ctx.fillText('● Green Dots = Injections', width - padX - innerPad - 6, cBoxY + 11);
+  ctx.font = 'bold 7px monospace';
+  ctx.fillStyle = '#0369a1';
+  ctx.fillText(`Avg: ~${data.averageConcentration.toFixed(2)}mg`, width - padX - innerPad - 6, cBoxY + 12);
+  const avgW = ctx.measureText(`Avg: ~${data.averageConcentration.toFixed(2)}mg`).width + 8;
+
+  ctx.fillStyle = '#047857';
+  ctx.fillText(`Trg: ~${data.troughConcentration.toFixed(2)}mg`, width - padX - innerPad - 6 - avgW, cBoxY + 12);
+  const trgW = ctx.measureText(`Trg: ~${data.troughConcentration.toFixed(2)}mg`).width + 8;
+
+  ctx.fillStyle = '#be123c';
+  ctx.fillText(`Peak: ~${data.peakConcentration.toFixed(2)}mg`, width - padX - innerPad - 6 - avgW - trgW, cBoxY + 12);
   ctx.textAlign = 'left';
 
   // Draw PK Spline Curve
   const cLeft = padX + innerPad + 28;
   const cRight = width - padX - innerPad - 14;
-  const cTop = cBoxY + 18;
+  const cTop = cBoxY + 20;
   const cBottom = cBoxY + cBoxH - 16;
   const cW = cRight - cLeft;
   const cH = cBottom - cTop;
@@ -699,7 +729,7 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
   }
 
   // -------------------------------------------------------------
-  // Dosing Schedule & Pen-Check Table
+  // Dosing Schedule & Pen-Check Table (Spacious, non-overlapping columns)
   // -------------------------------------------------------------
   const tblY = cBoxY + cBoxH + 6;
   ctx.fillStyle = '#ffffff';
@@ -727,11 +757,11 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
   ctx.fillStyle = '#475569';
   ctx.font = 'bold 7px system-ui, sans-serif';
   ctx.fillText('DOSE', padX + innerPad + 6, thY + 11);
-  ctx.fillText('PROTOCOL', padX + innerPad + 38, thY + 11);
-  ctx.fillText('PLANNED DATE', padX + innerPad + 86, thY + 11);
-  ctx.fillText('DOSE & UNITS', padX + innerPad + 152, thY + 11);
-  ctx.fillText('INJECTION SITE', padX + innerPad + 228, thY + 11);
-  ctx.fillText('TIME', padX + innerPad + 326, thY + 11);
+  ctx.fillText('PROTOCOL', padX + innerPad + 40, thY + 11);
+  ctx.fillText('PLANNED DATE', padX + innerPad + 92, thY + 11);
+  ctx.fillText('DOSE & UNITS', padX + innerPad + 162, thY + 11);
+  ctx.fillText('INJECTION SITE', padX + innerPad + 242, thY + 11);
+  ctx.fillText('TIME', padX + innerPad + 346, thY + 11);
   ctx.textAlign = 'center';
   ctx.fillText('DONE', width - padX - innerPad - 16, thY + 11);
   ctx.textAlign = 'left';
@@ -760,23 +790,23 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
 
     ctx.fillStyle = '#334155';
     ctx.font = '7px system-ui, sans-serif';
-    ctx.fillText(`Day ${inj.day}`, padX + innerPad + 38, rY + 13);
+    ctx.fillText(`Day ${inj.day}`, padX + innerPad + 40, rY + 13);
 
     ctx.fillStyle = '#64748b';
     ctx.font = '7px monospace';
-    ctx.fillText('___/___/202_', padX + innerPad + 86, rY + 13);
+    ctx.fillText('___/___/20_', padX + innerPad + 92, rY + 13);
 
     ctx.fillStyle = '#0f172a';
     ctx.font = 'bold 7px monospace';
-    ctx.fillText(`${inj.doseMg.toFixed(2)}mg • ${targetUnits}U`, padX + innerPad + 152, rY + 13);
+    ctx.fillText(`${inj.doseMg.toFixed(2)}mg • ${targetUnits}U`, padX + innerPad + 162, rY + 13);
 
     ctx.fillStyle = '#475569';
     ctx.font = '6.8px system-ui, sans-serif';
-    ctx.fillText('[ ] L-Abd  [ ] R-Abd', padX + innerPad + 228, rY + 13);
+    ctx.fillText('[ ] L-Abd  [ ] R-Abd', padX + innerPad + 242, rY + 13);
 
     ctx.fillStyle = '#94a3b8';
     ctx.font = '7px monospace';
-    ctx.fillText('___:___', padX + innerPad + 326, rY + 13);
+    ctx.fillText('___:___', padX + innerPad + 346, rY + 13);
 
     ctx.textAlign = 'center';
     ctx.fillStyle = '#cbd5e1';
