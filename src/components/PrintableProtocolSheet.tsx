@@ -830,7 +830,7 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
 
             {/* Hint for WeChat / Social Media in-app browsers */}
             <div className="bg-emerald-950/40 border border-emerald-500/30 rounded-lg px-3 py-2 text-xs text-emerald-300 mb-2 flex items-center justify-center text-center">
-              <span>📱 <strong>手机提示：</strong>请<strong>长按下方图片</strong>，在弹出菜单中选择<strong>「保存图片到相册」</strong>或「发送给朋友」。</span>
+              <span>📱 <strong>Mobile Tip:</strong> Long-press the image below and select <strong>&quot;Save to Photos&quot;</strong> or &quot;Share&quot;.</span>
             </div>
 
             {/* The Rendered High-Res PNG Image */}

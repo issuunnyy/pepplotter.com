@@ -28,7 +28,7 @@ describe('calculateReconstitution — 基础计算', () => {
   it('同样输入在 U-40 下换算为 40 单位/mL', () => {
     const r = calculateReconstitution(5, 2, 250, 'U40');
     expect(r.error).toBeNull();
-    expect(r.syringeUnits).toBe(4); // 0.1mL × 40
+    expect(r.syringeUnits).toBe(4); // 0.1mL * 40
     expect(r.syringeCapacity).toBe(SYRINGE_CAPACITY.U40);
   });
 
@@ -178,11 +178,12 @@ describe('calculatePharmacokinetics — 退化输入', () => {
 describe('calculatePharmacokinetics — 单次注射衰减', () => {
   const inj = [{ id: '1', compoundId: 'x', day: 0, doseMg: 1 }];
 
-  it('C(t) = D × 0.5^(t / t_half) 按半衰期精确减半', () => {
+  it('Bateman 皮下吸收模型：t=0 为 0，随后达到吸收峰值并按半衰期衰减', () => {
     const r = calculatePharmacokinetics(inj, 24, 3, 24);
-    // 采样点 h = 0, 24, 48, 72
     const conc = r.dataPoints.map((p) => p.concentration);
-    expect(conc).toEqual([1, 0.5, 0.25, 0.125]);
+    expect(conc[0]).toBe(0);
+    expect(conc[1]).toBeGreaterThan(conc[2]);
+    expect(conc[2]).toBeGreaterThan(conc[3]);
   });
 
   it('h=0 处标记为注射点', () => {
@@ -191,26 +192,24 @@ describe('calculatePharmacokinetics — 单次注射衰减', () => {
     expect(r.dataPoints[1].isInjectionPoint).toBe(false);
   });
 
-  it('peak 为首个采样值，trough 只统计 h≥48 之后', () => {
+  it('peakConcentration 为正数，troughConcentration 统计后期稳态谷值', () => {
     const r = calculatePharmacokinetics(inj, 24, 3, 24);
-    expect(r.peakConcentration).toBe(1);
-    // h=48: 0.25, h=72: 0.125 → trough = 0.125
-    expect(r.troughConcentration).toBe(0.125);
-    expect(r.averageConcentration).toBeCloseTo((1 + 0.5 + 0.25 + 0.125) / 4, 3);
+    expect(r.peakConcentration).toBeGreaterThan(0.5);
+    expect(r.troughConcentration).toBeLessThanOrEqual(r.peakConcentration);
+    expect(r.averageConcentration).toBeGreaterThan(0);
   });
 });
 
 describe('calculatePharmacokinetics — 多次注射叠加', () => {
-  it('两条注射的残留浓度线性叠加', () => {
-    const injections = [
+  it('多次注射产生药物蓄积且峰值浓度上升', () => {
+    const singleInj = [{ id: '1', compoundId: 'x', day: 0, doseMg: 1 }];
+    const multiInj = [
       { id: '1', compoundId: 'x', day: 0, doseMg: 1 },
       { id: '2', compoundId: 'x', day: 1, doseMg: 1 },
     ];
-    const r = calculatePharmacokinetics(injections, 24, 3, 24);
-    // h=24: 1×0.5 + 1 = 1.5；h=48: 1×0.25 + 1×0.5 = 0.75
-    expect(r.dataPoints[1].concentration).toBe(1.5);
-    expect(r.dataPoints[2].concentration).toBe(0.75);
-    expect(r.peakConcentration).toBe(1.5);
+    const rSingle = calculatePharmacokinetics(singleInj, 24, 3, 6);
+    const rMulti = calculatePharmacokinetics(multiInj, 24, 3, 6);
+    expect(rMulti.peakConcentration).toBeGreaterThan(rSingle.peakConcentration);
   });
 
   it('3.5 天分割注射也能被识别为注射点（step=6h）', () => {

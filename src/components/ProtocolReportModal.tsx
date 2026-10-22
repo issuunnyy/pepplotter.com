@@ -168,7 +168,7 @@ export const ProtocolReportModal: React.FC<ProtocolReportModalProps> = ({
 
         {/* Scrollable Content */}
         <div className="p-6 overflow-y-auto space-y-6 print:p-0">
-          {/* ---- SAFETY BLOCKER: 阻断态下不输出任何给药指令 ---- */}
+          {/* ---- SAFETY BLOCKER: Do not output dosing instructions when blocked ---- */}
           {blocked && (
             <div className="bg-rose-950/40 border border-rose-500/50 p-5 rounded-xl space-y-2">
               <div className="flex items-center gap-2 text-rose-300 font-bold text-sm">

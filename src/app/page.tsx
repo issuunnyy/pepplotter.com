@@ -957,7 +957,7 @@ const splitList: InjectionEntry[] = [];
                     : ''
                 }`}
               >
-{/* SAFETY BANNER: 阻断 / 超量程 */}
+{/* SAFETY BANNER: Blocked / Over Capacity */}
                 {(isBlocked || isOverflow) && (
                   <div
                     className={`p-4 rounded-xl border flex items-start gap-3 transition-all ${
