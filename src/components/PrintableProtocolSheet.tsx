@@ -381,6 +381,18 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
               rx="2"
             />
 
+            {/* Barrel Finger Grip Flange */}
+            <rect
+              x={barrelStart + barrelWidth - 1}
+              y={barrelY - 5}
+              width="6"
+              height={barrelHeight + 10}
+              fill="#475569"
+              stroke="#0f172a"
+              strokeWidth="1.2"
+              rx="1.5"
+            />
+
             {/* Medication Liquid (Green Highlight) */}
             {clampedUnits > 0 && (
               <rect
@@ -404,25 +416,26 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
               strokeWidth="1"
               rx="1"
             />
+            {/* Plunger Shaft */}
             <rect
               x={plungerX + 10}
               y={barrelY + barrelHeight / 2 - 3}
-              width={Math.max(600 - (plungerX + 10), 10)}
+              width={Math.max(barrelStart + barrelWidth + 30 + fillWidth * 0.2 - (plungerX + 10), 10)}
               height="6"
               fill="#94a3b8"
               stroke="#64748b"
               strokeWidth="0.8"
             />
-            {/* Plunger End Grip */}
+            {/* Plunger Thumb Rest Flange */}
             <rect
-              x="595"
-              y={barrelY - 3}
-              width="6"
-              height={barrelHeight + 6}
-              fill="#475569"
-              stroke="#1e293b"
-              strokeWidth="1"
-              rx="1"
+              x={Math.max(barrelStart + barrelWidth + 30 + fillWidth * 0.2, plungerX + 15)}
+              y={barrelY - 5}
+              width="7"
+              height={barrelHeight + 10}
+              fill="#334155"
+              stroke="#0f172a"
+              strokeWidth="1.2"
+              rx="1.5"
             />
 
             {/* Graduation Ticks */}
@@ -478,11 +491,11 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
         <div className="flex items-center justify-between pb-0.5 border-b border-slate-200 mb-1">
           <span className="text-[9px] uppercase font-black tracking-wider text-slate-900 flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-cyan-600 inline-block" />
-            2. Pharmacokinetic Blood Curve &amp; Dosing Calendar
+            2. PK Accumulation &amp; Schedule
           </span>
           <div className="flex items-center gap-1 text-[8px] font-mono">
-            <span className="bg-slate-100 px-1 py-0.2 rounded border border-slate-200">
-              Half-Life: <strong>{(halfLifeHours / 24).toFixed(1)}d ({halfLifeHours}h)</strong>
+            <span className="bg-slate-100 text-slate-800 px-1 py-0.2 rounded border border-slate-200">
+              HL: <strong>{(halfLifeHours / 24).toFixed(1)}d</strong>
             </span>
             <span className="bg-rose-50 text-rose-900 px-1 py-0.2 rounded border border-rose-200">
               Peak: <strong>{peakConcentration.toFixed(2)} mg</strong>
@@ -706,7 +719,7 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
         if (e.target === e.currentTarget && onClose) onClose();
       }}
     >
-      <div className="w-full max-w-[720px] my-3 sm:my-auto space-y-2 print:space-y-0 print:max-w-none">
+      <div className="w-full max-w-[720px] my-3 sm:my-auto space-y-2 print:space-y-0 print:my-0 print:m-0 print:max-w-none">
         {/* Screen Action Bar (print:hidden) */}
         <div className="bg-slate-900/95 border border-slate-700/80 rounded-xl px-3 py-2 flex flex-wrap items-center justify-between gap-2 shadow-2xl text-xs print:hidden">
           <div className="flex items-center gap-1.5">
@@ -780,7 +793,7 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
       {/* --- MOBILE IMAGE PREVIEW & LONG-PRESS OVERLAY (Zero-fail for WeChat / Twitter / Mobile) --- */}
       {previewImageUrl && (
         <div
-          className="fixed inset-0 z-[60] flex items-center justify-center p-3 bg-slate-950/90 backdrop-blur-lg animate-in fade-in duration-200"
+          className="print:hidden fixed inset-0 z-[60] flex items-center justify-center p-3 bg-slate-950/90 backdrop-blur-lg animate-in fade-in duration-200"
           onClick={() => setPreviewImageUrl(null)}
         >
           <div
