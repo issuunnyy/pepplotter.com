@@ -46,11 +46,11 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
 
   const cBoxH = 92; // PK curve chart
   const tblHeaderH = 16;
-  const rows = data.tableRows.slice(0, 4);
+  const rows = data.tableRows.slice(0, 5);
   const rowCount = Math.max(rows.length, 1);
   const rowH = 19;
-  const tblH = tblHeaderH + rowCount * rowH; // ~92px
-  const sec2H = 26 + cBoxH + 6 + tblH + 8; // ~224px
+  const tblH = tblHeaderH + rowCount * rowH; // 16 + 5*19 = 111px
+  const sec2H = 26 + cBoxH + 6 + tblH + 8; // ~243px
 
   const stripH = 54; // Compound strip
 
