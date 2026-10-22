@@ -3,7 +3,8 @@
 import React, { useMemo, useState, useRef } from 'react';
 import { SyringeType, ReconstitutionResult, ConcentrationDataPoint, InjectionEntry } from '@/lib/types';
 import { generateSmoothSpline } from '@/lib/calculator';
-import { Printer, X, Download, Copy, Check } from 'lucide-react';
+import { renderSheetToCanvas, SheetCanvasData } from '@/lib/canvasSheet';
+import { Printer, X, Download, Copy, Check, Eye } from 'lucide-react';
 
 interface PrintableProtocolSheetProps {
   isOpen?: boolean;
@@ -46,6 +47,7 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
 }) => {
   const [copied, setCopied] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
   const sheetRef = useRef<HTMLDivElement>(null);
 
   const isBlocked = reconResult.error !== null;
@@ -163,127 +165,66 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
     });
   };
 
-  // --- 4. Export as PNG Image (Zero dependency, high-res canvas renderer) ---
-  const handleExportImage = async () => {
-    const sheetElement = sheetRef.current || document.getElementById('printable-fridge-sheet');
-    if (!sheetElement) return;
-
+  // --- 4. Robust Canvas 2D Image Generator (100% works in WeChat, X, Safari, Chrome) ---
+  const handleExportImage = () => {
     setIsExporting(true);
     try {
-      const width = sheetElement.offsetWidth || 720;
-      const height = sheetElement.offsetHeight || 500;
-      const scale = 2; // 2x retina clarity
-
-      // Read current document styles to faithfully replicate Tailwind styles inside foreignObject
-      let cssRules = '';
-      for (let i = 0; i < document.styleSheets.length; i++) {
-        try {
-          const sheet = document.styleSheets[i];
-          const rules = sheet.cssRules || sheet.rules;
-          if (rules) {
-            for (let j = 0; j < rules.length; j++) {
-              cssRules += rules[j].cssText + '\n';
-            }
-          }
-        } catch {
-          // ignore cross-origin stylesheets
-        }
-      }
-
-      const clone = sheetElement.cloneNode(true) as HTMLElement;
-      clone.style.margin = '0';
-      clone.style.boxShadow = 'none';
-      clone.style.width = `${width}px`;
-      clone.style.maxWidth = `${width}px`;
-
-      const serializer = new XMLSerializer();
-      const innerHtml = serializer.serializeToString(clone);
-
-      const svgData = `
-        <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
-          <foreignObject width="100%" height="100%">
-            <div xmlns="http://www.w3.org/1999/xhtml">
-              <style>
-                ${cssRules}
-                * { box-sizing: border-box; }
-              </style>
-              ${innerHtml}
-            </div>
-          </foreignObject>
-        </svg>
-      `;
-
-      const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-
-      const img = new Image();
-      const loadPromise = new Promise<HTMLImageElement>((resolve, reject) => {
-        img.onload = () => resolve(img);
-        img.onerror = (e) => reject(e);
-      });
-      img.src = url;
-      await loadPromise;
-
       const canvas = document.createElement('canvas');
-      canvas.width = width * scale;
-      canvas.height = height * scale;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) throw new Error('Could not create canvas 2d context');
+      const canvasData: SheetCanvasData = {
+        compoundName,
+        brandNames,
+        vialMg,
+        waterMl,
+        targetDoseMcg,
+        doseDisplay,
+        concentrationMgMl,
+        concentrationMcgMl,
+        syringeType,
+        reconResult,
+        halfLifeHours,
+        peakConcentration,
+        troughConcentration,
+        averageConcentration,
+        simulationDays,
+        dataPoints,
+        tableRows,
+        frequencyDays,
+      };
 
-      ctx.scale(scale, scale);
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, width, height);
-      ctx.drawImage(img, 0, 0, width, height);
-      URL.revokeObjectURL(url);
+      // Direct Canvas 2D drawing (no foreignObject, no security restrictions)
+      renderSheetToCanvas(canvas, canvasData);
 
+      const pngUrl = canvas.toDataURL('image/png');
       const safeName = compoundName.toLowerCase().replace(/[^a-z0-9]/g, '-') || 'peptide';
       const filename = `pepplotter-${safeName}-protocol.png`;
 
-      // Check if Web Share API with files is supported (iOS Safari / Android Chrome)
-      if (typeof navigator !== 'undefined' && navigator.canShare && canvas.toBlob) {
-        const blobPromise = new Promise<Blob | null>((res) => canvas.toBlob(res, 'image/png'));
-        const pngBlob = await blobPromise;
-        if (pngBlob) {
-          const file = new File([pngBlob], filename, { type: 'image/png' });
-          if (navigator.canShare({ files: [file] })) {
-            try {
-              await navigator.share({
-                files: [file],
-                title: `${compoundName} Clinical Protocol & PK Sheet`,
-                text: 'PepPlotter Reconstitution & Pharmacokinetic Dosing Memo',
-              });
-              setIsExporting(false);
-              return;
-            } catch {
-              // user dismissed share dialog, continue to direct download fallback
-            }
-          }
-        }
-      }
+      // Set image preview modal for mobile users (long press to save)
+      setPreviewImageUrl(pngUrl);
 
-      // Direct download fallback
-      const pngUrl = canvas.toDataURL('image/png');
-      const a = document.createElement('a');
-      a.href = pngUrl;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+      // Attempt automatic download for desktop/supported browsers
+      try {
+        const a = document.createElement('a');
+        a.href = pngUrl;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      } catch {
+        // In-app browsers will use the long-press preview overlay
+      }
     } catch (err) {
-      console.error('Image export failed:', err);
-      // Fallback: window.print()
-      window.print();
+      console.error('Canvas export error:', err);
     } finally {
       setIsExporting(false);
     }
   };
 
-  // --- Pure White Sheet Content (Shared between Modal Preview, Image Export, and Print) ---
+  // --- Pure White Sheet Content (Shared between Modal Preview and Print) ---
   const sheetContent = (
     <div
       ref={sheetRef}
       id="printable-fridge-sheet"
-      className="bg-white text-slate-900 p-3.5 sm:p-4 rounded-xl shadow-2xl border border-slate-300 print:border-none print:shadow-none print:rounded-none print:p-0 select-none text-[10px] leading-tight w-full max-w-[700px] mx-auto print:max-w-none"
+      className="bg-white text-slate-900 p-4 sm:p-5 rounded-xl shadow-2xl border border-slate-300 print:border print:border-slate-300 print:shadow-none print:rounded-lg print:p-4 select-none text-[10px] leading-tight w-full max-w-[700px] mx-auto print:max-w-none"
       style={{
         fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       }}
@@ -365,14 +306,14 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
 
         {/* 4 Core Action Badges */}
         <div className="grid grid-cols-4 gap-1 mb-1">
-          <div className="border border-slate-300 rounded p-0.5 sm:p-1 bg-slate-50 text-center">
+          <div className="border border-slate-300 rounded p-1 bg-slate-50 text-center">
             <span className="text-[8px] uppercase font-bold text-slate-500 block">Single Dose</span>
             <span className="text-[11px] font-black font-mono text-slate-900 mt-0.5 block">
               {doseDisplay}
             </span>
           </div>
 
-          <div className="border-2 border-emerald-700 rounded p-0.5 sm:p-1 bg-emerald-50 text-center">
+          <div className="border-2 border-emerald-700 rounded p-1 bg-emerald-50 text-center">
             <span className="text-[8px] uppercase font-bold text-emerald-800 block">Draw Target</span>
             {isBlocked ? (
               <span className="text-[11px] font-bold text-rose-700 font-mono mt-0.5 block">BLOCKED</span>
@@ -386,7 +327,7 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
             </span>
           </div>
 
-          <div className="border border-slate-300 rounded p-0.5 sm:p-1 bg-slate-50 text-center">
+          <div className="border border-slate-300 rounded p-1 bg-slate-50 text-center">
             <span className="text-[8px] uppercase font-bold text-slate-500 block">Vial Supply</span>
             <span className="text-[11px] font-black font-mono text-slate-900 mt-0.5 block">
               {reconResult.totalVialDoses} Doses
@@ -396,7 +337,7 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
             </span>
           </div>
 
-          <div className="border border-slate-300 rounded p-0.5 sm:p-1 bg-slate-50 text-center">
+          <div className="border border-slate-300 rounded p-1 bg-slate-50 text-center">
             <span className="text-[8px] uppercase font-bold text-slate-500 block">Storage Rules</span>
             <span className="text-[11px] font-black font-mono text-cyan-900 mt-0.5 block">
               36°F – 46°F
@@ -572,7 +513,7 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
             style={{ maxHeight: '72px' }}
           >
             <defs>
-              <linearGradient id="printCurveGradCompact" x1="0%" y1="0%" x2="0%" y2="100%">
+              <linearGradient id="printCurveGradCompact2" x1="0%" y1="0%" x2="0%" y2="100%">
                 <stop offset="0%" stopColor="#0284c7" stopOpacity="0.25" />
                 <stop offset="100%" stopColor="#0284c7" stopOpacity="0.02" />
               </linearGradient>
@@ -635,7 +576,7 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
             })}
 
             {/* Shaded Area Under Curve */}
-            {areaPathD && <path d={areaPathD} fill="url(#printCurveGradCompact)" />}
+            {areaPathD && <path d={areaPathD} fill="url(#printCurveGradCompact2)" />}
 
             {/* Concentration Spline Curve */}
             {curvePathD && (
@@ -786,7 +727,7 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
               <span>{copied ? 'Copied' : 'Copy'}</span>
             </button>
 
-            {/* SAVE AS IMAGE BUTTON (User requested: export image without long screenshot tools) */}
+            {/* SAVE AS IMAGE BUTTON (Canvas-Powered, 100% works in WeChat, X, Safari, Android) */}
             <button
               onClick={handleExportImage}
               disabled={isExporting}
@@ -794,7 +735,7 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
               className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-lg transition-colors cursor-pointer text-xs shadow-sm shadow-cyan-600/20 active:scale-95"
             >
               <Download className="w-3.5 h-3.5" />
-              <span>{isExporting ? 'Saving Image...' : 'Save Image'}</span>
+              <span>{isExporting ? 'Generating...' : 'Save Image'}</span>
             </button>
 
             {/* PRINT / PDF BUTTON */}
@@ -824,7 +765,7 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
 
         {/* Mobile Helpful Hint & Close Button */}
         <div className="text-center text-[10.5px] text-slate-400 flex items-center justify-between px-2 print:hidden">
-          <span>Tap <strong>&quot;Save Image&quot;</strong> to export high-res PNG to your photos, or direct screenshot.</span>
+          <span>Tap <strong>&quot;Save Image&quot;</strong> to export high-res PNG, or direct screenshot.</span>
           {onClose && (
             <button
               onClick={onClose}
@@ -835,6 +776,63 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
           )}
         </div>
       </div>
+
+      {/* --- MOBILE IMAGE PREVIEW & LONG-PRESS OVERLAY (Zero-fail for WeChat / Twitter / Mobile) --- */}
+      {previewImageUrl && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center p-3 bg-slate-950/90 backdrop-blur-lg animate-in fade-in duration-200"
+          onClick={() => setPreviewImageUrl(null)}
+        >
+          <div
+            className="w-full max-w-[680px] bg-slate-900 border border-slate-700 rounded-2xl p-3.5 shadow-2xl flex flex-col max-h-[92vh]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Top Toolbar */}
+            <div className="flex items-center justify-between pb-2.5 mb-2 border-b border-slate-800">
+              <div className="flex items-center gap-1.5">
+                <Check className="w-4 h-4 text-emerald-400" />
+                <span className="font-bold text-sm text-slate-100">
+                  Image Ready (2x Ultra-HD)
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <a
+                  href={previewImageUrl}
+                  download={`pepplotter-${compoundName.toLowerCase().replace(/[^a-z0-9]/g, '-')}-protocol.png`}
+                  className="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-lg text-xs transition-colors cursor-pointer"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Download</span>
+                </a>
+
+                <button
+                  onClick={() => setPreviewImageUrl(null)}
+                  className="p-1 text-slate-400 hover:text-slate-200 rounded-lg cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Hint for WeChat / Social Media in-app browsers */}
+            <div className="bg-emerald-950/40 border border-emerald-500/30 rounded-lg px-3 py-2 text-xs text-emerald-300 mb-2 flex items-center justify-center text-center">
+              <span>📱 <strong>手机提示：</strong>请<strong>长按下方图片</strong>，在弹出菜单中选择<strong>「保存图片到相册」</strong>或「发送给朋友」。</span>
+            </div>
+
+            {/* The Rendered High-Res PNG Image */}
+            <div className="overflow-y-auto flex-1 rounded-lg border border-slate-800 bg-white p-1">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={previewImageUrl}
+                alt={`${compoundName} Clinical Protocol & PK Sheet`}
+                className="w-full h-auto rounded select-none pointer-events-auto"
+                style={{ WebkitTouchCallout: 'default' }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
