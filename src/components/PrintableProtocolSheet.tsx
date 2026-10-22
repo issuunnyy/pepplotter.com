@@ -144,12 +144,26 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
     xTicks.push(d);
   }
 
-  // --- 3. Dosing Schedule Table Rows (Up to 8 doses) ---
+  // --- 3. Dosing Schedule Table Rows (Up to 8 doses for full 8-week fridge tracking) ---
   const tableRows = useMemo(() => {
     if (injections && injections.length > 0) {
+      if (injections.length < 8) {
+        const lastDay = injections[injections.length - 1].day;
+        const lastDose = injections[injections.length - 1].doseMg || doseMg || 0.25;
+        const extended = [...injections];
+        for (let i = injections.length; i < 8; i++) {
+          extended.push({
+            id: `sched-${i}`,
+            compoundId: compoundName,
+            day: lastDay + (i - injections.length + 1) * frequencyDays,
+            doseMg: lastDose,
+          });
+        }
+        return extended;
+      }
       return injections.slice(0, 8);
     }
-    return [0, 1, 2, 3].map((idx) => ({
+    return [0, 1, 2, 3, 4, 5, 6, 7].map((idx) => ({
       id: `fallback-${idx}`,
       compoundId: compoundName,
       day: idx * frequencyDays,

@@ -81,6 +81,10 @@ body {
     max-height: none !important;
   }
 
+  /* ============================================================ */
+  /* PRINT OPTIMIZATION: A4 BALANCED 1-PAGE FRIDGE PROTOCOL SHEET */
+  /* Gracefully fills ~88-92% of A4 page height (no squat/flat appearance) */
+  /* ============================================================ */
   #printable-fridge-sheet {
     display: block !important;
     visibility: visible !important;
@@ -88,10 +92,10 @@ body {
     width: 100% !important;
     max-width: 100% !important;
     margin: 0 auto !important;
-    padding: 5mm 6mm !important;
+    padding: 7mm 8mm !important;
     background: #ffffff !important;
     color: #0f172a !important;
-    border: 1px solid #cbd5e1 !important;
+    border: 1.5px solid #94a3b8 !important;
     box-shadow: none !important;
     border-radius: 8px !important;
     break-inside: avoid !important;
@@ -101,6 +105,148 @@ body {
     page-break-before: avoid !important;
     break-before: avoid !important;
     overflow: visible !important;
+    font-size: 11px !important;
+    line-height: 1.4 !important;
+  }
+
+  /* 1. Document Header */
+  #printable-fridge-sheet > div:first-child {
+    padding-bottom: 2.5mm !important;
+    margin-bottom: 3.5mm !important;
+    border-bottom-width: 2.5px !important;
+  }
+  #printable-fridge-sheet > div:first-child span.text-slate-950 {
+    font-size: 14pt !important;
+    font-weight: 900 !important;
+  }
+  #printable-fridge-sheet > div:first-child p {
+    font-size: 9pt !important;
+    margin-top: 1.5mm !important;
+    color: #475569 !important;
+  }
+  #printable-fridge-sheet > div:first-child .text-right span {
+    font-size: 9.5pt !important;
+  }
+
+  /* 2. Compound Specification Strip */
+  #printable-fridge-sheet > div:nth-child(2) {
+    padding: 3.5mm 4.5mm !important;
+    margin-bottom: 3.5mm !important;
+    border: 1px solid #cbd5e1 !important;
+  }
+  #printable-fridge-sheet > div:nth-child(2) span.text-slate-950 {
+    font-size: 13pt !important;
+    font-weight: 900 !important;
+  }
+  #printable-fridge-sheet > div:nth-child(2) span.font-mono {
+    font-size: 12pt !important;
+  }
+  #printable-fridge-sheet > div:nth-child(2) .grid > div {
+    font-size: 10pt !important;
+    margin-top: 1.5mm !important;
+  }
+
+  /* 3. Section 1 (Reconstitution & Syringe Draw) */
+  #printable-fridge-sheet > div:nth-child(3) {
+    padding: 3.5mm 4.5mm !important;
+    margin-bottom: 3.5mm !important;
+    border: 1px solid #cbd5e1 !important;
+  }
+  #printable-fridge-sheet > div:nth-child(3) > div:first-child {
+    padding-bottom: 2mm !important;
+    margin-bottom: 3mm !important;
+    font-size: 11pt !important;
+  }
+  /* 4 Action Badges in Section 1 */
+  #printable-fridge-sheet > div:nth-child(3) .grid-cols-4 {
+    margin-bottom: 3mm !important;
+    gap: 2.5mm !important;
+  }
+  #printable-fridge-sheet > div:nth-child(3) .grid-cols-4 > div {
+    padding: 2.5mm 1.5mm !important;
+    min-height: 18mm !important;
+  }
+  #printable-fridge-sheet > div:nth-child(3) .grid-cols-4 span.uppercase {
+    font-size: 8.5pt !important;
+  }
+  #printable-fridge-sheet > div:nth-child(3) .grid-cols-4 span.font-mono {
+    font-size: 13pt !important;
+    margin-top: 1mm !important;
+  }
+  /* Syringe Vector Box */
+  #printable-fridge-sheet > div:nth-child(3) > div:nth-child(3) {
+    padding: 2.5mm 3.5mm !important;
+    margin-bottom: 3mm !important;
+    border: 1px solid #e2e8f0 !important;
+  }
+  #printable-fridge-sheet > div:nth-child(3) > div:nth-child(3) span {
+    font-size: 9.5pt !important;
+    margin-bottom: 1.5mm !important;
+  }
+  #printable-fridge-sheet > div:nth-child(3) svg {
+    max-height: 22mm !important;
+    height: 22mm !important;
+    width: 100% !important;
+  }
+  /* Reconstitution Recipe & SOP Boxes */
+  #printable-fridge-sheet > div:nth-child(3) > div:nth-child(4) {
+    gap: 2.5mm !important;
+  }
+  #printable-fridge-sheet > div:nth-child(3) > div:nth-child(4) > div {
+    padding: 3mm !important;
+    font-size: 9.5pt !important;
+    line-height: 1.35 !important;
+  }
+
+  /* 4. Section 2 (PK Curve & Dosing Schedule) */
+  #printable-fridge-sheet > div:nth-child(4) {
+    padding: 3.5mm 4.5mm !important;
+    margin-bottom: 3.5mm !important;
+    border: 1px solid #cbd5e1 !important;
+  }
+  #printable-fridge-sheet > div:nth-child(4) > div:first-child {
+    padding-bottom: 2mm !important;
+    margin-bottom: 3mm !important;
+    font-size: 11pt !important;
+  }
+  #printable-fridge-sheet > div:nth-child(4) > div:first-child .font-mono span {
+    font-size: 9pt !important;
+    padding: 1mm 2mm !important;
+  }
+  /* PK Curve Box */
+  #printable-fridge-sheet > div:nth-child(4) > div:nth-child(2) {
+    padding: 2.5mm 3.5mm !important;
+    margin-bottom: 3mm !important;
+    border: 1px solid #e2e8f0 !important;
+  }
+  #printable-fridge-sheet > div:nth-child(4) > div:nth-child(2) span {
+    font-size: 9.5pt !important;
+    margin-bottom: 1.5mm !important;
+  }
+  #printable-fridge-sheet > div:nth-child(4) svg {
+    max-height: 36mm !important;
+    height: 36mm !important;
+    width: 100% !important;
+  }
+  /* Administration Schedule Table */
+  #printable-fridge-sheet table {
+    font-size: 10pt !important;
+  }
+  #printable-fridge-sheet table th {
+    padding: 2mm 2.5mm !important;
+    font-size: 9pt !important;
+  }
+  #printable-fridge-sheet table td {
+    padding: 2.2mm 2.5mm !important;
+    font-size: 9.5pt !important;
+  }
+
+  /* 5. Footer */
+  #printable-fridge-sheet > div:last-child {
+    margin-top: 3mm !important;
+    padding-top: 2mm !important;
+    font-size: 8.5pt !important;
+    color: #64748b !important;
   }
 
   /* Guarantee zero blank trailing pages */
