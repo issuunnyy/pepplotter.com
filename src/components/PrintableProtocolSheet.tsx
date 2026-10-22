@@ -714,12 +714,18 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
   return (
     <div
       id="printable-sheet-modal-overlay"
-      className="fixed inset-0 z-50 flex items-start sm:items-center justify-center p-2 sm:p-4 bg-slate-950/85 backdrop-blur-md overflow-y-auto print:p-0 print:bg-white print:static print:overflow-visible animate-in fade-in duration-150"
+      className={`fixed inset-0 z-50 flex items-start sm:items-center justify-center p-2 sm:p-4 bg-slate-950/85 backdrop-blur-md print:p-0 print:bg-white print:static print:overflow-visible animate-in fade-in duration-150 ${
+        previewImageUrl ? 'overflow-hidden' : 'overflow-y-auto'
+      }`}
       onClick={(e) => {
         if (e.target === e.currentTarget && onClose) onClose();
       }}
     >
-      <div className="w-full max-w-[720px] my-3 sm:my-auto space-y-2 print:space-y-0 print:my-0 print:m-0 print:max-w-none">
+      <div
+        className={`w-full max-w-[720px] my-3 sm:my-auto space-y-2 print:space-y-0 print:my-0 print:m-0 print:max-w-none ${
+          previewImageUrl ? 'hidden print:block' : ''
+        }`}
+      >
         {/* Screen Action Bar (print:hidden) */}
         <div className="bg-slate-900/95 border border-slate-700/80 rounded-xl px-3 py-2 flex flex-wrap items-center justify-between gap-2 shadow-2xl text-xs print:hidden">
           <div className="flex items-center gap-1.5">
