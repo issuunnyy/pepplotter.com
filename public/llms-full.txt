@@ -1,0 +1,31 @@
+# PepPlotter - Full Technical & Mathematical Documentation
+
+> PepPlotter is a high-precision visual peptide reconstitution calculator and multi-dose pharmacokinetic (PK) simulator.
+
+## Mathematical Algorithms
+
+### 1. Reconstitution Concentration
+- Concentration (mg/mL) = Vial Quantity (mg) / Bacteriostatic Water Volume (mL)
+- Concentration (mcg/mL) = Concentration (mg/mL) * 1000
+
+### 2. Syringe Draw Volume & Units
+- Injection Volume (mL) = Target Dose (mg) / Concentration (mg/mL)
+- U-100 Insulin Syringe Units = Injection Volume (mL) * 100
+- U-40 Syringe Units = Injection Volume (mL) * 40
+
+### 3. Pharmacokinetic Exponential Decay & Multi-Dose Superposition
+For any given dose D_i administered at time t_i:
+- Elimination Rate Constant: k_e = ln(2) / half_life
+- Concentration Contribution: C_i(t) = (D_i / V_d) * exp(-k_e * (t - t_i)) for t >= t_i
+- Total Serum Concentration at time t: C_total(t) = Sum_{i, t >= t_i} C_i(t)
+- Steady-State Accumulation Factor: R = 1 / (1 - exp(-k_e * tau)), where tau is dosing interval.
+
+## Clinical Safety & Harm Reduction
+- Subcutaneous injection angle: 90 degrees for standard 5/16" (8mm) or 1/2" (12.7mm) insulin needles; 45 degrees if pinching minimal subcutaneous fat.
+- Aseptic procedure: 70% Isopropyl alcohol swab, allow 15 seconds to air dry.
+- Site rotation: Left abdomen, right abdomen, outer upper thigh, upper arm to prevent lipohypertrophy.
+- Reconstitution technique: Slowly run BAC water down inside glass wall. Swirl gently; do not shake violently to avoid protein denaturation.
+
+## Contact & Citation
+- Website: https://pepplotter.com
+- Inquiries: support@pepplotter.com

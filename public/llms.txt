@@ -1,0 +1,29 @@
+# PepPlotter
+
+> PepPlotter is a free, visual peptide reconstitution calculator and GLP-1 pharmacokinetic (PK) half-life accumulation plotter. It empowers researchers, clinicians, and harm-reduction advocates to calculate precise syringe draw units (U-100 & U-40), simulate multi-dose subcutaneous accumulation curves, manage dosage schedules, and export single-page printable fridge protocol sheets.
+
+## Core Features & Tools
+
+- [Peptide Reconstitution Calculator](https://pepplotter.com/#calculator): Interactive math engine calculating exact injection volume (mL) and syringe tick units from vial milligrams, bacteriostatic water volume, and target dose in micrograms (mcg) or milligrams (mg).
+- [Interactive Insulin Syringe Visualizer](https://pepplotter.com/#syringe): High-precision SVG visualizer displaying exact plunger position, calibrated graduation ticks, and target dose markers on 100-unit (U-100) and 40-unit (U-40) syringes.
+- [Multi-Dose PK Accumulation Plotter](https://pepplotter.com/#pk-graph): Pharmacokinetic simulation engine modeling exponential one-compartment elimination, steady-state accumulation, peak concentration (Cmax), trough levels (Cmin), and wash-out clearance over 7, 14, 28, or 60 days.
+- [Subcutaneous Injection Guide & SOP](https://pepplotter.com/#guide): 5-step clinical photographic guide covering sterile supplies preparation, aseptic swab technique, bubble-free fluid drawing, 90-degree subcutaneous injection, and sharps disposal.
+- [Printable Fridge Protocol Sheet & Pen-Check Log](https://pepplotter.com/#printable-sheet): Single-page A4 printable fridge cheat sheet and high-definition PNG export with 5-dose injection logs, reconstitution recipe, and site rotation trackers.
+
+## Supported Compounds & Presets
+
+- Semaglutide (Ozempic / Wegovy) - GLP-1 receptor agonist, half-life: ~168 hours (7 days)
+- Tirzepatide (Mounjaro / Zepbound) - Dual GIP / GLP-1 receptor agonist, half-life: ~120 hours (5 days)
+- Retatrutide - Triple GGG agonist (GLP-1 / GIP / Glucagon), half-life: ~144 hours (6 days)
+- BPC-157 - Body Protection Compound peptide, half-life: ~4 hours
+- TB-500 (Thymosin Beta-4) - Tissue repair peptide, half-life: ~24 hours
+- Cagrilintide - Long-acting amylin analogue, half-life: ~168 hours (7 days)
+- Sermorelin, Ipamorelin, CJC-1295, GHK-Cu, NAD+, MOTS-c, MT-2
+
+## Reference Documentation & Legal
+
+- [Full LLM Context](https://pepplotter.com/llms-full.txt): Complete in-depth technical documentation and mathematical formulas.
+- [Privacy Policy](https://pepplotter.com/privacy): Data privacy, cookie usage, and zero telemetry guarantee.
+- [Terms of Service](https://pepplotter.com/terms): Terms governing calculator algorithms and web tool usage.
+- [Refund Policy](https://pepplotter.com/refund): Terms regarding free tools and digital donations/subscriptions.
+- [Medical Disclaimer](https://pepplotter.com/disclaimer): Educational and harm-reduction research disclaimer; not medical advice.
