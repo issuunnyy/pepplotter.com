@@ -19,6 +19,29 @@ export interface SheetCanvasData {
   dataPoints: ConcentrationDataPoint[];
   tableRows: { day: number; doseMg: number }[];
   frequencyDays: number;
+  startDate?: string;
+}
+
+/**
+ * Format a planned injection date given a base YYYY-MM-DD string and day offset.
+ * Example output: "Oct 24 (Fri)"
+ */
+export function formatPlannedDate(baseDateStr?: string, dayOffset: number = 0): string {
+  if (!baseDateStr) return '___/___/20_';
+  try {
+    const parts = baseDateStr.split('-').map(Number);
+    if (parts.length !== 3 || !parts[0] || !parts[1] || !parts[2]) return '___/___/20_';
+    const [y, m, d] = parts;
+    const target = new Date(y, m - 1, d + dayOffset);
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const mStr = monthNames[target.getMonth()];
+    const dStr = String(target.getDate()).padStart(2, '0');
+    const wStr = dayNames[target.getDay()];
+    return `${mStr} ${dStr} (${wStr})`;
+  } catch {
+    return '___/___/20_';
+  }
 }
 
 /**
@@ -792,9 +815,10 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
     ctx.font = '7px system-ui, sans-serif';
     ctx.fillText(`Day ${inj.day}`, padX + innerPad + 40, rY + 13);
 
-    ctx.fillStyle = '#64748b';
-    ctx.font = '7px monospace';
-    ctx.fillText('___/___/20_', padX + innerPad + 92, rY + 13);
+    const plannedDateStr = formatPlannedDate(data.startDate, inj.day);
+    ctx.fillStyle = '#0f172a';
+    ctx.font = 'bold 7px monospace';
+    ctx.fillText(plannedDateStr, padX + innerPad + 92, rY + 13);
 
     ctx.fillStyle = '#0f172a';
     ctx.font = 'bold 7px monospace';

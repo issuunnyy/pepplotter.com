@@ -3,8 +3,8 @@
 import React, { useMemo, useState, useRef } from 'react';
 import { SyringeType, ReconstitutionResult, ConcentrationDataPoint, InjectionEntry } from '@/lib/types';
 import { generateSmoothSpline } from '@/lib/calculator';
-import { renderSheetToCanvas, SheetCanvasData } from '@/lib/canvasSheet';
-import { Printer, X, Download, Copy, Check, Eye } from 'lucide-react';
+import { renderSheetToCanvas, SheetCanvasData, formatPlannedDate } from '@/lib/canvasSheet';
+import { Printer, X, Download, Copy, Check, Eye, Calendar } from 'lucide-react';
 
 interface PrintableProtocolSheetProps {
   isOpen?: boolean;
@@ -24,6 +24,7 @@ interface PrintableProtocolSheetProps {
   dataPoints: ConcentrationDataPoint[];
   injections: InjectionEntry[];
   frequencyDays?: number;
+  initialStartDate?: string;
 }
 
 export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
@@ -44,7 +45,17 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
   dataPoints,
   injections,
   frequencyDays = 7,
+  initialStartDate,
 }) => {
+  const getTodayIso = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const [startDate, setStartDate] = useState<string>(initialStartDate || getTodayIso);
   const [copied, setCopied] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
@@ -172,7 +183,7 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
   }, [injections, compoundName, frequencyDays, doseMg]);
 
   const handleCopySummary = () => {
-    const summary = `📋 ${compoundName} Protocol\n• Dose: ${doseDisplay} (${reconResult.syringeUnits} Units on ${syringeType})\n• Mixing: ${vialMg}mg vial + ${waterMl}mL BAC water (${concentrationMgMl.toFixed(2)} mg/mL)\n• Half-Life: ${(halfLifeHours / 24).toFixed(1)}d | Peak: ~${peakConcentration.toFixed(2)}mg\n• Generated via PepPlotter (https://pepplotter.com)`;
+    const summary = `📋 ${compoundName} Protocol\n• Start Date: ${formatPlannedDate(startDate, 0)}\n• Dose: ${doseDisplay} (${reconResult.syringeUnits} Units on ${syringeType})\n• Mixing: ${vialMg}mg vial + ${waterMl}mL BAC water (${concentrationMgMl.toFixed(2)} mg/mL)\n• Half-Life: ${(halfLifeHours / 24).toFixed(1)}d | Peak: ~${peakConcentration.toFixed(2)}mg\n• Generated via PepPlotter (https://pepplotter.com)`;
     navigator.clipboard?.writeText(summary).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
@@ -203,6 +214,7 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
         dataPoints,
         tableRows,
         frequencyDays,
+        startDate,
       };
 
       // Direct Canvas 2D drawing (no foreignObject, no security restrictions)
@@ -648,8 +660,8 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
             <span className="text-[8px] uppercase font-bold text-slate-700 tracking-wider">
               Administration Schedule &amp; Physical Pen-Check Log
             </span>
-            <span className="text-[7.5px] text-slate-500">
-              Rotate injection sites to prevent lipohypertrophy
+            <span className="text-[7.5px] text-slate-600 font-medium">
+              Start: <strong className="text-slate-950 font-bold">{formatPlannedDate(startDate, 0)}</strong> • Rotate injection sites
             </span>
           </div>
 
@@ -658,7 +670,7 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
               <tr className="border-b border-slate-200 bg-slate-50 text-[8px] uppercase text-slate-600 font-bold">
                 <th className="py-0.5 px-1.5 w-8 text-center border-r border-slate-200">Dose</th>
                 <th className="py-0.5 px-1.5 w-14 border-r border-slate-200">Protocol</th>
-                <th className="py-0.5 px-1.5 w-20 border-r border-slate-200">Planned Date</th>
+                <th className="py-0.5 px-1.5 w-24 border-r border-slate-200 text-slate-900 font-bold">Planned Date</th>
                 <th className="py-0.5 px-1.5 w-24 border-r border-slate-200">Dose &amp; Units</th>
                 <th className="py-0.5 px-1.5 border-r border-slate-200">Injection Site</th>
                 <th className="py-0.5 px-1.5 w-16 border-r border-slate-200">Time Given</th>
@@ -680,8 +692,8 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
                     <td className="py-0.5 px-1.5 text-slate-700 border-r border-slate-200">
                       Day {inj.day}
                     </td>
-                    <td className="py-0.5 px-1.5 text-slate-600 border-r border-slate-200">
-                      ___/___/202_
+                    <td className="py-0.5 px-1.5 font-bold text-slate-950 border-r border-slate-200 whitespace-nowrap bg-emerald-50/50 print:bg-transparent">
+                      {formatPlannedDate(startDate, inj.day)}
                     </td>
                     <td className="py-0.5 px-1.5 font-bold text-slate-900 border-r border-slate-200 whitespace-nowrap">
                       {inj.doseMg.toFixed(2)}mg • {targetUnits} U
@@ -742,11 +754,28 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
       >
         {/* Screen Action Bar (print:hidden) */}
         <div className="bg-slate-900/95 border border-slate-700/80 rounded-xl px-3 py-2 flex flex-wrap items-center justify-between gap-2 shadow-2xl text-xs print:hidden">
-          <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
-            <span className="font-bold text-slate-100">
-              A4 Protocol Sheet
-            </span>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+              <span className="font-bold text-slate-100 hidden sm:inline">
+                A4 Protocol Sheet
+              </span>
+            </div>
+
+            {/* Interactive Start Date Picker (Auto-calculates subsequent injection dates) */}
+            <label
+              className="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-750 border border-slate-700 rounded-lg px-2.5 py-1 text-slate-200 cursor-pointer transition-colors shadow-sm"
+              title="Select first injection date; all subsequent dose dates will auto-calculate"
+            >
+              <Calendar className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+              <span className="text-[11px] font-semibold text-slate-300 whitespace-nowrap">Start:</span>
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="bg-transparent text-emerald-300 font-mono text-xs font-bold focus:outline-none cursor-pointer [color-scheme:dark]"
+              />
+            </label>
           </div>
 
           <div className="flex items-center gap-1.5">
