@@ -83,8 +83,8 @@ No active injection schedule to plot.
   // Y-axis tick marks
   const yTicks = [0, maxVal * 0.33, maxVal * 0.66, maxVal];
 
-  // X-axis day labels (every 7 days or depending on totalDays)
-  const xDayStep = totalDays <= 14 ? 2 : totalDays <= 30 ? 7 : 14;
+  // X-axis day labels (every 1, 2, 7, or 14 days depending on totalDays)
+  const xDayStep = totalDays <= 7 ? 1 : totalDays <= 14 ? 2 : totalDays <= 30 ? 7 : 14;
   const xTicks = [];
   for (let d = 0; d <= totalDays; d += xDayStep) {
     xTicks.push(d);

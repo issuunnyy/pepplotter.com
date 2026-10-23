@@ -40,7 +40,8 @@ import {
   FileText,
   HeartPulse,
   MessageSquare,
-  Printer
+  Printer,
+  Info
 } from 'lucide-react';
 
 export default function Home() {
@@ -182,12 +183,13 @@ export default function Home() {
   const [simulationDays, setSimulationDays] = useState<number>(28);
   const [isSplitDoseMode, setIsSplitDoseMode] = useState<boolean>(false);
 
-  // Default 4-week injection schedule (e.g. Day 0, Day 7, Day 14, Day 21)
+  // Default 4-week injection schedule (Day 0, Day 7, Day 14, Day 21, Day 28)
   const [injections, setInjections] = useState<InjectionEntry[]>([
     { id: '1', compoundId: 'semaglutide', day: 0, doseMg: 0.25 },
     { id: '2', compoundId: 'semaglutide', day: 7, doseMg: 0.25 },
     { id: '3', compoundId: 'semaglutide', day: 14, doseMg: 0.25 },
     { id: '4', compoundId: 'semaglutide', day: 21, doseMg: 0.25 },
+    { id: '5', compoundId: 'semaglutide', day: 28, doseMg: 0.25 },
   ]);
 
   // Current active preset object
@@ -215,15 +217,23 @@ export default function Home() {
       setCustomHalfLifeDays(preset.halfLifeHours / 24);
     }
 
-    // Automatically synchronize Tab 2 injection schedule with compound defaults
+    // Set clinically optimized timeline span based on compound pharmacokinetics
+    const targetSpan = preset.id === 'bpc157' ? 7 : 28;
+    setSimulationDays(targetSpan);
+
+    // Automatically synchronize Tab 2 injection schedule across the full timeline span
     const defaultDoseMg = Number((preset.defaultDoseMcg / 1000).toFixed(3));
     const freq = preset.standardFrequencyDays || 7;
-    setInjections([
-      { id: crypto.randomUUID(), compoundId: preset.id, day: 0, doseMg: defaultDoseMg },
-      { id: crypto.randomUUID(), compoundId: preset.id, day: freq, doseMg: defaultDoseMg },
-      { id: crypto.randomUUID(), compoundId: preset.id, day: freq * 2, doseMg: defaultDoseMg },
-      { id: crypto.randomUUID(), compoundId: preset.id, day: freq * 3, doseMg: defaultDoseMg },
-    ]);
+    const generatedInjections: InjectionEntry[] = [];
+    for (let day = 0; day <= targetSpan; day = Number((day + freq).toFixed(1))) {
+      generatedInjections.push({
+        id: crypto.randomUUID(),
+        compoundId: preset.id,
+        day,
+        doseMg: defaultDoseMg,
+      });
+    }
+    setInjections(generatedInjections);
     setIsSplitDoseMode(false);
   };
 
@@ -245,17 +255,23 @@ export default function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [safeTargetDoseMcg]);
 
-  // Manual one-click synchronization from current calculator dose to Tab 2 schedule
+  // Manual one-click synchronization from current calculator dose across full simulation schedule
   const syncCurrentDoseToSchedule = () => {
     const currentDoseMg = Number(
       ((safeTargetDoseMcg || activePreset.defaultDoseMcg) / (isSplitDoseMode ? 2000 : 1000)).toFixed(3)
     );
-    setInjections((prev) =>
-      prev.map((inj) => ({
-        ...inj,
+    const baseFreq = activePreset.standardFrequencyDays || 7;
+    const freq = isSplitDoseMode ? baseFreq / 2 : baseFreq;
+    const synced: InjectionEntry[] = [];
+    for (let day = 0; day <= simulationDays; day = Number((day + freq).toFixed(1))) {
+      synced.push({
+        id: crypto.randomUUID(),
+        compoundId: plotCompoundId,
+        day,
         doseMg: currentDoseMg,
-      }))
-    );
+      });
+    }
+    setInjections(synced);
   };
 
   // Reconstitution calculation result using safe numeric values
@@ -1227,7 +1243,7 @@ const splitList: InjectionEntry[] = [];
                 {/* Clinical Relationship Callout */}
                 <p className="text-[11px] text-slate-300/90 leading-relaxed max-w-3xl pt-0.5">
                   <strong className="text-cyan-200">How PK Simulation connects to your Calculator:</strong>{' '}
-                  Your vial size ({safeVialMg}mg) and added water ({safeWaterMl}mL) determine your physical syringe draw ({reconResult.syringeUnits} units). Once injected subcutaneously, your body metabolizes the <strong className="text-white font-mono">{((safeTargetDoseMcg || activePreset.defaultDoseMcg) / 1000).toFixed(2)} mg</strong> active drug according to its <strong className="text-cyan-300">{plotPreset.halfLifeHours / 24}d half-life</strong>.
+                  Your vial size ({safeVialMg}mg) and added water ({safeWaterMl}mL) determine your physical syringe draw ({reconResult.syringeUnits} units). Once injected subcutaneously, your body metabolizes the <strong className="text-white font-mono">{((safeTargetDoseMcg || activePreset.defaultDoseMcg) / 1000).toFixed(2)} mg</strong> active drug according to its <strong className="text-cyan-300">{plotPreset.halfLifeHours >= 24 ? `${(plotPreset.halfLifeHours / 24).toFixed(1)}d` : `${plotPreset.halfLifeHours}h (${(plotPreset.halfLifeHours / 24).toFixed(1)}d)`} half-life</strong>.
                 </p>
               </div>
 
@@ -1333,6 +1349,7 @@ const splitList: InjectionEntry[] = [];
                   onChange={(e) => setSimulationDays(parseInt(e.target.value))}
                   className="bg-slate-950 border border-slate-700 text-slate-100 text-xs font-semibold rounded-xl px-3 py-2 outline-none cursor-pointer"
                 >
+                  <option value={7}>1 Week (7 Days)</option>
                   <option value={14}>2 Weeks (14 Days)</option>
                   <option value={28}>4 Weeks (28 Days)</option>
                   <option value={42}>6 Weeks (42 Days)</option>
@@ -1386,6 +1403,27 @@ const splitList: InjectionEntry[] = [];
               compoundName={plotPreset.name}
               halfLifeHours={halfLifeHours}
             />
+
+            {/* Clinical Pharmacokinetics Callout for Short Half-Life Tissue Repair Peptides */}
+            {(plotCompoundId === 'bpc157' || plotCompoundId === 'tb500') && (
+              <div className="bg-gradient-to-r from-cyan-950/40 via-slate-900/60 to-slate-950/40 border border-cyan-800/40 rounded-xl p-3 sm:p-3.5 text-xs text-slate-300 leading-relaxed flex items-start gap-2.5 shadow-sm">
+                <Info className="w-4 h-4 text-cyan-400 mt-0.5 shrink-0" />
+                <div>
+                  <span className="font-bold text-cyan-200 block mb-0.5">
+                    Clinical Pharmacokinetics Insight ({plotPreset.name}):
+                  </span>
+                  {plotCompoundId === 'bpc157' ? (
+                    <p className="text-[11.5px] text-slate-300/90 leading-snug">
+                      <strong>BPC-157</strong> has an ultra-rapid circulating plasma elimination half-life (<strong>~4 hours</strong>) as systemic peptidases metabolize the pentadecapeptide. In clinical research and athletic recovery protocols, <strong>daily administration (QD)</strong> is standard to maintain steady cellular stimulation. Downstream tissue recovery (VEGFR2 angiogenesis, focal adhesion kinase activation, and granulation tissue acceleration) continues at the cellular level for 24–48 hours post-clearance.
+                    </p>
+                  ) : (
+                    <p className="text-[11.5px] text-slate-300/90 leading-snug">
+                      <strong>TB-500 (Thymosin Beta-4)</strong> exhibits a systemic plasma half-life of <strong>~24 hours (1.0 day)</strong>. While circulating blood levels peak and decline over 1–2 days, its binding to G-actin and stimulation of cell migration and anti-fibrotic remodeling in injured tissues is sustained across multi-day intervals, supporting a standard <strong>twice-weekly (every 3.5 days) loading schedule</strong>.
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* Injection Schedule Table & Manager */}
             <div className="bg-slate-900/70 border border-slate-800 rounded-2xl p-4 sm:p-5">
