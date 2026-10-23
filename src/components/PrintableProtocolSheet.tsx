@@ -155,35 +155,47 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
     xTicks.push(d);
   }
 
-  // --- 3. Dosing Schedule Table Rows (5 doses matching 28-day cycle, fits strictly within 1 A4 page) ---
-  const tableRows = useMemo(() => {
+  // --- 3. Dosing Schedule Table Rows (Max 10 doses per page for crisp single A4 page fit) ---
+  const MAX_DOSES_PER_PAGE = 10;
+  const [activeBatchIndex, setActiveBatchIndex] = useState(0);
+
+  // Derive complete list of scheduled doses with 1-based global doseNumber
+  const allDoses = useMemo(() => {
     if (injections && injections.length > 0) {
-      if (injections.length < 5) {
-        const lastDay = injections[injections.length - 1].day;
-        const lastDose = injections[injections.length - 1].doseMg || doseMg || 0.25;
-        const extended = [...injections];
-        for (let i = injections.length; i < 5; i++) {
-          extended.push({
-            id: `sched-${i}`,
-            compoundId: compoundName,
-            day: lastDay + (i - injections.length + 1) * frequencyDays,
-            doseMg: lastDose,
-          });
-        }
-        return extended;
-      }
-      return injections.slice(0, 5);
+      return injections.map((inj, idx) => ({
+        ...inj,
+        doseNumber: idx + 1,
+      }));
     }
     return [0, 1, 2, 3, 4].map((idx) => ({
       id: `fallback-${idx}`,
       compoundId: compoundName,
       day: idx * frequencyDays,
       doseMg: doseMg || 2.5,
+      doseNumber: idx + 1,
     }));
   }, [injections, compoundName, frequencyDays, doseMg]);
 
+  const totalDoses = allDoses.length;
+  const totalBatches = Math.max(1, Math.ceil(totalDoses / MAX_DOSES_PER_PAGE));
+  const safeBatchIndex = Math.min(activeBatchIndex, totalBatches - 1);
+  const startDoseIdx = safeBatchIndex * MAX_DOSES_PER_PAGE;
+  const endDoseIdx = Math.min(startDoseIdx + MAX_DOSES_PER_PAGE, totalDoses);
+
+  const tableRows = useMemo(() => {
+    return allDoses.slice(startDoseIdx, endDoseIdx);
+  }, [allDoses, startDoseIdx, endDoseIdx]);
+
+  // Keep active batch index within valid range if injections change
+  React.useEffect(() => {
+    if (activeBatchIndex >= totalBatches) {
+      setActiveBatchIndex(0);
+    }
+  }, [totalBatches, activeBatchIndex]);
+
   const handleCopySummary = () => {
-    const summary = `📋 ${compoundName} Protocol\n• Start Date: ${formatPlannedDate(startDate, 0)}\n• Dose: ${doseDisplay} (${reconResult.syringeUnits} Units on ${syringeType})\n• Mixing: ${vialMg}mg vial + ${waterMl}mL BAC water (${concentrationMgMl.toFixed(2)} mg/mL)\n• Half-Life: ${(halfLifeHours / 24).toFixed(1)}d | Peak: ~${peakConcentration.toFixed(2)}mg\n• Generated via PepPlotter (https://pepplotter.com)`;
+    const batchText = totalBatches > 1 ? ` (Batch ${safeBatchIndex + 1}/${totalBatches}: Doses #${startDoseIdx + 1}–#${endDoseIdx})` : '';
+    const summary = `📋 ${compoundName} Protocol${batchText}\n• Start Date: ${formatPlannedDate(startDate, 0)}\n• Dose: ${doseDisplay} (${reconResult.syringeUnits} Units on ${syringeType})\n• Mixing: ${vialMg}mg vial + ${waterMl}mL BAC water (${concentrationMgMl.toFixed(2)} mg/mL)\n• Half-Life: ${(halfLifeHours / 24).toFixed(1)}d | Peak: ~${peakConcentration.toFixed(2)}mg\n• Generated via PepPlotter (https://pepplotter.com)`;
     navigator.clipboard?.writeText(summary).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
@@ -195,6 +207,13 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
     setIsExporting(true);
     try {
       const canvas = document.createElement('canvas');
+      const batchInfo = totalBatches > 1 ? {
+        currentBatch: safeBatchIndex + 1,
+        totalBatches,
+        startDoseNumber: startDoseIdx + 1,
+        totalDoses,
+      } : undefined;
+
       const canvasData: SheetCanvasData = {
         compoundName,
         brandNames,
@@ -215,6 +234,7 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
         tableRows,
         frequencyDays,
         startDate,
+        batchInfo,
       };
 
       // Direct Canvas 2D drawing (no foreignObject, no security restrictions)
@@ -222,7 +242,8 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
 
       const pngUrl = canvas.toDataURL('image/png');
       const safeName = compoundName.toLowerCase().replace(/[^a-z0-9]/g, '-') || 'peptide';
-      const filename = `pepplotter-${safeName}-protocol.png`;
+      const batchSuffix = totalBatches > 1 ? `-batch${safeBatchIndex + 1}` : '';
+      const filename = `pepplotter-${safeName}-protocol${batchSuffix}.png`;
 
       // Set image preview modal for mobile users (long press to save)
       setPreviewImageUrl(pngUrl);
@@ -262,12 +283,13 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
             <span className="text-xs sm:text-sm font-black tracking-tight text-slate-950 uppercase">
               PepPlotter Clinical Protocol &amp; PK Report
             </span>
-            <span className="px-1 py-0.2 text-[8px] font-bold uppercase tracking-wider bg-slate-900 text-white rounded">
-              Memo
+            <span className="px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider bg-slate-900 text-white rounded">
+              {totalBatches > 1 ? `Memo · Batch ${safeBatchIndex + 1}/${totalBatches}` : 'Memo'}
             </span>
           </div>
           <p className="text-[9px] text-slate-600 mt-0.5">
             Reconstitution Guide • Syringe Draw Target • Pharmacokinetic Curve • Administration Log
+            {totalBatches > 1 ? ` (Doses #${startDoseIdx + 1}–#${endDoseIdx} of ${totalDoses})` : ''}
           </p>
         </div>
         <div className="text-right">
@@ -659,6 +681,7 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
           <div className="bg-slate-100 px-1.5 py-0.5 border-b border-slate-300 flex items-center justify-between">
             <span className="text-[8px] uppercase font-bold text-slate-700 tracking-wider">
               Administration Schedule &amp; Physical Pen-Check Log
+              {totalBatches > 1 ? ` (Batch ${safeBatchIndex + 1}/${totalBatches})` : ''}
             </span>
             <span className="text-[7.5px] text-slate-600 font-medium">
               Start: <strong className="text-slate-950 font-bold">{formatPlannedDate(startDate, 0)}</strong> • Rotate injection sites
@@ -683,11 +706,12 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
                   concentrationMgMl > 0
                     ? Number(((inj.doseMg / concentrationMgMl) * (syringeType === 'U100' ? 100 : 40)).toFixed(1))
                     : 0;
+                const doseNum = inj.doseNumber ?? (startDoseIdx + idx + 1);
 
                 return (
                   <tr key={inj.id || idx} className="hover:bg-slate-50">
                     <td className="py-0.5 px-1.5 text-center font-bold text-slate-900 border-r border-slate-200">
-                      #{idx + 1}
+                      #{doseNum}
                     </td>
                     <td className="py-0.5 px-1.5 text-slate-700 border-r border-slate-200">
                       Day {inj.day}
@@ -712,6 +736,17 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
               })}
             </tbody>
           </table>
+
+          {totalBatches > 1 && (
+            <div className="bg-slate-50 px-2 py-0.5 border-t border-slate-200 flex items-center justify-between text-[7.5px] text-slate-500 font-sans">
+              <span>
+                Showing <strong>Doses #{startDoseIdx + 1}–#{endDoseIdx} of {totalDoses}</strong> (Max 10 doses per single A4 sheet for pen-check readability).
+              </span>
+              <span className="font-semibold text-slate-700">
+                Batch {safeBatchIndex + 1} of {totalBatches}
+              </span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -754,7 +789,7 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
       >
         {/* Screen Action Bar (print:hidden) */}
         <div className="bg-slate-900/95 border border-slate-700/80 rounded-xl px-3 py-2 flex flex-wrap items-center justify-between gap-2 shadow-2xl text-xs print:hidden">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center flex-wrap gap-2">
             <div className="flex items-center gap-1.5">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
               <span className="font-bold text-slate-100 hidden sm:inline">
@@ -776,6 +811,33 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
                 className="bg-transparent text-emerald-300 font-mono text-xs font-bold focus:outline-none cursor-pointer [color-scheme:dark]"
               />
             </label>
+
+            {/* Batch Selector (Only shown if totalDoses > 10) */}
+            {totalBatches > 1 && (
+              <div className="flex items-center gap-1 bg-slate-800/90 border border-slate-700/80 rounded-lg p-0.5 text-slate-300 text-[11px]">
+                <span className="px-1.5 font-medium text-slate-400 text-[10px] uppercase">Batch:</span>
+                {Array.from({ length: totalBatches }).map((_, bIdx) => {
+                  const bStart = bIdx * MAX_DOSES_PER_PAGE + 1;
+                  const bEnd = Math.min((bIdx + 1) * MAX_DOSES_PER_PAGE, totalDoses);
+                  const isActive = bIdx === safeBatchIndex;
+                  return (
+                    <button
+                      key={bIdx}
+                      type="button"
+                      onClick={() => setActiveBatchIndex(bIdx)}
+                      className={`px-2 py-0.5 rounded font-semibold text-[11px] transition-all cursor-pointer ${
+                        isActive
+                          ? 'bg-cyan-500 text-slate-950 shadow-sm font-bold'
+                          : 'text-slate-300 hover:bg-slate-700 hover:text-white'
+                      }`}
+                      title={`View doses #${bStart} to #${bEnd}`}
+                    >
+                      Doses {bStart}–{bEnd}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           <div className="flex items-center gap-1.5">
@@ -861,7 +923,7 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
               <div className="flex items-center gap-2">
                 <a
                   href={previewImageUrl}
-                  download={`pepplotter-${compoundName.toLowerCase().replace(/[^a-z0-9]/g, '-')}-protocol.png`}
+                  download={`pepplotter-${compoundName.toLowerCase().replace(/[^a-z0-9]/g, '-')}-protocol${totalBatches > 1 ? `-batch${safeBatchIndex + 1}` : ''}.png`}
                   className="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-lg text-xs transition-colors cursor-pointer"
                 >
                   <Download className="w-3.5 h-3.5" />

@@ -17,9 +17,15 @@ export interface SheetCanvasData {
   averageConcentration: number;
   simulationDays: number;
   dataPoints: ConcentrationDataPoint[];
-  tableRows: { day: number; doseMg: number }[];
+  tableRows: { day: number; doseMg: number; doseNumber?: number }[];
   frequencyDays: number;
   startDate?: string;
+  batchInfo?: {
+    currentBatch: number;
+    totalBatches: number;
+    startDoseNumber: number;
+    totalDoses: number;
+  };
 }
 
 /**
@@ -90,11 +96,13 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
 
   const cBoxH = 92; // PK curve chart
   const tblHeaderH = 16;
-  const rows = data.tableRows.slice(0, 5);
+  const rows = data.tableRows.slice(0, 10);
   const rowCount = Math.max(rows.length, 1);
-  const rowH = 19;
-  const tblH = tblHeaderH + rowCount * rowH; // 16 + 5*19 = 111px
-  const sec2H = 26 + cBoxH + 6 + tblH + 8; // ~243px
+  const rowH = rowCount > 6 ? 17.5 : 19;
+  const hasBatchNote = Boolean(data.batchInfo && data.batchInfo.totalBatches > 1);
+  const batchNoteH = hasBatchNote ? 14 : 0;
+  const tblH = tblHeaderH + rowCount * rowH + batchNoteH;
+  const sec2H = 26 + cBoxH + 6 + tblH + 8;
 
   const stripH = 54; // Compound strip
 
@@ -135,8 +143,10 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
 
   // Badge "MEMO" (dynamically placed after title to prevent collision)
   const titleW = ctx.measureText(mainTitle).width;
-  const memoText = 'MEMO';
-  ctx.font = 'bold 7.5px system-ui, -apple-system, sans-serif';
+  const memoText = data.batchInfo && data.batchInfo.totalBatches > 1
+    ? `MEMO • BATCH ${data.batchInfo.currentBatch}/${data.batchInfo.totalBatches}`
+    : 'MEMO';
+  ctx.font = 'bold 7px system-ui, -apple-system, sans-serif';
   const memoW = ctx.measureText(memoText).width + 8;
   const memoX = padX + titleW + 8;
   ctx.fillStyle = '#0f172a';
@@ -161,7 +171,10 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
   curY += 23;
   ctx.fillStyle = '#64748b';
   ctx.font = '7.5px system-ui, sans-serif';
-  ctx.fillText('Reconstitution Guide • Syringe Draw Target • Pharmacokinetic Curve • Administration Log', padX, curY);
+  const subText = data.batchInfo && data.batchInfo.totalBatches > 1
+    ? `Reconstitution Guide • Syringe Draw Target • PK Curve • Administration Log (Doses #${data.batchInfo.startDoseNumber}–#${data.batchInfo.startDoseNumber + rows.length - 1} of ${data.batchInfo.totalDoses})`
+    : 'Reconstitution Guide • Syringe Draw Target • Pharmacokinetic Curve • Administration Log';
+  ctx.fillText(subText, padX, curY);
 
   // Divider
   curY += 6;
@@ -830,37 +843,62 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
         ? Number(((inj.doseMg / data.concentrationMgMl) * (data.syringeType === 'U100' ? 100 : 40)).toFixed(1))
         : 0;
 
+    const doseNum = inj.doseNumber ?? (idx + 1);
     ctx.fillStyle = '#0f172a';
     ctx.font = 'bold 7.5px monospace';
-    ctx.fillText(`#${idx + 1}`, padX + innerPad + 6, rY + 13);
+    ctx.fillText(`#${doseNum}`, padX + innerPad + 6, rY + (rowH > 18 ? 13 : 12));
 
     ctx.fillStyle = '#334155';
     ctx.font = '7px system-ui, sans-serif';
-    ctx.fillText(`Day ${inj.day}`, padX + innerPad + 40, rY + 13);
+    ctx.fillText(`Day ${inj.day}`, padX + innerPad + 40, rY + (rowH > 18 ? 13 : 12));
 
     const plannedDateStr = formatPlannedDate(data.startDate, inj.day);
     ctx.fillStyle = '#0f172a';
     ctx.font = 'bold 7px monospace';
-    ctx.fillText(plannedDateStr, padX + innerPad + 92, rY + 13);
+    ctx.fillText(plannedDateStr, padX + innerPad + 92, rY + (rowH > 18 ? 13 : 12));
 
     ctx.fillStyle = '#0f172a';
     ctx.font = 'bold 7px monospace';
-    ctx.fillText(`${inj.doseMg.toFixed(2)}mg • ${targetUnits}U`, padX + innerPad + 162, rY + 13);
+    ctx.fillText(`${inj.doseMg.toFixed(2)}mg • ${targetUnits}U`, padX + innerPad + 162, rY + (rowH > 18 ? 13 : 12));
 
     ctx.fillStyle = '#475569';
     ctx.font = '6.8px system-ui, sans-serif';
-    ctx.fillText('[ ] L-Abd  [ ] R-Abd', padX + innerPad + 242, rY + 13);
+    ctx.fillText('[ ] L-Abd  [ ] R-Abd', padX + innerPad + 242, rY + (rowH > 18 ? 13 : 12));
 
     ctx.fillStyle = '#94a3b8';
     ctx.font = '7px monospace';
-    ctx.fillText('___:___', padX + innerPad + 346, rY + 13);
+    ctx.fillText('___:___', padX + innerPad + 346, rY + (rowH > 18 ? 13 : 12));
 
     ctx.textAlign = 'center';
     ctx.fillStyle = '#cbd5e1';
     ctx.font = '8px system-ui, sans-serif';
-    ctx.fillText('[  ]', width - padX - innerPad - 16, rY + 13);
+    ctx.fillText('[  ]', width - padX - innerPad - 16, rY + (rowH > 18 ? 13 : 12));
     ctx.textAlign = 'left';
   });
+
+  // Batch note if multi-batch
+  if (hasBatchNote && data.batchInfo) {
+    const noteY = thY + tblHeaderH + rows.length * rowH;
+    ctx.fillStyle = '#f8fafc';
+    ctx.beginPath();
+    ctx.roundRect(padX + innerPad, noteY, innerW, batchNoteH, [0, 0, 4, 4]);
+    ctx.fill();
+
+    ctx.strokeStyle = '#e2e8f0';
+    ctx.lineWidth = 0.6;
+    ctx.beginPath();
+    ctx.moveTo(padX + innerPad, noteY);
+    ctx.lineTo(width - padX - innerPad, noteY);
+    ctx.stroke();
+
+    ctx.fillStyle = '#64748b';
+    ctx.font = 'italic 6.5px system-ui, sans-serif';
+    ctx.fillText(
+      `Batch ${data.batchInfo.currentBatch} of ${data.batchInfo.totalBatches} (Doses #${data.batchInfo.startDoseNumber}–#${data.batchInfo.startDoseNumber + rows.length - 1} of ${data.batchInfo.totalDoses}) • Switch batch online to export remaining doses`,
+      padX + innerPad + 8,
+      noteY + 9.5
+    );
+  }
 
   // ============================================================
   // 5. FOOTER
