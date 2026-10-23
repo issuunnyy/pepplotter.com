@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState, useRef } from 'react';
 import { SyringeType, ReconstitutionResult, ConcentrationDataPoint, InjectionEntry } from '@/lib/types';
-import { generateSmoothSpline } from '@/lib/calculator';
+import { generateSmoothSpline, calculatePharmacokinetics } from '@/lib/calculator';
 import { renderSheetToCanvas, SheetCanvasData, formatPlannedDate, formatFullDate } from '@/lib/canvasSheet';
 import { Printer, X, Download, Copy, Check, Eye, Calendar } from 'lucide-react';
 
@@ -117,45 +117,7 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
     return elements;
   }, [syringeType, maxSyringeUnits, barrelStart, barrelWidth, barrelY]);
 
-  // --- 2. SVG PK Curve Calculations ---
-  const svgWidth = 680;
-  const svgHeight = 88;
-  const padLeft = 36;
-  const padRight = 16;
-  const padTop = 12;
-  const padBottom = 18;
-  const chartW = svgWidth - padLeft - padRight;
-  const chartH = svgHeight - padTop - padBottom;
-
-  const maxVal = Math.max(peakConcentration * 1.15, 0.1);
-  const minVal = 0;
-  const totalDays = dataPoints.length ? dataPoints[dataPoints.length - 1].day : simulationDays;
-
-  const getX = (day: number) => padLeft + (day / (totalDays || 1)) * chartW;
-  const getY = (val: number) => padTop + chartH - ((val - minVal) / (maxVal - minVal)) * chartH;
-
-  const curvePathD = useMemo(() => {
-    if (!dataPoints.length || totalDays <= 0) return '';
-    const points = dataPoints.map((pt) => ({
-      x: getX(pt.day),
-      y: getY(pt.concentration),
-    }));
-    return generateSmoothSpline(points, padTop, padTop + chartH);
-  }, [dataPoints, maxVal, minVal, totalDays]);
-
-  const areaPathD = useMemo(() => {
-    if (!curvePathD || totalDays <= 0) return '';
-    return `${curvePathD} L ${getX(totalDays)} ${padTop + chartH} L ${getX(0)} ${padTop + chartH} Z`;
-  }, [curvePathD, totalDays]);
-
-  const yTicks = [0, maxVal * 0.5, maxVal];
-  const xDayStep = totalDays <= 14 ? 2 : totalDays <= 30 ? 7 : 14;
-  const xTicks: number[] = [];
-  for (let d = 0; d <= totalDays; d += xDayStep) {
-    xTicks.push(d);
-  }
-
-  // --- 3. Dosing Schedule Table Rows (Max 10 doses per page for crisp single A4 page fit) ---
+  // --- 2. Dosing Schedule Table Rows (Max 10 doses per page for crisp single A4 page fit) ---
   const MAX_DOSES_PER_PAGE = 10;
   const [activeBatchIndex, setActiveBatchIndex] = useState(0);
 
@@ -193,6 +155,123 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
     }
   }, [totalBatches, activeBatchIndex]);
 
+  // --- 3. Batch-Synchronized PK Trajectory Calculation ---
+  // When multi-batch is active, each batch's chart focuses on that batch's timeline window [startDay, endDay]
+  // with cumulative steady-state background from all prior doses.
+  const batchPkData = useMemo(() => {
+    if (totalBatches <= 1) {
+      return {
+        points: dataPoints,
+        peak: peakConcentration,
+        trough: troughConcentration,
+        avg: averageConcentration,
+        startDay: 0,
+        endDay: dataPoints.length ? dataPoints[dataPoints.length - 1].day : simulationDays,
+      };
+    }
+
+    const freq = frequencyDays || 7;
+    const currentBatchDoses = tableRows;
+    if (!currentBatchDoses || currentBatchDoses.length === 0) {
+      return {
+        points: [],
+        peak: 0,
+        trough: 0,
+        avg: 0,
+        startDay: 0,
+        endDay: simulationDays,
+      };
+    }
+
+    const firstDoseDay = currentBatchDoses[0].day;
+    const lastDoseDay = currentBatchDoses[currentBatchDoses.length - 1].day;
+    const startDay = safeBatchIndex === 0 ? 0 : firstDoseDay;
+    const endDay = Number((lastDoseDay + freq).toFixed(1));
+
+    // Cumulative doses up to the end of this batch for realistic steady-state residual
+    const cumulativeDoses = allDoses.slice(0, endDoseIdx);
+    const fullCalc = calculatePharmacokinetics(cumulativeDoses, halfLifeHours, endDay, 1);
+
+    // Filter to the current batch window
+    const batchPoints = fullCalc.dataPoints.filter((pt) => pt.day >= startDay && pt.day <= endDay);
+
+    const peak = batchPoints.length > 0 ? Math.max(...batchPoints.map((p) => p.concentration)) : 0;
+    const trough = batchPoints.length > 0 ? Math.min(...batchPoints.map((p) => p.concentration)) : 0;
+    const sum = batchPoints.reduce((acc, p) => acc + p.concentration, 0);
+    const avg = batchPoints.length > 0 ? sum / batchPoints.length : 0;
+
+    return {
+      points: batchPoints,
+      peak,
+      trough,
+      avg,
+      startDay,
+      endDay,
+    };
+  }, [
+    totalBatches,
+    safeBatchIndex,
+    tableRows,
+    allDoses,
+    endDoseIdx,
+    frequencyDays,
+    halfLifeHours,
+    dataPoints,
+    peakConcentration,
+    troughConcentration,
+    averageConcentration,
+    simulationDays,
+  ]);
+
+  // --- 4. SVG PK Curve Calculations ---
+  const svgWidth = 680;
+  const svgHeight = 88;
+  const padLeft = 36;
+  const padRight = 16;
+  const padTop = 12;
+  const padBottom = 18;
+  const chartW = svgWidth - padLeft - padRight;
+  const chartH = svgHeight - padTop - padBottom;
+
+  const activePoints = batchPkData.points;
+  const activePeak = batchPkData.peak || peakConcentration;
+  const activeTrough = batchPkData.trough || troughConcentration;
+  const activeAvg = batchPkData.avg || averageConcentration;
+  const startDay = batchPkData.startDay;
+  const endDay = batchPkData.endDay;
+  const spanDays = Math.max(endDay - startDay, 1);
+
+  const maxVal = Math.max(activePeak * 1.15, 0.1);
+  const minVal = 0;
+
+  const getX = (day: number) => padLeft + ((day - startDay) / spanDays) * chartW;
+  const getY = (val: number) => padTop + chartH - ((val - minVal) / (maxVal - minVal)) * chartH;
+
+  const curvePathD = useMemo(() => {
+    if (!activePoints.length || spanDays <= 0) return '';
+    const points = activePoints.map((pt) => ({
+      x: getX(pt.day),
+      y: getY(pt.concentration),
+    }));
+    return generateSmoothSpline(points, padTop, padTop + chartH);
+  }, [activePoints, spanDays, startDay, maxVal, minVal]);
+
+  const areaPathD = useMemo(() => {
+    if (!curvePathD || spanDays <= 0) return '';
+    return `${curvePathD} L ${getX(endDay)} ${padTop + chartH} L ${getX(startDay)} ${padTop + chartH} Z`;
+  }, [curvePathD, spanDays, startDay, endDay]);
+
+  const yTicks = [0, maxVal * 0.5, maxVal];
+  const xDayStep = spanDays <= 7 ? 1 : spanDays <= 14 ? 2 : spanDays <= 30 ? 7 : 14;
+  const xTicks: number[] = [];
+  const firstTick = Math.ceil(startDay / xDayStep) * xDayStep;
+  for (let d = firstTick; d <= endDay; d += xDayStep) {
+    xTicks.push(d);
+  }
+  if (xTicks.length === 0 || xTicks[0] !== Math.floor(startDay)) {
+    xTicks.unshift(Math.floor(startDay));
+  }
+
   const handleCopySummary = () => {
     const batchText = totalBatches > 1 ? ` (Batch ${safeBatchIndex + 1}/${totalBatches}: Doses #${startDoseIdx + 1}–#${endDoseIdx})` : '';
     const summary = `📋 ${compoundName} Protocol${batchText}\n• Start Date: ${formatPlannedDate(startDate, 0)}\n• Dose: ${doseDisplay} (${reconResult.syringeUnits} Units on ${syringeType})\n• Mixing: ${vialMg}mg vial + ${waterMl}mL BAC water (${concentrationMgMl.toFixed(2)} mg/mL)\n• Half-Life: ${(halfLifeHours / 24).toFixed(1)}d | Peak: ~${peakConcentration.toFixed(2)}mg\n• Generated via PepPlotter (https://pepplotter.com)`;
@@ -202,7 +281,7 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
     });
   };
 
-  // --- 4. Robust Canvas 2D Image Generator (100% works in WeChat, X, Safari, Chrome) ---
+  // --- 5. Robust Canvas 2D Image Generator (100% works in WeChat, X, Safari, Chrome) ---
   const handleExportImage = () => {
     setIsExporting(true);
     try {
@@ -226,15 +305,19 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
         syringeType,
         reconResult,
         halfLifeHours,
-        peakConcentration,
-        troughConcentration,
-        averageConcentration,
+        peakConcentration: activePeak,
+        troughConcentration: activeTrough,
+        averageConcentration: activeAvg,
         simulationDays,
-        dataPoints,
+        dataPoints: activePoints,
         tableRows,
         frequencyDays,
         startDate,
         batchInfo,
+        batchTimeline: {
+          startDay,
+          endDay,
+        },
       };
 
       // Direct Canvas 2D drawing (no foreignObject, no security restrictions)
@@ -546,13 +629,13 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
               HL: <strong>{(halfLifeHours / 24).toFixed(1)}d</strong>
             </span>
             <span className="bg-rose-50 text-rose-900 px-1 py-0.2 rounded border border-rose-200">
-              Peak: <strong>{peakConcentration.toFixed(2)} mg</strong>
+              Peak: <strong>{activePeak.toFixed(2)} mg</strong>
             </span>
             <span className="bg-emerald-50 text-emerald-900 px-1 py-0.2 rounded border border-emerald-200">
-              Trough: <strong>{troughConcentration.toFixed(2)} mg</strong>
+              Trough: <strong>{activeTrough.toFixed(2)} mg</strong>
             </span>
             <span className="bg-cyan-50 text-cyan-900 px-1 py-0.2 rounded border border-cyan-200">
-              Avg: <strong>{averageConcentration.toFixed(2)} mg</strong>
+              Avg: <strong>{activeAvg.toFixed(2)} mg</strong>
             </span>
           </div>
         </div>
@@ -561,10 +644,10 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
         <div className="bg-slate-50 border border-slate-200 rounded p-0.5 mb-1">
           <div className="flex items-center justify-between px-0.5 mb-0.5">
             <span className="text-[8px] font-bold uppercase tracking-wider text-slate-600">
-              Plasma Accumulation Trajectory ({simulationDays} Days Timeline)
+              Plasma Accumulation Trajectory {totalBatches > 1 ? `(Batch ${safeBatchIndex + 1}: Day ${Math.floor(startDay)}–${Math.ceil(endDay)})` : `(${simulationDays} Days Timeline)`}
             </span>
             <span className="text-[7.5px] text-slate-500 font-sans">
-              ● Green Dots = Injection Events (Day 0, 7, 14, 21...)
+              ● Green Dots = {totalBatches > 1 ? `Batch ${safeBatchIndex + 1} Doses` : 'Injection Events (Day 0, 7, 14, 21...)'}
             </span>
           </div>
 
@@ -652,7 +735,7 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
             )}
 
             {/* Injection Point Dots & Annotations */}
-            {dataPoints.map((pt, idx) => {
+            {activePoints.map((pt, idx) => {
               if (!pt.isInjectionPoint) return null;
               const cx = getX(pt.day);
               const cy = getY(pt.concentration);

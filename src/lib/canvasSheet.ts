@@ -26,6 +26,10 @@ export interface SheetCanvasData {
     startDoseNumber: number;
     totalDoses: number;
   };
+  batchTimeline?: {
+    startDay: number;
+    endDay: number;
+  };
 }
 
 /**
@@ -648,9 +652,18 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
   ctx.stroke();
 
   // Chart Title inside (left: timeline, right: Peak / Trough / Avg metrics)
+  const startDay = data.batchTimeline ? data.batchTimeline.startDay : 0;
+  const endDay = data.batchTimeline
+    ? data.batchTimeline.endDay
+    : (data.dataPoints.length ? data.dataPoints[data.dataPoints.length - 1].day : data.simulationDays);
+  const spanDays = Math.max(endDay - startDay, 1);
+
   ctx.fillStyle = '#475569';
   ctx.font = 'bold 7.5px system-ui, sans-serif';
-  ctx.fillText(`Plasma Trajectory (${data.simulationDays}d Timeline)`, padX + innerPad + 6, cBoxY + 12);
+  const batchChartTitle = data.batchInfo && data.batchInfo.totalBatches > 1
+    ? `Plasma Trajectory (Batch ${data.batchInfo.currentBatch}: Day ${Math.floor(startDay)}–${Math.ceil(endDay)})`
+    : `Plasma Trajectory (${data.simulationDays}d Timeline)`;
+  ctx.fillText(batchChartTitle, padX + innerPad + 6, cBoxY + 12);
 
   // PK Metric Badges directly on the chart header (Peak / Trough / Avg)
   ctx.textAlign = 'right';
@@ -676,7 +689,6 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
   const cH = cBottom - cTop;
 
   const maxVal = Math.max(data.peakConcentration * 1.15, 0.1);
-  const totalDays = data.dataPoints.length ? data.dataPoints[data.dataPoints.length - 1].day : data.simulationDays;
 
   // Y-axis ticks & gridlines
   const yTicks = [0, maxVal * 0.5, maxVal];
@@ -699,9 +711,10 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
   ctx.textAlign = 'left';
 
   // X-axis day markers
-  const xStep = totalDays <= 14 ? 2 : totalDays <= 30 ? 7 : 14;
-  for (let d = 0; d <= totalDays; d += xStep) {
-    const x = cLeft + (d / (totalDays || 1)) * cW;
+  const xStep = spanDays <= 7 ? 1 : spanDays <= 14 ? 2 : spanDays <= 30 ? 7 : 14;
+  const firstTick = Math.ceil(startDay / xStep) * xStep;
+  for (let d = firstTick; d <= endDay; d += xStep) {
+    const x = cLeft + ((d - startDay) / spanDays) * cW;
     ctx.strokeStyle = '#e2e8f0';
     ctx.lineWidth = 0.5;
     ctx.beginPath();
@@ -719,7 +732,7 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
   // Spline points calculation
   if (data.dataPoints.length > 0) {
     const coords = data.dataPoints.map((pt) => ({
-      x: cLeft + (pt.day / (totalDays || 1)) * cW,
+      x: cLeft + ((pt.day - startDay) / spanDays) * cW,
       y: cBottom - (pt.concentration / maxVal) * cH,
     }));
 
@@ -768,7 +781,7 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
     // Injection Dots
     data.dataPoints.forEach((pt) => {
       if (!pt.isInjectionPoint) return;
-      const dotX = cLeft + (pt.day / (totalDays || 1)) * cW;
+      const dotX = cLeft + ((pt.day - startDay) / spanDays) * cW;
       const dotY = cBottom - (pt.concentration / maxVal) * cH;
 
       ctx.fillStyle = '#059669';

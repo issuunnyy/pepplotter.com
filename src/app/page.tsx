@@ -335,7 +335,9 @@ export default function Home() {
 
   // Add an injection to schedule
   const addInjection = () => {
-    const nextDay = injections.length > 0 ? injections[injections.length - 1].day + 7 : 0;
+    const freq = activePreset.standardFrequencyDays || 7;
+    const lastDay = injections.length > 0 ? injections[injections.length - 1].day : 0;
+    const nextDay = injections.length > 0 ? Number((lastDay + freq).toFixed(1)) : 0;
     const defaultDose = injections.length > 0 ? injections[injections.length - 1].doseMg : 0.25;
     const newEntry: InjectionEntry = {
       id: crypto.randomUUID(),
@@ -344,9 +346,13 @@ export default function Home() {
       doseMg: defaultDose,
     };
     if (nextDay > simulationDays) {
-      if (nextDay <= 28) setSimulationDays(28);
+      if (nextDay <= 14) setSimulationDays(14);
+      else if (nextDay <= 28) setSimulationDays(28);
       else if (nextDay <= 42) setSimulationDays(42);
-      else setSimulationDays(60);
+      else if (nextDay <= 60) setSimulationDays(60);
+      else if (nextDay <= 90) setSimulationDays(90);
+      else if (nextDay <= 120) setSimulationDays(120);
+      else setSimulationDays(Math.ceil((nextDay + freq) / 7) * 7);
     }
     setInjections([...injections, newEntry]);
   };
@@ -1354,6 +1360,8 @@ const splitList: InjectionEntry[] = [];
                   <option value={28}>4 Weeks (28 Days)</option>
                   <option value={42}>6 Weeks (42 Days)</option>
                   <option value={60}>8 Weeks (60 Days)</option>
+                  <option value={90}>12 Weeks (90 Days)</option>
+                  <option value={120}>16 Weeks (120 Days)</option>
                 </select>
               </div>
             </div>
@@ -1431,7 +1439,7 @@ const splitList: InjectionEntry[] = [];
                 <div className="flex items-center gap-2 min-w-0">
                   <CalendarDays className="w-4 h-4 text-cyan-400 shrink-0" />
                   <h3 className="text-xs sm:text-sm font-bold text-slate-200 uppercase tracking-wider truncate">
-                    Scheduled Administration Log ({injections.filter((inj) => inj.day <= simulationDays).length} Injections)
+                    Scheduled Administration Log ({injections.length} Injections)
                   </h3>
                 </div>
                 <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
@@ -1453,9 +1461,7 @@ const splitList: InjectionEntry[] = [];
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
-                {injections
-                  .filter((inj) => inj.day <= simulationDays)
-                  .map((inj, idx) => (
+                {injections.map((inj, idx) => (
                   <div
                     key={inj.id}
                     className="bg-slate-950/80 border border-slate-800/80 p-3 rounded-xl flex items-center justify-between gap-2"
