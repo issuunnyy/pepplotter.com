@@ -3,7 +3,7 @@
 import React, { useMemo, useState, useRef } from 'react';
 import { SyringeType, ReconstitutionResult, ConcentrationDataPoint, InjectionEntry } from '@/lib/types';
 import { generateSmoothSpline } from '@/lib/calculator';
-import { renderSheetToCanvas, SheetCanvasData, formatPlannedDate } from '@/lib/canvasSheet';
+import { renderSheetToCanvas, SheetCanvasData, formatPlannedDate, formatFullDate } from '@/lib/canvasSheet';
 import { Printer, X, Download, Copy, Check, Eye, Calendar } from 'lucide-react';
 
 interface PrintableProtocolSheetProps {
@@ -309,11 +309,11 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
           </div>
           <div>
             <span className="text-slate-500">Recon Date: </span>
-            <span className="font-mono text-slate-700">___/___/202_</span>
+            <strong className="font-mono text-slate-900">{formatFullDate(startDate, 0)}</strong>
           </div>
           <div>
             <span className="text-slate-500">28-Day Discard: </span>
-            <span className="font-mono text-slate-700">___/___/202_</span>
+            <strong className="font-mono text-amber-800">{formatFullDate(startDate, 28)}</strong>
           </div>
         </div>
       </div>

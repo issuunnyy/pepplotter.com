@@ -45,6 +45,27 @@ export function formatPlannedDate(baseDateStr?: string, dayOffset: number = 0): 
 }
 
 /**
+ * Format full calendar date for reconstitution and 28-day discard tracking.
+ * Example output: "Oct 23, 2026"
+ */
+export function formatFullDate(baseDateStr?: string, dayOffset: number = 0): string {
+  if (!baseDateStr) return '___/___/20_';
+  try {
+    const parts = baseDateStr.split('-').map(Number);
+    if (parts.length !== 3 || !parts[0] || !parts[1] || !parts[2]) return '___/___/20_';
+    const [y, m, d] = parts;
+    const target = new Date(y, m - 1, d + dayOffset);
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const mStr = monthNames[target.getMonth()];
+    const dStr = String(target.getDate()).padStart(2, '0');
+    const yStr = target.getFullYear();
+    return `${mStr} ${dStr}, ${yStr}`;
+  } catch {
+    return '___/___/20_';
+  }
+}
+
+/**
  * Pure HTML5 Canvas 2D Renderer for PepPlotter Protocol Sheet.
  * Calibrated to native mobile card proportions (aspect ratio ~0.58)
  * with zero trailing blank space, authentic syringe vectors, numbers placed cleanly
@@ -229,20 +250,22 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
   ctx.fillText(`${data.waterMl}mL`, padX + 8 + colW + 36, subY);
 
   // Col 3: Recon Date
+  const reconDateStr = formatFullDate(data.startDate, 0);
   ctx.font = '7.5px system-ui, sans-serif';
   ctx.fillStyle = '#64748b';
   ctx.fillText('Recon: ', padX + 8 + colW * 2, subY);
-  ctx.fillStyle = '#334155';
-  ctx.font = 'bold 8px monospace';
-  ctx.fillText('___/___/20_', padX + 8 + colW * 2 + 36, subY);
+  ctx.fillStyle = '#0f172a';
+  ctx.font = 'bold 7.5px monospace';
+  ctx.fillText(reconDateStr, padX + 8 + colW * 2 + 32, subY);
 
-  // Col 4: Discard Date
+  // Col 4: Discard Date (USP <797> 28-day limit)
+  const discardDateStr = formatFullDate(data.startDate, 28);
   ctx.font = '7.5px system-ui, sans-serif';
   ctx.fillStyle = '#64748b';
   ctx.fillText('Discard: ', padX + 8 + colW * 3, subY);
-  ctx.fillStyle = '#334155';
-  ctx.font = 'bold 8px monospace';
-  ctx.fillText('___/___/20_', padX + 8 + colW * 3 + 40, subY);
+  ctx.fillStyle = '#9a3412';
+  ctx.font = 'bold 7.5px monospace';
+  ctx.fillText(discardDateStr, padX + 8 + colW * 3 + 36, subY);
 
   // ============================================================
   // 3. SECTION 1: RECONSTITUTION & SYRINGE DRAW
