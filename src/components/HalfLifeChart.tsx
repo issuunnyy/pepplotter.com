@@ -93,17 +93,17 @@ No active injection schedule to plot.
   const hoveredPoint = hoveredIndex !== null ? dataPoints[hoveredIndex] : null;
 
   return (
-    <div className="w-full bg-slate-900/60 border border-slate-800 rounded-2xl p-5 shadow-xl backdrop-blur-md">
-      {/* Header and key metrics */}
-      <div className="flex flex-wrap items-center justify-between gap-4 mb-4 pb-4 border-b border-slate-800">
-        <div>
+    <div className="w-full bg-slate-900/60 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl backdrop-blur-md">
+      {/* Header and key metrics (Pixel-perfect Apple-grade alignment) */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 mb-4 pb-4 border-b border-slate-800">
+        <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <Activity className="w-4 h-4 text-cyan-400" />
-            <h3 className="text-base font-bold text-slate-100">
+            <Activity className="w-4 h-4 text-cyan-400 shrink-0" />
+            <h3 className="text-sm sm:text-base font-bold text-slate-100 truncate">
               {compoundName} Blood Plasma Accumulation Curve
             </h3>
           </div>
-          <p className="text-xs text-slate-400 mt-0.5">
+          <p className="text-xs text-slate-400 mt-0.5 truncate">
             Half-life:{' '}
             <span className="text-slate-200 font-medium">
               {halfLifeHours >= 24
@@ -114,21 +114,36 @@ No active injection schedule to plot.
           </p>
         </div>
 
-        {/* Metrics Pill Grid */}
-        <div className="flex items-center gap-3 text-xs">
-          <div className="bg-slate-800/80 border border-slate-700/60 px-3 py-1.5 rounded-lg">
-            <span className="text-slate-400 block text-[10px] uppercase font-semibold">Peak Level</span>
-            <span className="text-rose-400 font-mono font-bold text-sm tabular-nums">{peakConcentration.toFixed(2)} mg</span>
+        {/* Metrics Pill Grid: Strictly equal-width, uniform height, zero-wrap values */}
+        <div className="grid grid-cols-3 gap-2 sm:gap-2.5 w-full md:w-auto shrink-0">
+          <div className="bg-slate-950/80 border border-rose-500/30 bg-rose-500/5 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl flex flex-col justify-between min-w-0 md:min-w-[110px]">
+            <span className="text-slate-400 block text-[9px] sm:text-[10px] uppercase font-bold tracking-wider truncate mb-0.5">
+              Peak Level
+            </span>
+            <div className="flex items-baseline gap-1 font-mono font-extrabold text-sm sm:text-base text-rose-400 tabular-nums whitespace-nowrap">
+              <span>{peakConcentration.toFixed(2)}</span>
+              <span className="text-[10px] sm:text-[11px] font-sans font-semibold text-slate-400">mg</span>
+            </div>
           </div>
 
-          <div className="bg-slate-800/80 border border-slate-700/60 px-3 py-1.5 rounded-lg">
-            <span className="text-slate-400 block text-[10px] uppercase font-semibold">Trough (Floor)</span>
-            <span className="text-emerald-400 font-mono font-bold text-sm tabular-nums">{troughConcentration.toFixed(2)} mg</span>
+          <div className="bg-slate-950/80 border border-emerald-500/30 bg-emerald-500/5 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl flex flex-col justify-between min-w-0 md:min-w-[110px]">
+            <span className="text-slate-400 block text-[9px] sm:text-[10px] uppercase font-bold tracking-wider truncate mb-0.5">
+              Trough (Floor)
+            </span>
+            <div className="flex items-baseline gap-1 font-mono font-extrabold text-sm sm:text-base text-emerald-400 tabular-nums whitespace-nowrap">
+              <span>{troughConcentration.toFixed(2)}</span>
+              <span className="text-[10px] sm:text-[11px] font-sans font-semibold text-slate-400">mg</span>
+            </div>
           </div>
 
-          <div className="bg-slate-800/80 border border-slate-700/60 px-3 py-1.5 rounded-lg">
-            <span className="text-slate-400 block text-[10px] uppercase font-semibold">Average Est.</span>
-            <span className="text-cyan-400 font-mono font-bold text-sm tabular-nums">{averageConcentration.toFixed(2)} mg</span>
+          <div className="bg-slate-950/80 border border-cyan-500/30 bg-cyan-500/5 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl flex flex-col justify-between min-w-0 md:min-w-[110px]">
+            <span className="text-slate-400 block text-[9px] sm:text-[10px] uppercase font-bold tracking-wider truncate mb-0.5">
+              Average Est.
+            </span>
+            <div className="flex items-baseline gap-1 font-mono font-extrabold text-sm sm:text-base text-cyan-400 tabular-nums whitespace-nowrap">
+              <span>{averageConcentration.toFixed(2)}</span>
+              <span className="text-[10px] sm:text-[11px] font-sans font-semibold text-slate-400">mg</span>
+            </div>
           </div>
         </div>
       </div>

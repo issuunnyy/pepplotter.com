@@ -631,7 +631,7 @@ const splitList: InjectionEntry[] = [];
         </section>
 
         {/* Main Tab Switcher */}
-        <div id="main-tab-switcher" className="flex justify-center mb-8 scroll-mt-6">
+        <div id="main-tab-switcher" className="w-full max-w-2xl sm:max-w-3xl mx-auto mb-8 scroll-mt-6 px-1">
           <div
             role="tablist"
             aria-label="PepPlotter Main Tools"
@@ -650,7 +650,7 @@ const splitList: InjectionEntry[] = [];
                 document.getElementById(`tab-btn-${prevTab}`)?.focus();
               }
             }}
-            className="inline-flex p-1 bg-slate-900/90 border border-slate-800 rounded-xl shadow-lg"
+            className="w-full grid grid-cols-3 p-1 sm:p-1.5 bg-slate-900/90 border border-slate-800 rounded-2xl shadow-xl gap-1"
           >
             <button
               id="tab-btn-calc"
@@ -659,14 +659,14 @@ const splitList: InjectionEntry[] = [];
               aria-controls="tab-panel-calc"
               tabIndex={activeTab === 'calc' ? 0 : -1}
               onClick={() => handleTabChange('calc')}
-              className={`flex items-center gap-2 px-3.5 sm:px-5 py-2.5 rounded-lg text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+              className={`w-full flex items-center justify-center gap-1.5 sm:gap-2 px-1.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap truncate ${
                 activeTab === 'calc'
                   ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-md'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              <Calculator className="w-4 h-4 shrink-0" />
-              <span>
+              <Calculator className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+              <span className="truncate">
                 <span className="inline sm:hidden">1. Calculator</span>
                 <span className="hidden sm:inline">1. Reconstitution Calculator</span>
               </span>
@@ -679,14 +679,14 @@ const splitList: InjectionEntry[] = [];
               aria-controls="tab-panel-plotter"
               tabIndex={activeTab === 'plotter' ? 0 : -1}
               onClick={() => handleTabChange('plotter')}
-              className={`flex items-center gap-2 px-3.5 sm:px-5 py-2.5 rounded-lg text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+              className={`w-full flex items-center justify-center gap-1.5 sm:gap-2 px-1.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap truncate ${
                 activeTab === 'plotter'
                   ? 'bg-gradient-to-r from-cyan-500 to-cyan-600 text-white shadow-md'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              <Activity className="w-4 h-4 shrink-0" />
-              <span>
+              <Activity className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+              <span className="truncate">
                 <span className="inline sm:hidden">2. PK Simulator</span>
                 <span className="hidden sm:inline">2. Half-Life &amp; PK Simulator</span>
               </span>
@@ -699,14 +699,14 @@ const splitList: InjectionEntry[] = [];
               aria-controls="tab-panel-guide"
               tabIndex={activeTab === 'guide' ? 0 : -1}
               onClick={() => handleTabChange('guide')}
-              className={`flex items-center gap-2 px-3.5 sm:px-5 py-2.5 rounded-lg text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+              className={`w-full flex items-center justify-center gap-1.5 sm:gap-2 px-1.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap truncate ${
                 activeTab === 'guide'
                   ? 'bg-gradient-to-r from-teal-500 to-cyan-600 text-white shadow-md'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              <ShieldCheck className="w-4 h-4 shrink-0 text-cyan-300" />
-              <span>
+              <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 text-cyan-300" />
+              <span className="truncate">
                 <span className="inline sm:hidden">3. Sub-Q Guide</span>
                 <span className="hidden sm:inline">3. Clinical Sub-Q Guide</span>
               </span>
@@ -1301,68 +1301,98 @@ const splitList: InjectionEntry[] = [];
             </div>
           </div>
 
-          {/* Top Toolbar: Compound & Controls */}
+          {/* Top Toolbar: Compound & Controls (Unified 6-cell Apple-grade Instrument Grid) */}
           <div 
             id="step-pk-chart"
-            className={`bg-slate-900/70 border rounded-2xl p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 scroll-mt-24 transition-all ${
+            className={`bg-slate-900/70 border rounded-2xl p-3 sm:p-5 scroll-mt-24 transition-all ${
               isTourActive && tourStepIndex === 5
                 ? 'border-cyan-400 ring-2 ring-cyan-400/50 shadow-cyan-500/20'
                 : 'border-slate-800'
             }`}
           >
-            <div className="flex flex-wrap items-center gap-3">
-              <div>
-                <label className="block text-[10px] uppercase font-bold tracking-wider text-slate-400 mb-1">
-                  Select Target Compound
+            {/* Symmetrical 6-cell Grid: 3 rows x 2 columns on mobile, 2 rows x 3 columns on tablet/desktop */}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5 sm:gap-3.5">
+              
+              {/* Cell 1: Select Target Compound */}
+              <div className="flex flex-col justify-between">
+                <label className="text-[10px] uppercase font-bold tracking-wider text-slate-400 mb-1 truncate block">
+                  Select Compound
                 </label>
-                <select
-                  value={plotCompoundId}
-                  onChange={(e) => {
-                    const found = COMPOUND_PRESETS.find((p) => p.id === e.target.value);
-                    if (found) {
-                      applyPreset(found);
-                    }
-                  }}
-                  className="bg-slate-950 border border-slate-700 text-slate-100 text-xs font-semibold rounded-xl px-3 py-2 outline-none focus:border-cyan-500 cursor-pointer"
-                >
-                  {COMPOUND_PRESETS.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.name} ({p.brandNames})
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <select
+                    value={plotCompoundId}
+                    onChange={(e) => {
+                      const found = COMPOUND_PRESETS.find((p) => p.id === e.target.value);
+                      if (found) {
+                        applyPreset(found);
+                      }
+                    }}
+                    className="w-full h-10 bg-slate-950 border border-slate-700 text-slate-100 text-xs font-semibold rounded-xl px-2.5 outline-none focus:border-cyan-500 cursor-pointer truncate"
+                  >
+                    {COMPOUND_PRESETS.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name} {p.brandNames ? `(${p.brandNames})` : ''}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
-              {plotCompoundId === 'custom' && (
-                <div>
-                  <div className="flex items-center justify-between gap-1 mb-1">
-                    <label className="block text-[10px] uppercase font-bold tracking-wider text-slate-400">
-                      Custom Half-Life (Days)
-                    </label>
-                    <span className="text-[10px] text-cyan-400 font-mono">
-                      ~{Number((customHalfLifeDays * 24).toFixed(1))}h
-                    </span>
-                  </div>
-                  <input
-                    type="number"
-                    step="0.5"
-                    min="0.05"
-                    max="365"
-                    value={customHalfLifeDays}
-                    onChange={(e) => setCustomHalfLifeDays(Math.max(0.05, parseFloat(e.target.value) || 1))}
-                    className="w-28 bg-slate-950 border border-slate-700 text-slate-100 text-xs font-mono font-bold rounded-xl px-3 py-2 outline-none focus:border-cyan-500"
-                  />
-                </div>
-              )}
+              {/* Cell 2: Elimination Half-Life (Editable if Custom, Verified Clinical Readout if Preset) */}
+              <div className="flex flex-col justify-between">
+                {plotCompoundId === 'custom' ? (
+                  <>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-[10px] uppercase font-bold tracking-wider text-slate-400 truncate">
+                        Half-Life (Days)
+                      </label>
+                      <span className="text-[10px] text-cyan-400 font-mono font-semibold">
+                        ~{Number((customHalfLifeDays * 24).toFixed(1))}h
+                      </span>
+                    </div>
+                    <input
+                      type="number"
+                      step="0.5"
+                      min="0.05"
+                      max="365"
+                      value={customHalfLifeDays}
+                      onChange={(e) => setCustomHalfLifeDays(Math.max(0.05, parseFloat(e.target.value) || 1))}
+                      className="w-full h-10 bg-slate-950 border border-cyan-500/50 text-cyan-300 text-xs font-mono font-bold rounded-xl px-2.5 outline-none focus:border-cyan-400"
+                    />
+                  </>
+                ) : (
+                  <>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-[10px] uppercase font-bold tracking-wider text-slate-400 truncate">
+                        Verified Half-Life
+                      </label>
+                      <span className="text-[10px] text-emerald-400 font-semibold flex items-center gap-0.5">
+                        ✓ Clinical
+                      </span>
+                    </div>
+                    <div className="w-full h-10 bg-slate-950/80 border border-slate-800 text-slate-200 text-xs font-mono font-bold rounded-xl px-2.5 flex items-center justify-between truncate">
+                      <span className="text-cyan-300 font-mono truncate">
+                        {halfLifeHours >= 24
+                          ? `${(halfLifeHours / 24).toFixed(1)}d (${Number(halfLifeHours.toFixed(1))}h)`
+                          : `${Number(halfLifeHours.toFixed(1))}h (${(halfLifeHours / 24).toFixed(2)}d)`}
+                      </span>
+                      <span className="text-[10px] font-sans text-slate-400 font-medium shrink-0 ml-1">
+                        {plotCompoundId === 'bpc157' || plotCompoundId === 'tb500' ? 'Tissue repair' : 'GLP-1/GIP'}
+                      </span>
+                    </div>
+                  </>
+                )}
+              </div>
 
-              <div>
-                <label className="block text-[10px] uppercase font-bold tracking-wider text-slate-400 mb-1">
+              {/* Cell 3: Timeline Span */}
+              <div className="flex flex-col justify-between">
+                <label className="text-[10px] uppercase font-bold tracking-wider text-slate-400 mb-1 truncate block">
                   Timeline Span
                 </label>
                 <select
                   value={simulationDays}
                   onChange={(e) => setSimulationDays(parseInt(e.target.value))}
-                  className="bg-slate-950 border border-slate-700 text-slate-100 text-xs font-semibold rounded-xl px-3 py-2 outline-none cursor-pointer"
+                  className="w-full h-10 bg-slate-950 border border-slate-700 text-slate-100 text-xs font-semibold rounded-xl px-2.5 outline-none focus:border-cyan-500 cursor-pointer truncate"
                 >
                   <option value={7}>1 Week (7 Days)</option>
                   <option value={14}>2 Weeks (14 Days)</option>
@@ -1373,44 +1403,60 @@ const splitList: InjectionEntry[] = [];
                   <option value={120}>16 Weeks (120 Days)</option>
                 </select>
               </div>
-            </div>
 
-            {/* Action Buttons: Sync Current Dose, Split Dose & Preview Sheet */}
-            <div className="flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                onClick={syncCurrentDoseToSchedule}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 transition-all shadow-sm cursor-pointer"
-                title="Synchronize current target dose from calculator to all schedule entries"
-              >
-                <RotateCcw className="w-3.5 h-3.5 text-cyan-400" />
-                <span>
-                  Sync Injections ({((safeTargetDoseMcg || activePreset.defaultDoseMcg) / (isSplitDoseMode ? 2000 : 1000)).toFixed(2)}mg)
-                </span>
-              </button>
+              {/* Cell 4: Schedule Sync */}
+              <div className="flex flex-col justify-between">
+                <label className="text-[10px] uppercase font-bold tracking-wider text-slate-400 mb-1 truncate block">
+                  Schedule Sync
+                </label>
+                <button
+                  type="button"
+                  onClick={syncCurrentDoseToSchedule}
+                  className="w-full h-10 flex items-center justify-center gap-1.5 px-2.5 rounded-xl text-xs font-semibold bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 transition-all shadow-sm cursor-pointer truncate"
+                  title="Synchronize current target dose from calculator to all schedule entries"
+                >
+                  <RotateCcw className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                  <span className="truncate">
+                    Sync ({((safeTargetDoseMcg || activePreset.defaultDoseMcg) / (isSplitDoseMode ? 2000 : 1000)).toFixed(2)}mg)
+                  </span>
+                </button>
+              </div>
 
-              <button
-                type="button"
-                onClick={toggleSplitDosing}
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
-                  isSplitDoseMode
-                    ? 'bg-cyan-500/20 border-cyan-500/50 text-cyan-300 shadow-sm'
-                    : 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-300'
-                }`}
-              >
-                <Split className="w-3.5 h-3.5" />
-                <span>{isSplitDoseMode ? 'Split 2x/Wk Active' : 'Simulate 2x / Wk'}</span>
-              </button>
+              {/* Cell 5: Dosing Strategy */}
+              <div className="flex flex-col justify-between">
+                <label className="text-[10px] uppercase font-bold tracking-wider text-slate-400 mb-1 truncate block">
+                  Dosing Strategy
+                </label>
+                <button
+                  type="button"
+                  onClick={toggleSplitDosing}
+                  className={`w-full h-10 flex items-center justify-center gap-1.5 px-2.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer truncate ${
+                    isSplitDoseMode
+                      ? 'bg-cyan-500/20 border-cyan-500/50 text-cyan-300 font-bold shadow-sm'
+                      : 'bg-slate-800/80 hover:bg-slate-700 border-slate-700 text-slate-300'
+                  }`}
+                >
+                  <Split className="w-3.5 h-3.5 shrink-0" />
+                  <span className="truncate">{isSplitDoseMode ? 'Split 2x/Wk Active' : 'Simulate 2x / Wk'}</span>
+                </button>
+              </div>
 
-              <button
-                type="button"
-                onClick={() => setIsSheetPreviewOpen(true)}
-                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all shadow-sm cursor-pointer group"
-                title="Preview 1-page A4 sheet combining Tab 1 Reconstitution and Tab 2 PK curve (Screenshot & Print)"
-              >
-                <FileText className="w-3.5 h-3.5 text-cyan-400 group-hover:scale-110 transition-transform" />
-                <span>Preview A4 Sheet</span>
-              </button>
+              {/* Cell 6: Export Protocol */}
+              <div className="flex flex-col justify-between">
+                <label className="text-[10px] uppercase font-bold tracking-wider text-slate-400 mb-1 truncate block">
+                  Export Protocol
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setIsSheetPreviewOpen(true)}
+                  className="w-full h-10 flex items-center justify-center gap-1.5 px-2.5 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all shadow-sm cursor-pointer group truncate"
+                  title="Preview 1-page A4 sheet combining Tab 1 Reconstitution and Tab 2 PK curve"
+                >
+                  <FileText className="w-3.5 h-3.5 text-cyan-400 group-hover:scale-110 transition-transform shrink-0" />
+                  <span className="truncate">Preview A4 Sheet</span>
+                </button>
+              </div>
+
             </div>
           </div>
 
