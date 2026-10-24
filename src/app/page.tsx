@@ -1418,58 +1418,63 @@ const splitList: InjectionEntry[] = [];
 
           {/* Injection Schedule Table & Manager (Immediately below curve for real-time visual correlation) */}
           <div className="bg-slate-900/70 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-lg">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 mb-4 border-b border-slate-800">
-              <div className="flex items-center gap-2 min-w-0">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 mb-4 border-b border-slate-800">
+              {/* Title: Concise, strictly non-truncated with 100% full text */}
+              <div className="flex items-center gap-2 shrink-0">
                 <CalendarDays className="w-4 h-4 text-cyan-400 shrink-0" />
-                <h3 className="text-xs sm:text-sm font-bold text-slate-100 uppercase tracking-wider truncate">
-                  Scheduled Administration Log ({injections.length} Injections)
+                <h3 className="text-xs sm:text-sm font-bold text-slate-100 uppercase tracking-wider whitespace-nowrap">
+                  Injection Schedule ({injections.length} Doses)
                 </h3>
               </div>
 
-              {/* Unified Schedule Action Group: Sync, Split, Add, and Calendar */}
-              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+              {/* Action Buttons: 4-column balanced grid on mobile, unified non-wrapping flex row on desktop */}
+              <div className="grid grid-cols-4 md:flex md:items-center gap-1.5 sm:gap-2 w-full md:w-auto shrink-0">
                 <button
                   type="button"
                   onClick={syncCurrentDoseToSchedule}
-                  className="inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap shadow-sm"
+                  className="inline-flex items-center justify-center gap-1 sm:gap-1.5 px-1.5 sm:px-2.5 py-1.5 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 rounded-lg text-[11px] sm:text-xs font-semibold transition-all cursor-pointer whitespace-nowrap shadow-sm"
                   title="Synchronize current target dose from calculator to all schedule entries"
                 >
-                  <RotateCcw className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
-                  <span>Sync ({((safeTargetDoseMcg || activePreset.defaultDoseMcg) / (isSplitDoseMode ? 2000 : 1000)).toFixed(2)}mg)</span>
+                  <RotateCcw className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-cyan-400 shrink-0" />
+                  <span className="truncate md:overflow-visible">
+                    Sync ({((safeTargetDoseMcg || activePreset.defaultDoseMcg) / (isSplitDoseMode ? 2000 : 1000)).toFixed(2)}mg)
+                  </span>
                 </button>
 
                 <button
                   type="button"
                   onClick={toggleSplitDosing}
-                  className={`inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold border transition-all cursor-pointer whitespace-nowrap shadow-sm ${
+                  className={`inline-flex items-center justify-center gap-1 sm:gap-1.5 px-1.5 sm:px-2.5 py-1.5 rounded-lg text-[11px] sm:text-xs font-semibold border transition-all cursor-pointer whitespace-nowrap shadow-sm ${
                     isSplitDoseMode
                       ? 'bg-cyan-500/20 border-cyan-500/50 text-cyan-300 font-bold'
                       : 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-300'
                   }`}
                   title="Toggle twice-weekly split-dose simulation"
                 >
-                  <Split className="w-3.5 h-3.5 shrink-0" />
-                  <span>{isSplitDoseMode ? 'Split 2x/Wk Active' : 'Simulate 2x / Wk'}</span>
+                  <Split className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
+                  <span className="truncate md:overflow-visible">
+                    {isSplitDoseMode ? 'Split Active' : '2x / Week'}
+                  </span>
                 </button>
 
                 <button
                   type="button"
                   onClick={addInjection}
-                  className="inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap shadow-sm"
+                  className="inline-flex items-center justify-center gap-1 sm:gap-1.5 px-1.5 sm:px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 rounded-lg text-[11px] sm:text-xs font-semibold transition-all cursor-pointer whitespace-nowrap shadow-sm"
                   title="Add custom injection entry"
                 >
-                  <Plus className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
-                  <span>Add Injection</span>
+                  <Plus className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-cyan-400 shrink-0" />
+                  <span className="truncate md:overflow-visible">Add Dose</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setIsReportModalOpen(true)}
-                  className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 text-emerald-300 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap shadow-sm"
+                  className="inline-flex items-center justify-center gap-1 sm:gap-1.5 px-1.5 sm:px-3 py-1.5 bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 text-emerald-300 rounded-lg text-[11px] sm:text-xs font-semibold transition-all cursor-pointer whitespace-nowrap shadow-sm"
                   title="Sync to Calendar & export protocol"
                 >
-                  <Calendar className="w-3.5 h-3.5 shrink-0" />
-                  <span>Sync to Calendar</span>
+                  <Calendar className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
+                  <span className="truncate md:overflow-visible">Calendar</span>
                 </button>
               </div>
             </div>
