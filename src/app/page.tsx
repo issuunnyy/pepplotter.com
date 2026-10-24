@@ -1278,19 +1278,31 @@ const splitList: InjectionEntry[] = [];
                 </span>
               </div>
               
-              <div className="flex items-center gap-2 text-xs font-mono">
-                <span className="text-slate-400 text-[11px] hidden xs:inline">Active Dose:</span>
-                <span className="text-cyan-300 font-bold bg-slate-950 px-2 py-0.5 rounded-lg border border-slate-800">
-                  {((safeTargetDoseMcg || activePreset.defaultDoseMcg) / 1000).toFixed(2)} mg ({safeTargetDoseMcg || activePreset.defaultDoseMcg} mcg)
-                </span>
-                <span className="text-slate-400 text-[11px]">
-                  ({reconResult.syringeUnits} units)
-                </span>
+              <div className="flex items-center gap-2.5 text-xs font-mono">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-slate-400 text-[11px] hidden xs:inline">Active Dose:</span>
+                  <span className="text-cyan-300 font-bold bg-slate-950 px-2 py-0.5 rounded-lg border border-slate-800">
+                    {((safeTargetDoseMcg || activePreset.defaultDoseMcg) / 1000).toFixed(2)} mg ({safeTargetDoseMcg || activePreset.defaultDoseMcg} mcg)
+                  </span>
+                  <span className="text-slate-400 text-[11px]">
+                    ({reconResult.syringeUnits} units)
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setIsSheetPreviewOpen(true)}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all cursor-pointer whitespace-nowrap shadow-sm group"
+                  title="Preview 1-page A4 sheet combining Tab 1 Reconstitution and Tab 2 PK curve"
+                >
+                  <FileText className="w-3.5 h-3.5 text-cyan-400 group-hover:scale-110 transition-transform shrink-0" />
+                  <span>Preview A4 Sheet</span>
+                </button>
               </div>
             </div>
 
-            {/* Symmetrical 6-cell Grid: 3 rows x 2 columns on mobile, 2 rows x 3 columns on tablet/desktop */}
-            <div id="step-pk-chart" className="grid grid-cols-2 md:grid-cols-3 gap-2.5 sm:gap-3.5">
+            {/* Symmetrical 3-cell Grid: 1 row on tablet/desktop, 3 rows on mobile */}
+            <div id="step-pk-chart" className="grid grid-cols-1 md:grid-cols-3 gap-2.5 sm:gap-3.5">
               
               {/* Cell 1: Select Target Compound */}
               <div className="flex flex-col justify-between">
@@ -1391,59 +1403,6 @@ const splitList: InjectionEntry[] = [];
                 </select>
               </div>
 
-              {/* Cell 4: Schedule Sync */}
-              <div className="flex flex-col justify-between">
-                <label className="text-[10px] uppercase font-bold tracking-wider text-slate-400 mb-1 truncate block">
-                  Schedule Sync
-                </label>
-                <button
-                  type="button"
-                  onClick={syncCurrentDoseToSchedule}
-                  className="w-full h-10 flex items-center justify-center gap-1.5 px-2.5 rounded-xl text-xs font-semibold bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 transition-all shadow-sm cursor-pointer truncate"
-                  title="Synchronize current target dose from calculator to all schedule entries"
-                >
-                  <RotateCcw className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
-                  <span className="truncate">
-                    Sync ({((safeTargetDoseMcg || activePreset.defaultDoseMcg) / (isSplitDoseMode ? 2000 : 1000)).toFixed(2)}mg)
-                  </span>
-                </button>
-              </div>
-
-              {/* Cell 5: Dosing Strategy */}
-              <div className="flex flex-col justify-between">
-                <label className="text-[10px] uppercase font-bold tracking-wider text-slate-400 mb-1 truncate block">
-                  Dosing Strategy
-                </label>
-                <button
-                  type="button"
-                  onClick={toggleSplitDosing}
-                  className={`w-full h-10 flex items-center justify-center gap-1.5 px-2.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer truncate ${
-                    isSplitDoseMode
-                      ? 'bg-cyan-500/20 border-cyan-500/50 text-cyan-300 font-bold shadow-sm'
-                      : 'bg-slate-800/80 hover:bg-slate-700 border-slate-700 text-slate-300'
-                  }`}
-                >
-                  <Split className="w-3.5 h-3.5 shrink-0" />
-                  <span className="truncate">{isSplitDoseMode ? 'Split 2x/Wk Active' : 'Simulate 2x / Wk'}</span>
-                </button>
-              </div>
-
-              {/* Cell 6: Export Protocol */}
-              <div className="flex flex-col justify-between">
-                <label className="text-[10px] uppercase font-bold tracking-wider text-slate-400 mb-1 truncate block">
-                  Export Protocol
-                </label>
-                <button
-                  type="button"
-                  onClick={() => setIsSheetPreviewOpen(true)}
-                  className="w-full h-10 flex items-center justify-center gap-1.5 px-2.5 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all shadow-sm cursor-pointer group truncate"
-                  title="Preview 1-page A4 sheet combining Tab 1 Reconstitution and Tab 2 PK curve"
-                >
-                  <FileText className="w-3.5 h-3.5 text-cyan-400 group-hover:scale-110 transition-transform shrink-0" />
-                  <span className="truncate">Preview A4 Sheet</span>
-                </button>
-              </div>
-
             </div>
           </div>
 
@@ -1457,7 +1416,111 @@ const splitList: InjectionEntry[] = [];
             halfLifeHours={halfLifeHours}
           />
 
-          {/* Consolidated Clinical Pharmacokinetics & Protocol Guidance */}
+          {/* Injection Schedule Table & Manager (Immediately below curve for real-time visual correlation) */}
+          <div className="bg-slate-900/70 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-lg">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 mb-4 border-b border-slate-800">
+              <div className="flex items-center gap-2 min-w-0">
+                <CalendarDays className="w-4 h-4 text-cyan-400 shrink-0" />
+                <h3 className="text-xs sm:text-sm font-bold text-slate-100 uppercase tracking-wider truncate">
+                  Scheduled Administration Log ({injections.length} Injections)
+                </h3>
+              </div>
+
+              {/* Unified Schedule Action Group: Sync, Split, Add, and Calendar */}
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                <button
+                  type="button"
+                  onClick={syncCurrentDoseToSchedule}
+                  className="inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap shadow-sm"
+                  title="Synchronize current target dose from calculator to all schedule entries"
+                >
+                  <RotateCcw className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                  <span>Sync ({((safeTargetDoseMcg || activePreset.defaultDoseMcg) / (isSplitDoseMode ? 2000 : 1000)).toFixed(2)}mg)</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={toggleSplitDosing}
+                  className={`inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold border transition-all cursor-pointer whitespace-nowrap shadow-sm ${
+                    isSplitDoseMode
+                      ? 'bg-cyan-500/20 border-cyan-500/50 text-cyan-300 font-bold'
+                      : 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-300'
+                  }`}
+                  title="Toggle twice-weekly split-dose simulation"
+                >
+                  <Split className="w-3.5 h-3.5 shrink-0" />
+                  <span>{isSplitDoseMode ? 'Split 2x/Wk Active' : 'Simulate 2x / Wk'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={addInjection}
+                  className="inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap shadow-sm"
+                  title="Add custom injection entry"
+                >
+                  <Plus className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                  <span>Add Injection</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setIsReportModalOpen(true)}
+                  className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 text-emerald-300 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap shadow-sm"
+                  title="Sync to Calendar & export protocol"
+                >
+                  <Calendar className="w-3.5 h-3.5 shrink-0" />
+                  <span>Sync to Calendar</span>
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+              {injections.map((inj, idx) => (
+                <div
+                  key={inj.id}
+                  className="bg-slate-950/80 border border-slate-800/80 p-3 rounded-xl flex items-center justify-between gap-2"
+                >
+                  <div>
+                    <span className="text-[10px] text-slate-400 block font-semibold uppercase">
+                      #{idx + 1} • Day {inj.day}
+                    </span>
+                    <div className="flex items-center gap-2 mt-1">
+                      <input
+                        type="number"
+                        step="0.5"
+                        min="0"
+                        value={inj.day}
+                        onChange={(e) => updateInjection(inj.id, 'day', parseFloat(e.target.value) || 0)}
+                        className="w-14 bg-slate-900 border border-slate-700 text-slate-100 text-xs font-mono rounded px-1.5 py-0.5 text-center"
+                      />
+                      <span className="text-xs text-slate-400">Day:</span>
+                      <input
+                        type="number"
+                        step="0.25"
+                        min="0.05"
+                        value={inj.doseMg}
+                        onChange={(e) => updateInjection(inj.id, 'doseMg', parseFloat(e.target.value) || 0)}
+                        className="w-16 bg-slate-900 border border-slate-700 text-cyan-300 text-xs font-mono font-bold rounded px-1.5 py-0.5 text-center"
+                      />
+                      <span className="text-xs text-slate-400 font-semibold">mg</span>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => removeInjection(inj.id)}
+                    className="text-slate-500 hover:text-rose-400 p-1 rounded transition-colors"
+                    title="Remove injection"
+                    aria-label={`Remove injection on day ${inj.day}`}
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Consolidated Clinical Pharmacokinetics & Protocol Guidance (Placed below interactive workspace) */}
           <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-lg space-y-3.5">
             {/* Header */}
             <div className="flex items-center justify-between pb-3 border-b border-slate-800/80">
@@ -1531,81 +1594,6 @@ const splitList: InjectionEntry[] = [];
             <div className="text-[11px] text-slate-500 font-mono flex items-center gap-1.5 pt-1 border-t border-slate-800/60">
               <span>Model Note:</span>
               <span>First-order Bateman pharmacokinetic model with adaptive subcutaneous absorption and elimination rate constants.</span>
-            </div>
-          </div>
-
-          {/* Injection Schedule Table & Manager */}
-          <div className="bg-slate-900/70 border border-slate-800 rounded-2xl p-4 sm:p-5">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 mb-4 border-b border-slate-800">
-              <div className="flex items-center gap-2 min-w-0">
-                <CalendarDays className="w-4 h-4 text-cyan-400 shrink-0" />
-                <h3 className="text-xs sm:text-sm font-bold text-slate-200 uppercase tracking-wider truncate">
-                  Scheduled Administration Log ({injections.length} Injections)
-                </h3>
-              </div>
-              <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
-                <button
-                  type="button"
-                  onClick={() => setIsReportModalOpen(true)}
-                  className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 text-emerald-300 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap"
-                >
-                  <Calendar className="w-3.5 h-3.5 shrink-0" />
-                  <span>Sync to Calendar</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={addInjection}
-                  className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap"
-                >
-                  <Plus className="w-3.5 h-3.5 shrink-0" />
-                  <span>Add Injection</span>
-                </button>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
-              {injections.map((inj, idx) => (
-                <div
-                  key={inj.id}
-                  className="bg-slate-950/80 border border-slate-800/80 p-3 rounded-xl flex items-center justify-between gap-2"
-                >
-                  <div>
-                    <span className="text-[10px] text-slate-400 block font-semibold uppercase">
-                      #{idx + 1} • Day {inj.day}
-                    </span>
-                    <div className="flex items-center gap-2 mt-1">
-                      <input
-                        type="number"
-                        step="0.5"
-                        min="0"
-                        value={inj.day}
-                        onChange={(e) => updateInjection(inj.id, 'day', parseFloat(e.target.value) || 0)}
-                        className="w-14 bg-slate-900 border border-slate-700 text-slate-100 text-xs font-mono rounded px-1.5 py-0.5 text-center"
-                      />
-                      <span className="text-xs text-slate-400">Day:</span>
-                      <input
-                        type="number"
-                        step="0.25"
-                        min="0.05"
-                        value={inj.doseMg}
-                        onChange={(e) => updateInjection(inj.id, 'doseMg', parseFloat(e.target.value) || 0)}
-                        className="w-16 bg-slate-900 border border-slate-700 text-cyan-300 text-xs font-mono font-bold rounded px-1.5 py-0.5 text-center"
-                      />
-                      <span className="text-xs text-slate-400 font-semibold">mg</span>
-                    </div>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => removeInjection(inj.id)}
-                    className="text-slate-500 hover:text-rose-400 p-1 rounded transition-colors"
-                    title="Remove injection"
-                    aria-label={`Remove injection on day ${inj.day}`}
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              ))}
             </div>
           </div>
 
