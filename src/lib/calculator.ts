@@ -70,6 +70,17 @@ export const COMPOUND_PRESETS: CompoundPreset[] = [
     description: 'Triple agonist peptide with ~6-day half-life in clinical trials.',
   },
   {
+    id: 'cagrilintide',
+    name: 'Cagrilintide',
+    brandNames: 'Cagri, CagriSema component',
+    halfLifeHours: 168, // 7 days (160-180h)
+    defaultVialMg: 5,
+    defaultWaterMl: 2.0,
+    defaultDoseMcg: 250, // 0.25 mg starting dose
+    standardFrequencyDays: 7,
+    description: 'Long-acting acylated amylin analogue co-targeting hunger satiety with GLP-1/GIP agonists. Dosed once weekly.',
+  },
+  {
     id: 'bpc157',
     name: 'BPC-157',
     brandNames: 'Body Protection Compound',
@@ -90,6 +101,17 @@ export const COMPOUND_PRESETS: CompoundPreset[] = [
     defaultDoseMcg: 2500, // 2.5 mg
     standardFrequencyDays: 3.5,
     description: 'Tissue recovery synthetic peptide, typically administered twice weekly.',
+  },
+  {
+    id: 'ipamorelin',
+    name: 'Ipamorelin',
+    brandNames: 'NNC 26-0161, Selective GHRP',
+    halfLifeHours: 2, // 2 hours
+    defaultVialMg: 5,
+    defaultWaterMl: 2.0,
+    defaultDoseMcg: 200, // 200 mcg standard bedtime dose
+    standardFrequencyDays: 1,
+    description: 'Highly selective growth hormone secretagogue with ~2h half-life, stimulating clean nighttime GH release without cortisol elevation.',
   },
   {
     id: 'custom',

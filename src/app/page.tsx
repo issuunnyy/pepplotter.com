@@ -221,7 +221,7 @@ export default function Home() {
     }
 
     // Set clinically optimized timeline span based on compound pharmacokinetics
-    const targetSpan = preset.id === 'bpc157' ? 7 : 28;
+    const targetSpan = preset.id === 'bpc157' || preset.id === 'ipamorelin' ? 7 : 28;
     setSimulationDays(targetSpan);
 
     // Automatically synchronize Tab 2 injection schedule across the full timeline span
@@ -609,20 +609,20 @@ const splitList: InjectionEntry[] = [];
             </button>
           </div>
 
-          {/* Fast Compound Preset Pills (All 6 Drugs 100% Visible: 2 rows x 3 columns on Mobile, Centered Flex on Desktop) */}
-          <div className="mt-4 sm:mt-6 w-full max-w-2xl mx-auto px-1">
+          {/* Fast Compound Preset Pills (All 8 Clinical Compounds 100% Symmetrical: 4 rows x 2 cols on Mobile, 2 rows x 4 cols on Desktop) */}
+          <div className="mt-4 sm:mt-6 w-full max-w-3xl mx-auto px-1">
             <div className="flex items-center justify-center gap-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
               <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-              <span>Fast Compound Presets (6 Clinical Compounds)</span>
+              <span>Fast Compound Presets (8 Clinical Protocols &amp; Custom)</span>
             </div>
-            <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2">
               {COMPOUND_PRESETS.map((preset) => {
                 const isSelected = selectedPresetId === preset.id;
                 return (
                   <button
                     key={preset.id}
                     onClick={() => applyPreset(preset)}
-                    className={`w-full py-1.5 px-1 sm:px-3 rounded-xl text-xs font-semibold transition-all border text-center truncate cursor-pointer ${
+                    className={`w-full py-1.5 px-2 sm:px-3 rounded-xl text-xs font-semibold transition-all border text-center truncate cursor-pointer ${
                       isSelected
                         ? 'bg-emerald-500/20 border-emerald-500/60 text-emerald-300 shadow-sm shadow-emerald-500/20 font-bold'
                         : 'bg-slate-900/80 hover:bg-slate-800 border-slate-800 text-slate-400 hover:text-slate-200'
@@ -1423,7 +1423,13 @@ const splitList: InjectionEntry[] = [];
                           : `${Number(halfLifeHours.toFixed(1))}h (${(halfLifeHours / 24).toFixed(2)}d)`}
                       </span>
                       <span className="text-[10px] font-sans text-slate-400 font-medium shrink-0 ml-1">
-                        {plotCompoundId === 'bpc157' || plotCompoundId === 'tb500' ? 'Tissue repair' : 'GLP-1/GIP'}
+                        {plotCompoundId === 'bpc157' || plotCompoundId === 'tb500'
+                          ? 'Tissue repair'
+                          : plotCompoundId === 'ipamorelin'
+                          ? 'GHRP / Night'
+                          : plotCompoundId === 'cagrilintide'
+                          ? 'Amylin Satiety'
+                          : 'GLP-1/GIP'}
                       </span>
                     </div>
                   </>
@@ -1516,8 +1522,8 @@ const splitList: InjectionEntry[] = [];
             halfLifeHours={halfLifeHours}
           />
 
-          {/* Clinical Pharmacokinetics Callout for Short Half-Life Tissue Repair Peptides */}
-          {(plotCompoundId === 'bpc157' || plotCompoundId === 'tb500') && (
+          {/* Clinical Pharmacokinetics Callout for Specialized Peptides */}
+          {(plotCompoundId === 'bpc157' || plotCompoundId === 'tb500' || plotCompoundId === 'cagrilintide' || plotCompoundId === 'ipamorelin') && (
             <div className="bg-gradient-to-r from-cyan-950/40 via-slate-900/60 to-slate-950/40 border border-cyan-800/40 rounded-xl p-3 sm:p-3.5 text-xs text-slate-300 leading-relaxed flex items-start gap-2.5 shadow-sm">
               <Info className="w-4 h-4 text-cyan-400 mt-0.5 shrink-0" />
               <div>
@@ -1528,9 +1534,17 @@ const splitList: InjectionEntry[] = [];
                   <p className="text-[11.5px] text-slate-300/90 leading-snug">
                     <strong>BPC-157</strong> has an ultra-rapid circulating plasma elimination half-life (<strong>~4 hours</strong>) as systemic peptidases metabolize the pentadecapeptide. In clinical research and athletic recovery protocols, <strong>daily administration (QD)</strong> is standard to maintain steady cellular stimulation. Downstream tissue recovery (VEGFR2 angiogenesis, focal adhesion kinase activation, and granulation tissue acceleration) continues at the cellular level for 24–48 hours post-clearance.
                   </p>
-                ) : (
+                ) : plotCompoundId === 'tb500' ? (
                   <p className="text-[11.5px] text-slate-300/90 leading-snug">
                     <strong>TB-500 (Thymosin Beta-4)</strong> exhibits a systemic plasma half-life of <strong>~24 hours (1.0 day)</strong>. While circulating blood levels peak and decline over 1–2 days, its binding to G-actin and stimulation of cell migration and anti-fibrotic remodeling in injured tissues is sustained across multi-day intervals, supporting a standard <strong>twice-weekly (every 3.5 days) loading schedule</strong>.
+                  </p>
+                ) : plotCompoundId === 'cagrilintide' ? (
+                  <p className="text-[11.5px] text-slate-300/90 leading-snug">
+                    <strong>Cagrilintide</strong> is a long-acting acylated amylin analogue with an elimination half-life of <strong>~168 hours (7.0 days)</strong> matching Semaglutide. In next-generation dual-agonist protocols (CagriSema), it activates amylin and calcitonin receptors in the area postrema to delay gastric emptying and induce profound early satiety, complementing GLP-1/GIP mechanisms without redundant receptor competition.
+                  </p>
+                ) : (
+                  <p className="text-[11.5px] text-slate-300/90 leading-snug">
+                    <strong>Ipamorelin</strong> is a highly selective growth hormone secretagogue (GHRP) with a rapid circulating half-life of <strong>~2.0 hours (120 minutes)</strong>. It binds to the ghrelin receptor to trigger a clean, pulsatile spike of endogenous somatotropin from the pituitary, replicating natural deep-sleep growth hormone secretion without stimulating cortisol, ACTH, or prolactin elevation.
                   </p>
                 )}
               </div>
@@ -1626,13 +1640,14 @@ const splitList: InjectionEntry[] = [];
                     Click to auto-fill verified literature values
                   </span>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-2">
                   {[
+                    { label: '2h (0.08d)', desc: 'Ipamorelin / GHRP', days: 0.08 },
                     { label: '4h (0.17d)', desc: 'BPC-157 / MOTS-c', days: 0.17 },
                     { label: '24h (1.0d)', desc: 'TB-500 / Daily Peptides', days: 1.0 },
                     { label: '2.5d (60h)', desc: 'Mod GRF 1-29', days: 2.5 },
                     { label: '5.0d (120h)', desc: 'Tirzepatide / GIP', days: 5.0 },
-                    { label: '7.0d (168h)', desc: 'Semaglutide / CJC DAC', days: 7.0 },
+                    { label: '7.0d (168h)', desc: 'Sema / Cagri / CJC', days: 7.0 },
                     { label: '14.0d (336h)', desc: 'Extended Esters', days: 14.0 },
                   ].map((chip) => {
                     const isSelected = Math.abs(customHalfLifeDays - chip.days) < 0.05;

@@ -49,6 +49,24 @@ describe('calculateReconstitution — 基础计算', () => {
     const r = calculateReconstitution(10, 2, 2500, 'U100');
     expect(r.costPerDose).toBeUndefined();
   });
+
+  it('Cagrilintide 5mg 瓶 + 2mL 水 + 250mcg 初始剂量 → 10 单位 (0.1mL)', () => {
+    const r = calculateReconstitution(5, 2, 250, 'U100');
+    expect(r.error).toBeNull();
+    expect(r.concentrationMgMl).toBe(2.5);
+    expect(r.drawVolumeMl).toBe(0.1);
+    expect(r.syringeUnits).toBe(10);
+    expect(r.totalVialDoses).toBe(20);
+  });
+
+  it('Ipamorelin 5mg 瓶 + 2mL 水 + 200mcg 睡前剂量 → 8 单位 (0.08mL)', () => {
+    const r = calculateReconstitution(5, 2, 200, 'U100');
+    expect(r.error).toBeNull();
+    expect(r.concentrationMgMl).toBe(2.5);
+    expect(r.drawVolumeMl).toBe(0.08);
+    expect(r.syringeUnits).toBe(8);
+    expect(r.totalVialDoses).toBe(25);
+  });
 });
 
 describe('calculateReconstitution — 输入合法性拦截', () => {
