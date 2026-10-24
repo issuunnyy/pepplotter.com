@@ -504,101 +504,100 @@ const splitList: InjectionEntry[] = [];
       {/* Main Container (Strictly hidden during printing to isolate Fridge Sheet) */}
       <main className="w-full max-w-5xl px-4 sm:px-6 py-8 md:py-12 print:hidden">
         {/* Top Brand Header */}
-        <header className="flex flex-wrap items-center justify-between gap-4 pb-8 mb-8 border-b border-slate-800/80">
+        <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 pb-4 sm:pb-8 mb-4 sm:mb-8 border-b border-slate-800/80">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-cyan-500 p-0.5 shadow-lg shadow-emerald-500/20">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-cyan-500 p-0.5 shadow-lg shadow-emerald-500/20 shrink-0">
               <div className="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
                 <Activity className="w-5 h-5 text-emerald-400" />
               </div>
             </div>
-            <div>
+            <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <span className="text-xl font-extrabold tracking-tight bg-gradient-to-r from-slate-100 via-emerald-200 to-cyan-300 bg-clip-text text-transparent">
                   PepPlotter
                 </span>
-                <span className="px-2 py-0.5 text-[10px] uppercase font-bold tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded-full">
+                <span className="px-2 py-0.5 text-[10px] uppercase font-bold tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded-full truncate">
                   Harm Reduction &amp; Simulation v1.0
                 </span>
               </div>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-400 truncate">
                 Precision Peptide Reconstitution &amp; Pharmacokinetic Accumulation Simulator
               </p>
             </div>
           </div>
 
-          {/* Quick Actions */}
-          <div className="flex flex-wrap items-center gap-2">
+          {/* Quick Actions (100% Single-Row Elastic Toolbar on Mobile, Elegant Cluster on Desktop) */}
+          <div className="w-full sm:w-auto grid grid-cols-4 sm:flex sm:items-center gap-1.5 sm:gap-2">
             <button
               onClick={startTour}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 text-emerald-300 rounded-lg text-xs font-semibold transition-all shadow-sm shadow-emerald-500/10 cursor-pointer"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-1 sm:gap-1.5 px-1.5 sm:px-3 py-1.5 bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 text-emerald-300 rounded-lg text-xs font-semibold transition-all shadow-sm shadow-emerald-500/10 cursor-pointer min-w-0"
+              title="Interactive Guided Walkthrough"
             >
-              <Compass className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">How to Use (Tour)</span>
-              <span className="inline sm:hidden">Tour</span>
+              <Compass className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate">
+                <span className="hidden sm:inline">How to Use (Tour)</span>
+                <span className="sm:hidden">Tour</span>
+              </span>
             </button>
 
-            <button
-              onClick={() => {
-                handleTabChange('guide');
-                document.getElementById('main-tab-switcher')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-              }}
-              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/40 text-cyan-300 rounded-lg text-xs font-semibold transition-all shadow-sm shadow-cyan-500/10 cursor-pointer"
-            >
-              <ShieldCheck className="w-3.5 h-3.5 text-cyan-400" />
-              <span>Sub-Q Guide</span>
-            </button>
-
-            {/* Quick Access: Protocol & Calendar Sync Modal */}
             <button
               type="button"
               onClick={() => setIsReportModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 text-emerald-300 rounded-lg text-xs font-semibold transition-all shadow-sm shadow-emerald-500/10 cursor-pointer"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-1 sm:gap-1.5 px-1.5 sm:px-3 py-1.5 bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 text-emerald-300 rounded-lg text-xs font-semibold transition-all shadow-sm shadow-emerald-500/10 cursor-pointer min-w-0"
               title="Sync Administration Protocol to Google/Apple Calendar or Print Fridge Sheet"
             >
-              <Calendar className="w-3.5 h-3.5 text-emerald-400" />
-              <span className="hidden sm:inline">Reminders &amp; Protocol</span>
-              <span className="inline sm:hidden">Reminders</span>
+              <Calendar className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+              <span className="truncate">
+                <span className="hidden sm:inline">Reminders &amp; Protocol</span>
+                <span className="sm:hidden">Remind</span>
+              </span>
             </button>
 
             <button
               type="button"
               onClick={() => setIsFeedbackModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-700/80 hover:border-emerald-500/50 rounded-lg text-xs font-semibold text-slate-200 transition-all shadow-sm cursor-pointer"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-1 sm:gap-1.5 px-1.5 sm:px-3 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-700/80 hover:border-emerald-500/50 rounded-lg text-xs font-semibold text-slate-200 transition-all shadow-sm cursor-pointer min-w-0"
+              title="Request Custom Peptide or Feedback"
             >
-              <MessageSquare className="w-3.5 h-3.5 text-emerald-400" />
-              <span className="hidden sm:inline">Request Peptide</span>
-              <span className="inline sm:hidden">Feedback</span>
+              <MessageSquare className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+              <span className="truncate">
+                <span className="hidden sm:inline">Request Peptide</span>
+                <span className="sm:hidden">Feedback</span>
+              </span>
             </button>
 
             <button
               type="button"
               onClick={copyShareUrl}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 rounded-lg text-xs text-slate-300 font-medium transition-colors cursor-pointer"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-1 sm:gap-1.5 px-1.5 sm:px-3 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 rounded-lg text-xs text-slate-300 font-medium transition-colors cursor-pointer min-w-0"
               title="Copy shareable link with current dosage parameters"
             >
-              {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Share2 className="w-3.5 h-3.5 text-slate-400" />}
-              {copied ? 'Link Copied!' : 'Copy Link'}
+              {copied ? <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" /> : <Share2 className="w-3.5 h-3.5 text-slate-400 shrink-0" />}
+              <span className="truncate">
+                <span className="hidden sm:inline">{copied ? 'Link Copied!' : 'Copy Link'}</span>
+                <span className="sm:hidden">{copied ? 'Copied' : 'Share'}</span>
+              </span>
             </button>
           </div>
         </header>
 
         {/* Hero Section */}
-        <section className="text-center mb-8">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-slate-50 max-w-3xl mx-auto leading-tight">
+        <section className="text-center mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-slate-50 max-w-3xl mx-auto leading-tight">
             Precision Peptide Reconstitution Calculator &amp; <span className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">Syringe Visualizer</span>
           </h1>
-          <p className="mt-2 text-sm sm:text-base font-semibold text-emerald-300/95 italic tracking-wide">
+          <p className="mt-1.5 sm:mt-2 text-xs sm:text-base font-semibold text-emerald-300/95 italic tracking-wide">
             &ldquo;Health by Effort. Guidance by Professionals. Precision Math When You Must.&rdquo;
           </p>
-          <p className="mt-2 text-xs sm:text-sm text-slate-400 max-w-2xl mx-auto leading-relaxed">
+          <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm text-slate-400 max-w-2xl mx-auto leading-relaxed">
             Eliminate dangerous dilution and drawing errors for Semaglutide, Tirzepatide, Retatrutide &amp; research peptides. Real-time SVG syringe draw markers, pharmacokinetic half-life simulation, and clinical harm reduction guidance.
           </p>
 
           {/* Beginner Friendly Callout Pill */}
-          <div className="mt-4 flex justify-center">
+          <div className="mt-3 sm:mt-4 flex justify-center">
             <button
               onClick={startTour}
-              className="group inline-flex items-center gap-2 px-4 py-1.5 bg-slate-900/90 hover:bg-slate-800 border border-slate-700 hover:border-emerald-500/50 rounded-full text-xs text-slate-300 transition-all shadow-md"
+              className="group inline-flex items-center gap-2 px-3.5 sm:px-4 py-1.5 bg-slate-900/90 hover:bg-slate-800 border border-slate-700 hover:border-emerald-500/50 rounded-full text-xs text-slate-300 transition-all shadow-md"
             >
               <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
               <span>First time mixing? <strong>Follow our Interactive Guided Walkthrough</strong></span>
@@ -606,10 +605,12 @@ const splitList: InjectionEntry[] = [];
             </button>
           </div>
 
-          {/* Fast Compound Preset Pills */}
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
-            <span className="text-xs text-slate-400 font-medium mr-1 flex items-center gap-1">
-              <Sparkles className="w-3.5 h-3.5 text-amber-400" /> Fast Presets:
+          {/* Fast Compound Preset Pills (Elastic Smooth Scroll Track on Mobile, Centered Cluster on Desktop) */}
+          <div className="mt-4 sm:mt-6 w-full max-w-4xl mx-auto flex items-center justify-start sm:justify-center gap-1.5 overflow-x-auto no-scrollbar py-1 px-1 sm:px-0 sm:flex-wrap">
+            <span className="text-xs text-slate-400 font-medium mr-1 flex items-center gap-1 shrink-0">
+              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+              <span className="hidden sm:inline">Fast Presets:</span>
+              <span className="sm:hidden">Presets:</span>
             </span>
             {COMPOUND_PRESETS.map((preset) => {
               const isSelected = selectedPresetId === preset.id;
@@ -617,7 +618,7 @@ const splitList: InjectionEntry[] = [];
                 <button
                   key={preset.id}
                   onClick={() => applyPreset(preset)}
-                  className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all border ${
+                  className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all border shrink-0 whitespace-nowrap cursor-pointer ${
                     isSelected
                       ? 'bg-emerald-500/20 border-emerald-500/60 text-emerald-300 shadow-sm shadow-emerald-500/20'
                       : 'bg-slate-900/80 hover:bg-slate-800 border-slate-800 text-slate-400 hover:text-slate-200'
@@ -885,12 +886,12 @@ const splitList: InjectionEntry[] = [];
                     />
                     <span className="absolute right-3 top-2 text-xs text-slate-400 font-semibold">mL</span>
                   </div>
-                  <div className="flex gap-1.5 mt-2">
+                  <div className="grid grid-cols-3 gap-1.5 mt-2">
                     {[1.0, 2.0, 3.0].map((val) => (
                       <button
                         key={val}
                         onClick={() => setWaterMl(val)}
-                        className={`px-2.5 py-1 text-xs rounded-lg font-mono font-semibold transition-all ${
+                        className={`w-full py-1 text-center text-xs rounded-lg font-mono font-semibold transition-all ${
                           waterMl === val
                             ? 'bg-emerald-500/25 text-emerald-300 border border-emerald-500/60 shadow-sm shadow-emerald-500/20'
                             : 'bg-slate-900/90 border border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700'
@@ -946,7 +947,7 @@ const splitList: InjectionEntry[] = [];
                     />
                     <span className="absolute right-3 top-2 text-xs text-slate-400 font-semibold">mcg</span>
                   </div>
-                  <div className="flex gap-1.5 mt-2 flex-wrap">
+                  <div className="grid grid-cols-5 gap-1.5 mt-2">
                     {[
                       { val: 100, label: '100mcg' },
                       { val: 250, label: '250mcg' },
@@ -957,7 +958,7 @@ const splitList: InjectionEntry[] = [];
                       <button
                         key={item.val}
                         onClick={() => setTargetDoseMcg(item.val)}
-                        className={`px-2.5 py-1 text-xs rounded-lg font-mono font-semibold transition-all ${
+                        className={`w-full py-1 text-center text-xs rounded-lg font-mono font-semibold transition-all truncate ${
                           targetDoseMcg === item.val
                             ? 'bg-emerald-500/25 text-emerald-300 border border-emerald-500/60 shadow-sm shadow-emerald-500/20'
                             : 'bg-slate-900/90 border border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700'
@@ -1288,10 +1289,20 @@ const splitList: InjectionEntry[] = [];
 
               {/* Right: Quick Target Dose Switcher right in PK Simulator */}
               <div className="flex flex-col sm:items-start lg:items-end gap-1.5 shrink-0 pt-2 lg:pt-0 border-t lg:border-t-0 border-slate-800">
-                <span className="text-[10px] font-mono uppercase text-slate-400 font-bold tracking-wider">
-                  Quick-Adjust Injected Dose:
-                </span>
-                <div className="flex flex-wrap items-center gap-1.5">
+                <div className="flex items-center justify-between w-full sm:w-auto gap-2">
+                  <span className="text-[10px] font-mono uppercase text-slate-400 font-bold tracking-wider">
+                    Quick-Adjust Injected Dose:
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => handleTabChange('calc')}
+                    className="sm:hidden text-[11px] text-cyan-400 hover:text-cyan-300 transition-colors font-medium shrink-0"
+                    title="Switch to Reconstitution Calculator"
+                  >
+                    Edit in Tab 1 &rarr;
+                  </button>
+                </div>
+                <div className="w-full sm:w-auto flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
                   {[
                     { val: 250, label: '0.25mg' },
                     { val: 500, label: '0.5mg' },
@@ -1307,7 +1318,7 @@ const splitList: InjectionEntry[] = [];
                         onClick={() => {
                           setTargetDoseMcg(item.val);
                         }}
-                        className={`px-2.5 py-1 text-xs rounded-lg font-mono font-bold transition-all cursor-pointer ${
+                        className={`px-2.5 py-1 text-xs rounded-lg font-mono font-bold transition-all cursor-pointer shrink-0 ${
                           isSelected
                             ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/30'
                             : 'bg-slate-950/80 hover:bg-slate-800 text-slate-300 border border-slate-800 hover:border-slate-700'
@@ -1320,7 +1331,7 @@ const splitList: InjectionEntry[] = [];
                   <button
                     type="button"
                     onClick={() => handleTabChange('calc')}
-                    className="px-2 py-1 text-[11px] text-slate-400 hover:text-cyan-300 transition-colors flex items-center gap-0.5 cursor-pointer font-medium"
+                    className="hidden sm:inline-flex px-2 py-1 text-[11px] text-slate-400 hover:text-cyan-300 transition-colors items-center gap-0.5 cursor-pointer font-medium shrink-0"
                     title="Switch to Reconstitution Calculator"
                   >
                     <span>Edit in Tab 1 &rarr;</span>
