@@ -10,6 +10,7 @@ import { Tooltip } from '@/components/Tooltip';
 import { GuidedTour, TOUR_STEPS } from '@/components/GuidedTour';
 import { ProtocolReportModal } from '@/components/ProtocolReportModal';
 import { FeedbackModal } from '@/components/FeedbackModal';
+import { CustomProtocolModal } from '@/components/CustomProtocolModal';
 import { PrintableProtocolSheet } from '@/components/PrintableProtocolSheet';
 import { HarmReductionManifesto } from '@/components/HarmReductionManifesto';
 import { ComparisonTable } from '@/components/ComparisonTable';
@@ -61,6 +62,7 @@ export default function Home() {
   const [isReportModalOpen, setIsReportModalOpen] = useState<boolean>(false);
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState<boolean>(false);
   const [isSheetPreviewOpen, setIsSheetPreviewOpen] = useState<boolean>(false);
+  const [isCustomProtocolModalOpen, setIsCustomProtocolModalOpen] = useState<boolean>(false);
 
   // --- GUIDED TOUR STATE ---
   const [isTourActive, setIsTourActive] = useState<boolean>(false);
@@ -1299,10 +1301,10 @@ const splitList: InjectionEntry[] = [];
             </div>
           </div>
 
-          {/* Top Toolbar: Compound & Split Dose Toggle */}
+          {/* Top Toolbar: Compound & Controls */}
           <div 
             id="step-pk-chart"
-            className={`bg-slate-900/70 border rounded-2xl p-5 flex flex-wrap items-center justify-between gap-4 scroll-mt-24 transition-all ${
+            className={`bg-slate-900/70 border rounded-2xl p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 scroll-mt-24 transition-all ${
               isTourActive && tourStepIndex === 5
                 ? 'border-cyan-400 ring-2 ring-cyan-400/50 shadow-cyan-500/20'
                 : 'border-slate-800'
@@ -1373,99 +1375,35 @@ const splitList: InjectionEntry[] = [];
               </div>
             </div>
 
-            {/* Custom Peptide Clinical Reference Chips & Protocol Consultation Banner */}
-            {plotCompoundId === 'custom' && (
-              <div className="space-y-3">
-                {/* Clinical Half-Life Benchmarks */}
-                <div className="bg-slate-950/70 border border-slate-800 rounded-xl p-3 space-y-2 text-xs">
-                  <div className="flex flex-wrap items-center justify-between gap-1">
-                    <span className="text-[11px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-                      <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-                      Clinical Half-Life Quick Benchmarks:
-                    </span>
-                    <span className="text-[10px] text-slate-400">
-                      Click to auto-fill verified literature values
-                    </span>
-                  </div>
-                  <div className="flex flex-wrap gap-1.5">
-                    {[
-                      { label: '4h (0.17d)', desc: 'BPC-157 / MOTS-c', days: 0.17 },
-                      { label: '24h (1.0d)', desc: 'TB-500 / Daily Peptides', days: 1.0 },
-                      { label: '2.5d (60h)', desc: 'Mod GRF 1-29', days: 2.5 },
-                      { label: '5.0d (120h)', desc: 'Tirzepatide / GIP', days: 5.0 },
-                      { label: '7.0d (168h)', desc: 'Semaglutide / CJC DAC', days: 7.0 },
-                      { label: '14.0d (336h)', desc: 'Extended Esters', days: 14.0 },
-                    ].map((chip) => {
-                      const isSelected = Math.abs(customHalfLifeDays - chip.days) < 0.05;
-                      return (
-                        <button
-                          key={chip.label}
-                          type="button"
-                          onClick={() => setCustomHalfLifeDays(chip.days)}
-                          className={`px-2.5 py-1 rounded-lg text-xs font-mono transition-all cursor-pointer border ${
-                            isSelected
-                              ? 'bg-cyan-500/20 border-cyan-400 text-cyan-300 font-bold shadow-sm'
-                              : 'bg-slate-900 hover:bg-slate-800 border-slate-800 text-slate-300 hover:text-white'
-                          }`}
-                          title={chip.desc}
-                        >
-                          <strong>{chip.label}</strong> <span className="text-[10px] text-slate-400">({chip.desc})</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Consultation & Custom Protocol Request Banner */}
-                <div className="bg-gradient-to-r from-cyan-950/40 via-slate-900 to-slate-900 border border-cyan-500/30 rounded-xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-lg animate-in fade-in duration-200">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse shrink-0" />
-                      <span className="font-bold text-slate-100 text-xs sm:text-sm">
-                        Researching an Unlisted Peptide or Custom Stack?
-                      </span>
-                    </div>
-                    <p className="text-slate-300 text-[11px] leading-relaxed max-w-2xl">
-                      Need assistance verifying the elimination half-life, titration trajectory, or reconstitution formula for a specialized compound? Contact our clinical pharmacokinetics support team for custom protocol calibration.
-                    </p>
-                  </div>
-                  <a
-                    href="mailto:support@pepplotter.com?subject=Custom%20Peptide%20Protocol%20Inquiry%20-%20PepPlotter&body=Hello%20PepPlotter%20Team%2C%0A%0AI%20am%20researching%20the%20following%20unlisted%20compound%20and%20would%20like%20assistance%20setting%20up%20a%20pharmacokinetic%20protocol%3A%0A%E2%80%A2%20Compound%20Name%3A%20%0A%E2%80%A2%20Vial%20Powder%20Size%20(mg)%3A%20%0A%E2%80%A2%20Planned%20Single%20Dose%3A%20%0A%E2%80%A2%20Desired%20Frequency%20(e.g.%20Daily%2C%20EOD%2C%20Weekly)%3A%20%0A%0APlease%20advise%20on%20the%20verified%20half-life%2C%20reconstitution%20water%2C%20and%20accumulation%20curve.%20Thank%20you!"
-                    className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded-xl transition-all shadow-md shrink-0 cursor-pointer text-xs"
-                  >
-                    <Mail className="w-3.5 h-3.5" />
-                    <span>Request Custom Protocol</span>
-                  </a>
-                </div>
-              </div>
-            )}
-
-            {/* Action Buttons: Sync Current Dose & Split Dose */}
+            {/* Action Buttons: Sync Current Dose, Split Dose & Preview Sheet */}
             <div className="flex flex-wrap items-center gap-2">
               <button
+                type="button"
                 onClick={syncCurrentDoseToSchedule}
-                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 transition-all shadow-sm cursor-pointer"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 transition-all shadow-sm cursor-pointer"
                 title="Synchronize current target dose from calculator to all schedule entries"
               >
                 <RotateCcw className="w-3.5 h-3.5 text-cyan-400" />
                 <span>
-                  Sync All Injections to {((safeTargetDoseMcg || activePreset.defaultDoseMcg) / (isSplitDoseMode ? 2000 : 1000)).toFixed(2)}mg
+                  Sync Injections ({((safeTargetDoseMcg || activePreset.defaultDoseMcg) / (isSplitDoseMode ? 2000 : 1000)).toFixed(2)}mg)
                 </span>
               </button>
 
               <button
+                type="button"
                 onClick={toggleSplitDosing}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
                   isSplitDoseMode
                     ? 'bg-cyan-500/20 border-cyan-500/50 text-cyan-300 shadow-sm'
                     : 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-300'
                 }`}
               >
-                <Split className="w-4 h-4" />
-                <span>{isSplitDoseMode ? 'Split-Dosing Active (2x / Week)' : 'Simulate 2x / Week Split Dosing'}</span>
+                <Split className="w-3.5 h-3.5" />
+                <span>{isSplitDoseMode ? 'Split 2x/Wk Active' : 'Simulate 2x / Wk'}</span>
               </button>
 
               <button
+                type="button"
                 onClick={() => setIsSheetPreviewOpen(true)}
                 className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all shadow-sm cursor-pointer group"
                 title="Preview 1-page A4 sheet combining Tab 1 Reconstitution and Tab 2 PK curve (Screenshot & Print)"
@@ -1476,108 +1414,180 @@ const splitList: InjectionEntry[] = [];
             </div>
           </div>
 
-            {/* Interactive Half-Life Chart */}
-            <HalfLifeChart
-              dataPoints={pkResult.dataPoints}
-              peakConcentration={pkResult.peakConcentration}
-              troughConcentration={pkResult.troughConcentration}
-              averageConcentration={pkResult.averageConcentration}
-              compoundName={plotPreset.name}
-              halfLifeHours={halfLifeHours}
-            />
+          {/* Interactive Half-Life Accumulation Curve (Elevated for Immediate Real-Time Feedback) */}
+          <HalfLifeChart
+            dataPoints={pkResult.dataPoints}
+            peakConcentration={pkResult.peakConcentration}
+            troughConcentration={pkResult.troughConcentration}
+            averageConcentration={pkResult.averageConcentration}
+            compoundName={plotPreset.name}
+            halfLifeHours={halfLifeHours}
+          />
 
-            {/* Clinical Pharmacokinetics Callout for Short Half-Life Tissue Repair Peptides */}
-            {(plotCompoundId === 'bpc157' || plotCompoundId === 'tb500') && (
-              <div className="bg-gradient-to-r from-cyan-950/40 via-slate-900/60 to-slate-950/40 border border-cyan-800/40 rounded-xl p-3 sm:p-3.5 text-xs text-slate-300 leading-relaxed flex items-start gap-2.5 shadow-sm">
-                <Info className="w-4 h-4 text-cyan-400 mt-0.5 shrink-0" />
-                <div>
-                  <span className="font-bold text-cyan-200 block mb-0.5">
-                    Clinical Pharmacokinetics Insight ({plotPreset.name}):
-                  </span>
-                  {plotCompoundId === 'bpc157' ? (
-                    <p className="text-[11.5px] text-slate-300/90 leading-snug">
-                      <strong>BPC-157</strong> has an ultra-rapid circulating plasma elimination half-life (<strong>~4 hours</strong>) as systemic peptidases metabolize the pentadecapeptide. In clinical research and athletic recovery protocols, <strong>daily administration (QD)</strong> is standard to maintain steady cellular stimulation. Downstream tissue recovery (VEGFR2 angiogenesis, focal adhesion kinase activation, and granulation tissue acceleration) continues at the cellular level for 24–48 hours post-clearance.
-                    </p>
-                  ) : (
-                    <p className="text-[11.5px] text-slate-300/90 leading-snug">
-                      <strong>TB-500 (Thymosin Beta-4)</strong> exhibits a systemic plasma half-life of <strong>~24 hours (1.0 day)</strong>. While circulating blood levels peak and decline over 1–2 days, its binding to G-actin and stimulation of cell migration and anti-fibrotic remodeling in injured tissues is sustained across multi-day intervals, supporting a standard <strong>twice-weekly (every 3.5 days) loading schedule</strong>.
-                    </p>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Injection Schedule Table & Manager */}
-            <div className="bg-slate-900/70 border border-slate-800 rounded-2xl p-4 sm:p-5">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 mb-4 border-b border-slate-800">
-                <div className="flex items-center gap-2 min-w-0">
-                  <CalendarDays className="w-4 h-4 text-cyan-400 shrink-0" />
-                  <h3 className="text-xs sm:text-sm font-bold text-slate-200 uppercase tracking-wider truncate">
-                    Scheduled Administration Log ({injections.length} Injections)
-                  </h3>
-                </div>
-                <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
-                  <button
-                    onClick={() => setIsReportModalOpen(true)}
-                    className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 text-emerald-300 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap"
-                  >
-                    <Calendar className="w-3.5 h-3.5 shrink-0" />
-                    <span>Sync to Calendar</span>
-                  </button>
-                  <button
-                    onClick={addInjection}
-                    className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap"
-                  >
-                    <Plus className="w-3.5 h-3.5 shrink-0" />
-                    <span>Add Injection</span>
-                  </button>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
-                {injections.map((inj, idx) => (
-                  <div
-                    key={inj.id}
-                    className="bg-slate-950/80 border border-slate-800/80 p-3 rounded-xl flex items-center justify-between gap-2"
-                  >
-                    <div>
-                      <span className="text-[10px] text-slate-400 block font-semibold uppercase">
-                        #{idx + 1} • Day {inj.day}
-                      </span>
-                      <div className="flex items-center gap-2 mt-1">
-                        <input
-                          type="number"
-                          step="0.5"
-                          min="0"
-                          value={inj.day}
-                          onChange={(e) => updateInjection(inj.id, 'day', parseFloat(e.target.value) || 0)}
-                          className="w-14 bg-slate-900 border border-slate-700 text-slate-100 text-xs font-mono rounded px-1.5 py-0.5 text-center"
-                        />
-                        <span className="text-xs text-slate-400">Day:</span>
-                        <input
-                          type="number"
-                          step="0.25"
-                          min="0.05"
-                          value={inj.doseMg}
-                          onChange={(e) => updateInjection(inj.id, 'doseMg', parseFloat(e.target.value) || 0)}
-                          className="w-16 bg-slate-900 border border-slate-700 text-cyan-300 text-xs font-mono font-bold rounded px-1.5 py-0.5 text-center"
-                        />
-                        <span className="text-xs text-slate-400 font-semibold">mg</span>
-                      </div>
-                    </div>
-
-                    <button
-                      onClick={() => removeInjection(inj.id)}
-                      className="text-slate-500 hover:text-rose-400 p-1 rounded transition-colors"
-                      title="Remove injection"
-                      aria-label={`Remove injection on day ${inj.day}`}
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                ))}
+          {/* Clinical Pharmacokinetics Callout for Short Half-Life Tissue Repair Peptides */}
+          {(plotCompoundId === 'bpc157' || plotCompoundId === 'tb500') && (
+            <div className="bg-gradient-to-r from-cyan-950/40 via-slate-900/60 to-slate-950/40 border border-cyan-800/40 rounded-xl p-3 sm:p-3.5 text-xs text-slate-300 leading-relaxed flex items-start gap-2.5 shadow-sm">
+              <Info className="w-4 h-4 text-cyan-400 mt-0.5 shrink-0" />
+              <div>
+                <span className="font-bold text-cyan-200 block mb-0.5">
+                  Clinical Pharmacokinetics Insight ({plotPreset.name}):
+                </span>
+                {plotCompoundId === 'bpc157' ? (
+                  <p className="text-[11.5px] text-slate-300/90 leading-snug">
+                    <strong>BPC-157</strong> has an ultra-rapid circulating plasma elimination half-life (<strong>~4 hours</strong>) as systemic peptidases metabolize the pentadecapeptide. In clinical research and athletic recovery protocols, <strong>daily administration (QD)</strong> is standard to maintain steady cellular stimulation. Downstream tissue recovery (VEGFR2 angiogenesis, focal adhesion kinase activation, and granulation tissue acceleration) continues at the cellular level for 24–48 hours post-clearance.
+                  </p>
+                ) : (
+                  <p className="text-[11.5px] text-slate-300/90 leading-snug">
+                    <strong>TB-500 (Thymosin Beta-4)</strong> exhibits a systemic plasma half-life of <strong>~24 hours (1.0 day)</strong>. While circulating blood levels peak and decline over 1–2 days, its binding to G-actin and stimulation of cell migration and anti-fibrotic remodeling in injured tissues is sustained across multi-day intervals, supporting a standard <strong>twice-weekly (every 3.5 days) loading schedule</strong>.
+                  </p>
+                )}
               </div>
             </div>
+          )}
+
+          {/* Injection Schedule Table & Manager */}
+          <div className="bg-slate-900/70 border border-slate-800 rounded-2xl p-4 sm:p-5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 mb-4 border-b border-slate-800">
+              <div className="flex items-center gap-2 min-w-0">
+                <CalendarDays className="w-4 h-4 text-cyan-400 shrink-0" />
+                <h3 className="text-xs sm:text-sm font-bold text-slate-200 uppercase tracking-wider truncate">
+                  Scheduled Administration Log ({injections.length} Injections)
+                </h3>
+              </div>
+              <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setIsReportModalOpen(true)}
+                  className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 text-emerald-300 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap"
+                >
+                  <Calendar className="w-3.5 h-3.5 shrink-0" />
+                  <span>Sync to Calendar</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={addInjection}
+                  className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap"
+                >
+                  <Plus className="w-3.5 h-3.5 shrink-0" />
+                  <span>Add Injection</span>
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+              {injections.map((inj, idx) => (
+                <div
+                  key={inj.id}
+                  className="bg-slate-950/80 border border-slate-800/80 p-3 rounded-xl flex items-center justify-between gap-2"
+                >
+                  <div>
+                    <span className="text-[10px] text-slate-400 block font-semibold uppercase">
+                      #{idx + 1} • Day {inj.day}
+                    </span>
+                    <div className="flex items-center gap-2 mt-1">
+                      <input
+                        type="number"
+                        step="0.5"
+                        min="0"
+                        value={inj.day}
+                        onChange={(e) => updateInjection(inj.id, 'day', parseFloat(e.target.value) || 0)}
+                        className="w-14 bg-slate-900 border border-slate-700 text-slate-100 text-xs font-mono rounded px-1.5 py-0.5 text-center"
+                      />
+                      <span className="text-xs text-slate-400">Day:</span>
+                      <input
+                        type="number"
+                        step="0.25"
+                        min="0.05"
+                        value={inj.doseMg}
+                        onChange={(e) => updateInjection(inj.id, 'doseMg', parseFloat(e.target.value) || 0)}
+                        className="w-16 bg-slate-900 border border-slate-700 text-cyan-300 text-xs font-mono font-bold rounded px-1.5 py-0.5 text-center"
+                      />
+                      <span className="text-xs text-slate-400 font-semibold">mg</span>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => removeInjection(inj.id)}
+                    className="text-slate-500 hover:text-rose-400 p-1 rounded transition-colors"
+                    title="Remove injection"
+                    aria-label={`Remove injection on day ${inj.day}`}
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Custom Peptide Clinical Reference Chips & Protocol Consultation Banner (Advanced / Custom Research Only) */}
+          {plotCompoundId === 'custom' && (
+            <div className="space-y-3 pt-1">
+              {/* Clinical Half-Life Benchmarks */}
+              <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 sm:p-5 space-y-2.5 text-xs">
+                <div className="flex flex-wrap items-center justify-between gap-1">
+                  <span className="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+                    Clinical Half-Life Quick Benchmarks:
+                  </span>
+                  <span className="text-[11px] text-slate-400">
+                    Click to auto-fill verified literature values
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+                  {[
+                    { label: '4h (0.17d)', desc: 'BPC-157 / MOTS-c', days: 0.17 },
+                    { label: '24h (1.0d)', desc: 'TB-500 / Daily Peptides', days: 1.0 },
+                    { label: '2.5d (60h)', desc: 'Mod GRF 1-29', days: 2.5 },
+                    { label: '5.0d (120h)', desc: 'Tirzepatide / GIP', days: 5.0 },
+                    { label: '7.0d (168h)', desc: 'Semaglutide / CJC DAC', days: 7.0 },
+                    { label: '14.0d (336h)', desc: 'Extended Esters', days: 14.0 },
+                  ].map((chip) => {
+                    const isSelected = Math.abs(customHalfLifeDays - chip.days) < 0.05;
+                    return (
+                      <button
+                        key={chip.label}
+                        type="button"
+                        onClick={() => setCustomHalfLifeDays(chip.days)}
+                        className={`p-2.5 rounded-xl text-left font-mono transition-all cursor-pointer border ${
+                          isSelected
+                            ? 'bg-cyan-500/20 border-cyan-400 text-cyan-300 font-bold shadow-sm'
+                            : 'bg-slate-950/80 hover:bg-slate-800 border-slate-800 text-slate-300 hover:text-white'
+                        }`}
+                        title={chip.desc}
+                      >
+                        <div className="font-bold text-xs">{chip.label}</div>
+                        <div className="text-[10px] text-slate-400 truncate">{chip.desc}</div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Consultation & Custom Protocol Request Banner */}
+              <div className="bg-gradient-to-r from-cyan-950/40 via-slate-900 to-slate-900 border border-cyan-500/30 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs shadow-lg animate-in fade-in duration-200">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse shrink-0" />
+                    <span className="font-bold text-slate-100 text-sm">
+                      Researching an Unlisted Peptide or Custom Stack?
+                    </span>
+                  </div>
+                  <p className="text-slate-300 text-xs leading-relaxed max-w-2xl">
+                    Need assistance verifying the elimination half-life, titration trajectory, or reconstitution formula for a specialized compound? Submit your research parameters to our clinical pharmacokinetics support team for custom protocol calibration.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsCustomProtocolModalOpen(true)}
+                  className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded-xl transition-all shadow-md shrink-0 cursor-pointer text-xs group"
+                >
+                  <Mail className="w-4 h-4 text-slate-950 group-hover:scale-110 transition-transform" />
+                  <span>Request Custom Protocol</span>
+                </button>
+              </div>
+            </div>
+          )}
           </div>
 
         {/* ============================================================ */}
@@ -1725,6 +1735,15 @@ const splitList: InjectionEntry[] = [];
         dataPoints={pkResult.dataPoints}
         injections={injections}
         frequencyDays={activePreset.standardFrequencyDays}
+      />
+
+      {/* Custom Peptide Clinical Protocol Request Modal */}
+      <CustomProtocolModal
+        isOpen={isCustomProtocolModalOpen}
+        onClose={() => setIsCustomProtocolModalOpen(false)}
+        defaultCompoundName={plotCompoundId === 'custom' ? 'Custom Peptide / Research Compound' : activePreset.name}
+        defaultVialMg={safeVialMg}
+        defaultDoseMcg={safeTargetDoseMcg || activePreset.defaultDoseMcg}
       />
     </div>
   );
