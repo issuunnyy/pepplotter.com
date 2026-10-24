@@ -504,37 +504,41 @@ const splitList: InjectionEntry[] = [];
       {/* Main Container (Strictly hidden during printing to isolate Fridge Sheet) */}
       <main className="w-full max-w-5xl px-4 sm:px-6 py-8 md:py-12 print:hidden">
         {/* Top Brand Header */}
-        <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 pb-4 sm:pb-8 mb-4 sm:mb-8 border-b border-slate-800/80">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-cyan-500 p-0.5 shadow-lg shadow-emerald-500/20 shrink-0">
+        <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 pb-3 sm:pb-8 mb-4 sm:mb-8 border-b border-slate-800/80">
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-cyan-500 p-0.5 shadow-lg shadow-emerald-500/20 shrink-0">
               <div className="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
-                <Activity className="w-5 h-5 text-emerald-400" />
+                <Activity className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400" />
               </div>
             </div>
-            <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                <span className="text-xl font-extrabold tracking-tight bg-gradient-to-r from-slate-100 via-emerald-200 to-cyan-300 bg-clip-text text-transparent">
+            <div className="min-w-0 flex-1">
+              {/* Row 1: Brand name + Badge (Scaled down to prevent truncation on mobile) */}
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <span className="text-lg sm:text-xl font-extrabold tracking-tight bg-gradient-to-r from-slate-100 via-emerald-200 to-cyan-300 bg-clip-text text-transparent shrink-0">
                   PepPlotter
                 </span>
-                <span className="px-2 py-0.5 text-[10px] uppercase font-bold tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded-full truncate">
-                  Harm Reduction &amp; Simulation v1.0
+                <span className="px-1.5 sm:px-2 py-0.5 text-[8.5px] sm:text-[10px] uppercase font-bold tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded-full whitespace-nowrap shrink-0">
+                  <span className="inline sm:hidden">Harm Reduction v1.0</span>
+                  <span className="hidden sm:inline">Harm Reduction &amp; Simulation v1.0</span>
                 </span>
               </div>
-              <p className="text-xs text-slate-400 truncate">
-                Precision Peptide Reconstitution &amp; Pharmacokinetic Accumulation Simulator
+              {/* Row 2: Subtitle (Fully legible without ellipsis) */}
+              <p className="text-[10.5px] sm:text-xs text-slate-400 mt-0.5 leading-snug">
+                <span className="inline sm:hidden">Peptide Reconstitution &amp; PK Half-Life Simulator</span>
+                <span className="hidden sm:inline">Precision Peptide Reconstitution &amp; Pharmacokinetic Accumulation Simulator</span>
               </p>
             </div>
           </div>
 
-          {/* Quick Actions (100% Single-Row Elastic Toolbar on Mobile, Elegant Cluster on Desktop) */}
+          {/* Quick Actions (100% Single-Row Elastic Toolbar: 4 equal 25% columns, zero truncation) */}
           <div className="w-full sm:w-auto grid grid-cols-4 sm:flex sm:items-center gap-1.5 sm:gap-2">
             <button
               onClick={startTour}
-              className="flex-1 sm:flex-none flex items-center justify-center gap-1 sm:gap-1.5 px-1.5 sm:px-3 py-1.5 bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 text-emerald-300 rounded-lg text-xs font-semibold transition-all shadow-sm shadow-emerald-500/10 cursor-pointer min-w-0"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-1 sm:gap-1.5 px-1 sm:px-3 py-1.5 bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 text-emerald-300 rounded-lg text-[10px] sm:text-xs font-semibold transition-all shadow-sm shadow-emerald-500/10 cursor-pointer min-w-0"
               title="Interactive Guided Walkthrough"
             >
               <Compass className="w-3.5 h-3.5 shrink-0" />
-              <span className="truncate">
+              <span className="whitespace-nowrap">
                 <span className="hidden sm:inline">How to Use (Tour)</span>
                 <span className="sm:hidden">Tour</span>
               </span>
@@ -543,11 +547,11 @@ const splitList: InjectionEntry[] = [];
             <button
               type="button"
               onClick={() => setIsReportModalOpen(true)}
-              className="flex-1 sm:flex-none flex items-center justify-center gap-1 sm:gap-1.5 px-1.5 sm:px-3 py-1.5 bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 text-emerald-300 rounded-lg text-xs font-semibold transition-all shadow-sm shadow-emerald-500/10 cursor-pointer min-w-0"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-1 sm:gap-1.5 px-1 sm:px-3 py-1.5 bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 text-emerald-300 rounded-lg text-[10px] sm:text-xs font-semibold transition-all shadow-sm shadow-emerald-500/10 cursor-pointer min-w-0"
               title="Sync Administration Protocol to Google/Apple Calendar or Print Fridge Sheet"
             >
               <Calendar className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-              <span className="truncate">
+              <span className="whitespace-nowrap">
                 <span className="hidden sm:inline">Reminders &amp; Protocol</span>
                 <span className="sm:hidden">Remind</span>
               </span>
@@ -556,11 +560,11 @@ const splitList: InjectionEntry[] = [];
             <button
               type="button"
               onClick={() => setIsFeedbackModalOpen(true)}
-              className="flex-1 sm:flex-none flex items-center justify-center gap-1 sm:gap-1.5 px-1.5 sm:px-3 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-700/80 hover:border-emerald-500/50 rounded-lg text-xs font-semibold text-slate-200 transition-all shadow-sm cursor-pointer min-w-0"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-1 sm:gap-1.5 px-1 sm:px-3 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-700/80 hover:border-emerald-500/50 rounded-lg text-[10px] sm:text-xs font-semibold text-slate-200 transition-all shadow-sm cursor-pointer min-w-0"
               title="Request Custom Peptide or Feedback"
             >
               <MessageSquare className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-              <span className="truncate">
+              <span className="whitespace-nowrap">
                 <span className="hidden sm:inline">Request Peptide</span>
                 <span className="sm:hidden">Feedback</span>
               </span>
@@ -569,11 +573,11 @@ const splitList: InjectionEntry[] = [];
             <button
               type="button"
               onClick={copyShareUrl}
-              className="flex-1 sm:flex-none flex items-center justify-center gap-1 sm:gap-1.5 px-1.5 sm:px-3 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 rounded-lg text-xs text-slate-300 font-medium transition-colors cursor-pointer min-w-0"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-1 sm:gap-1.5 px-1 sm:px-3 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 rounded-lg text-[10px] sm:text-xs text-slate-300 font-semibold transition-colors cursor-pointer min-w-0"
               title="Copy shareable link with current dosage parameters"
             >
               {copied ? <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" /> : <Share2 className="w-3.5 h-3.5 text-slate-400 shrink-0" />}
-              <span className="truncate">
+              <span className="whitespace-nowrap">
                 <span className="hidden sm:inline">{copied ? 'Link Copied!' : 'Copy Link'}</span>
                 <span className="sm:hidden">{copied ? 'Copied' : 'Share'}</span>
               </span>
@@ -605,29 +609,30 @@ const splitList: InjectionEntry[] = [];
             </button>
           </div>
 
-          {/* Fast Compound Preset Pills (Elastic Smooth Scroll Track on Mobile, Centered Cluster on Desktop) */}
-          <div className="mt-4 sm:mt-6 w-full max-w-4xl mx-auto flex items-center justify-start sm:justify-center gap-1.5 overflow-x-auto no-scrollbar py-1 px-1 sm:px-0 sm:flex-wrap">
-            <span className="text-xs text-slate-400 font-medium mr-1 flex items-center gap-1 shrink-0">
-              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-              <span className="hidden sm:inline">Fast Presets:</span>
-              <span className="sm:hidden">Presets:</span>
-            </span>
-            {COMPOUND_PRESETS.map((preset) => {
-              const isSelected = selectedPresetId === preset.id;
-              return (
-                <button
-                  key={preset.id}
-                  onClick={() => applyPreset(preset)}
-                  className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all border shrink-0 whitespace-nowrap cursor-pointer ${
-                    isSelected
-                      ? 'bg-emerald-500/20 border-emerald-500/60 text-emerald-300 shadow-sm shadow-emerald-500/20'
-                      : 'bg-slate-900/80 hover:bg-slate-800 border-slate-800 text-slate-400 hover:text-slate-200'
-                  }`}
-                >
-                  {preset.name}
-                </button>
-              );
-            })}
+          {/* Fast Compound Preset Pills (All 6 Drugs 100% Visible: 2 rows x 3 columns on Mobile, Centered Flex on Desktop) */}
+          <div className="mt-4 sm:mt-6 w-full max-w-2xl mx-auto px-1">
+            <div className="flex items-center justify-center gap-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+              <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+              <span>Fast Compound Presets (6 Clinical Compounds)</span>
+            </div>
+            <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
+              {COMPOUND_PRESETS.map((preset) => {
+                const isSelected = selectedPresetId === preset.id;
+                return (
+                  <button
+                    key={preset.id}
+                    onClick={() => applyPreset(preset)}
+                    className={`w-full py-1.5 px-1 sm:px-3 rounded-xl text-xs font-semibold transition-all border text-center truncate cursor-pointer ${
+                      isSelected
+                        ? 'bg-emerald-500/20 border-emerald-500/60 text-emerald-300 shadow-sm shadow-emerald-500/20 font-bold'
+                        : 'bg-slate-900/80 hover:bg-slate-800 border-slate-800 text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    {preset.id === 'custom' ? 'Custom Peptide' : preset.name}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </section>
 
