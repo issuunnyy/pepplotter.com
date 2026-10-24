@@ -630,7 +630,7 @@ const splitList: InjectionEntry[] = [];
           </div>
         </section>
 
-        {/* Main Tab Switcher */}
+        {/* Main Tab Switcher (Dynamic Elastic Accordion: Active tab expands smoothly, Inactive tabs contract gracefully) */}
         <div id="main-tab-switcher" className="w-full max-w-2xl sm:max-w-3xl mx-auto mb-8 scroll-mt-6 px-1">
           <div
             role="tablist"
@@ -650,8 +650,9 @@ const splitList: InjectionEntry[] = [];
                 document.getElementById(`tab-btn-${prevTab}`)?.focus();
               }
             }}
-            className="w-full grid grid-cols-3 p-1 sm:p-1.5 bg-slate-900/90 border border-slate-800 rounded-2xl shadow-xl gap-1"
+            className="w-full flex items-center p-1 sm:p-1.5 bg-slate-900/90 border border-slate-800 rounded-2xl shadow-xl gap-1"
           >
+            {/* Tab 1: Reconstitution Calculator */}
             <button
               id="tab-btn-calc"
               role="tab"
@@ -659,19 +660,29 @@ const splitList: InjectionEntry[] = [];
               aria-controls="tab-panel-calc"
               tabIndex={activeTab === 'calc' ? 0 : -1}
               onClick={() => handleTabChange('calc')}
-              className={`w-full flex items-center justify-center gap-1.5 sm:gap-2 px-1.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap truncate ${
+              className={`flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-300 ease-out cursor-pointer whitespace-nowrap min-w-0 ${
                 activeTab === 'calc'
-                  ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-md'
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? 'flex-[1.5] sm:flex-1 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-md px-2.5 sm:px-4'
+                  : 'flex-1 hover:bg-slate-800/60 text-slate-400 hover:text-slate-200 px-1 sm:px-4'
               }`}
             >
               <Calculator className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
-              <span className="truncate">
-                <span className="inline sm:hidden">1. Calculator</span>
-                <span className="hidden sm:inline">1. Reconstitution Calculator</span>
+              <span className="truncate font-semibold">
+                {activeTab === 'calc' ? (
+                  <>
+                    <span className="inline sm:hidden">1. Calculator</span>
+                    <span className="hidden sm:inline">1. Reconstitution Calculator</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="inline sm:hidden">1. Calc</span>
+                    <span className="hidden sm:inline">1. Reconstitution</span>
+                  </>
+                )}
               </span>
             </button>
 
+            {/* Tab 2: PK Simulator */}
             <button
               id="tab-btn-plotter"
               role="tab"
@@ -679,19 +690,29 @@ const splitList: InjectionEntry[] = [];
               aria-controls="tab-panel-plotter"
               tabIndex={activeTab === 'plotter' ? 0 : -1}
               onClick={() => handleTabChange('plotter')}
-              className={`w-full flex items-center justify-center gap-1.5 sm:gap-2 px-1.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap truncate ${
+              className={`flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-300 ease-out cursor-pointer whitespace-nowrap min-w-0 ${
                 activeTab === 'plotter'
-                  ? 'bg-gradient-to-r from-cyan-500 to-cyan-600 text-white shadow-md'
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? 'flex-[1.5] sm:flex-1 bg-gradient-to-r from-cyan-500 to-cyan-600 text-white shadow-md px-2.5 sm:px-4'
+                  : 'flex-1 hover:bg-slate-800/60 text-slate-400 hover:text-slate-200 px-1 sm:px-4'
               }`}
             >
               <Activity className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
-              <span className="truncate">
-                <span className="inline sm:hidden">2. PK Simulator</span>
-                <span className="hidden sm:inline">2. Half-Life &amp; PK Simulator</span>
+              <span className="truncate font-semibold">
+                {activeTab === 'plotter' ? (
+                  <>
+                    <span className="inline sm:hidden">2. PK Simulator</span>
+                    <span className="hidden sm:inline">2. Half-Life &amp; PK Simulator</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="inline sm:hidden">2. PK</span>
+                    <span className="hidden sm:inline">2. PK Simulator</span>
+                  </>
+                )}
               </span>
             </button>
 
+            {/* Tab 3: Clinical Sub-Q Guide */}
             <button
               id="tab-btn-guide"
               role="tab"
@@ -699,16 +720,25 @@ const splitList: InjectionEntry[] = [];
               aria-controls="tab-panel-guide"
               tabIndex={activeTab === 'guide' ? 0 : -1}
               onClick={() => handleTabChange('guide')}
-              className={`w-full flex items-center justify-center gap-1.5 sm:gap-2 px-1.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap truncate ${
+              className={`flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-300 ease-out cursor-pointer whitespace-nowrap min-w-0 ${
                 activeTab === 'guide'
-                  ? 'bg-gradient-to-r from-teal-500 to-cyan-600 text-white shadow-md'
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? 'flex-[1.5] sm:flex-1 bg-gradient-to-r from-teal-500 to-cyan-600 text-white shadow-md px-2.5 sm:px-4'
+                  : 'flex-1 hover:bg-slate-800/60 text-slate-400 hover:text-slate-200 px-1 sm:px-4'
               }`}
             >
               <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 text-cyan-300" />
-              <span className="truncate">
-                <span className="inline sm:hidden">3. Sub-Q Guide</span>
-                <span className="hidden sm:inline">3. Clinical Sub-Q Guide</span>
+              <span className="truncate font-semibold">
+                {activeTab === 'guide' ? (
+                  <>
+                    <span className="inline sm:hidden">3. Sub-Q Guide</span>
+                    <span className="hidden sm:inline">3. Clinical Sub-Q Guide</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="inline sm:hidden">3. Sub-Q</span>
+                    <span className="hidden sm:inline">3. Sub-Q Guide</span>
+                  </>
+                )}
               </span>
             </button>
           </div>
