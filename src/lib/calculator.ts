@@ -267,8 +267,9 @@ export function calculatePharmacokinetics(
     });
 
     if (conc > peak) peak = conc;
-    // Only calculate trough after initial absorption phase (> 48h)
-    if (h >= 48 && conc < trough) trough = conc;
+    // Calculate trough after initial absorption phase (>= 48h, or after first 30% for shorter spans)
+    const troughStartHour = Math.min(48, totalHours * 0.3);
+    if (h >= troughStartHour && conc < trough) trough = conc;
     sum += conc;
     count++;
   }

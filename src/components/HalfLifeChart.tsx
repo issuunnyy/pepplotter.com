@@ -3,7 +3,7 @@
 import React, { useState, useMemo, useCallback, useRef } from 'react';
 import { ConcentrationDataPoint } from '@/lib/types';
 import { generateSmoothSpline } from '@/lib/calculator';
-import { TrendingUp, Activity } from 'lucide-react';
+import { Activity } from 'lucide-react';
 
 // Chart dimensions (module scope so handlers can reference them without stale closure)
 const svgWidth = 800;
@@ -309,17 +309,6 @@ ref={svgRef}
             )}
           </div>
         )}
-      </div>
-
-      {/* Clinical & Split-Dosing Insight Box */}
-      <div className="mt-4 p-3 bg-slate-800/40 border border-slate-700/50 rounded-xl text-xs text-slate-300 leading-relaxed flex items-start gap-2.5">
-        <TrendingUp className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
-        <div>
-          <strong className="text-cyan-300">Why Plot Half-Life?</strong> Steady-state accumulation happens over 4-5 half-lives (about 4 weeks for Semaglutide, 3-4 weeks for Tirzepatide). Splitting a large weekly dose into twice-weekly (e.g. every 3.5 days) significantly lowers the post-injection Cmax peak spike and raises the green trough floor, drastically reducing gastrointestinal nausea while maintaining sustained appetite suppression.
-          <div className="mt-1.5 text-slate-500">
-            Model note: First-order subcutaneous absorption &amp; elimination (Bateman pharmacokinetic model), accurately simulating realistic 24–36h post-injection plasma Tmax peaks.
-          </div>
-        </div>
       </div>
     </div>
   );

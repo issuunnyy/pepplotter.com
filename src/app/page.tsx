@@ -25,6 +25,7 @@ import {
   Calculator, 
   Activity, 
   Sparkles, 
+  TrendingUp, 
   RotateCcw, 
   Plus, 
   Trash2, 
@@ -291,7 +292,13 @@ export default function Home() {
   const canShowDoseInstruction = !isBlocked;
 
   const pkResult = useMemo(() => {
-    return calculatePharmacokinetics(injections, halfLifeHours, simulationDays, 2);
+    // Dynamic adaptive sampling:
+    // Ultra-short half-life compounds (Ipamorelin ~2h, BPC-157 ~4h) use 0.25h (15-min) step size
+    // to render smooth, continuous physiological pulses rather than coarse polygonal triangles.
+    const adaptiveStepHours =
+      halfLifeHours <= 4 ? 0.25 : halfLifeHours <= 12 ? 0.5 : halfLifeHours <= 24 ? 1 : 2;
+
+    return calculatePharmacokinetics(injections, halfLifeHours, simulationDays, adaptiveStepHours);
   }, [injections, halfLifeHours, simulationDays]);
 
   // Tour controls
@@ -1247,117 +1254,43 @@ const splitList: InjectionEntry[] = [];
           aria-labelledby="tab-btn-plotter"
           className={activeTab === 'plotter' ? 'space-y-6' : 'hidden'}
         >
-          {/* Live Linkage & Pharmacokinetics Context Card */}
+          {/* Top Toolbar: Compound & Controls (Unified 6-cell Apple-grade Instrument Grid with Live Sync) */}
           <div 
             id="step-pk-sync"
-            className={`bg-gradient-to-r from-cyan-950/40 via-slate-900/90 to-emerald-950/30 border rounded-2xl p-4 sm:p-5 shadow-lg relative overflow-hidden scroll-mt-24 transition-all ${
-              isTourActive && tourStepIndex === 4
-                ? 'border-cyan-400 ring-2 ring-cyan-400/50 shadow-cyan-500/20'
-                : 'border-cyan-500/30'
-            }`}
-          >
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-              
-              {/* Left: Current Active Sync Status */}
-              <div className="space-y-1.5 min-w-0">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="flex h-2 w-2 relative">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
-                  </span>
-                  <span className="text-[11px] font-mono uppercase font-bold text-cyan-400 tracking-wider">
-                    Live Linked to Reconstitution Calculator
-                  </span>
-                  <span className="text-[10px] bg-cyan-500/10 text-cyan-300 px-2 py-0.5 rounded-full border border-cyan-500/20 font-mono">
-                    Auto-Synchronized
-                  </span>
-                </div>
-
-                <div className="flex flex-wrap items-baseline gap-2 pt-0.5">
-                  <span className="text-lg sm:text-xl font-extrabold text-white">
-                    {plotPreset.name}
-                  </span>
-                  <span className="text-sm sm:text-base font-bold text-cyan-300 font-mono">
-                    {((safeTargetDoseMcg || activePreset.defaultDoseMcg) / 1000).toFixed(2)} mg / injection ({safeTargetDoseMcg || activePreset.defaultDoseMcg} mcg)
-                  </span>
-                  <span className="text-xs text-slate-400">
-                    • Reconstituted as {safeVialMg} mg in {safeWaterMl} mL ({reconResult.syringeUnits} units draw)
-                  </span>
-                </div>
-
-                {/* Clinical Relationship Callout */}
-                <p className="text-[11px] text-slate-300/90 leading-relaxed max-w-3xl pt-0.5">
-                  <strong className="text-cyan-200">How PK Simulation connects to your Calculator:</strong>{' '}
-                  Your vial size ({safeVialMg}mg) and added water ({safeWaterMl}mL) determine your physical syringe draw ({reconResult.syringeUnits} units). Once injected subcutaneously, your body metabolizes the <strong className="text-white font-mono">{((safeTargetDoseMcg || activePreset.defaultDoseMcg) / 1000).toFixed(2)} mg</strong> active drug according to its <strong className="text-cyan-300">{halfLifeHours >= 24 ? `${(halfLifeHours / 24).toFixed(1)}d` : `${Number(halfLifeHours.toFixed(1))}h (${(halfLifeHours / 24).toFixed(2)}d)`} half-life</strong>.
-                </p>
-              </div>
-
-              {/* Right: Quick Target Dose Switcher right in PK Simulator */}
-              <div className="flex flex-col sm:items-start lg:items-end gap-1.5 shrink-0 pt-2 lg:pt-0 border-t lg:border-t-0 border-slate-800">
-                <div className="flex items-center justify-between w-full sm:w-auto gap-2">
-                  <span className="text-[10px] font-mono uppercase text-slate-400 font-bold tracking-wider">
-                    Quick-Adjust Injected Dose:
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => handleTabChange('calc')}
-                    className="sm:hidden text-[11px] text-cyan-400 hover:text-cyan-300 transition-colors font-medium shrink-0"
-                    title="Switch to Reconstitution Calculator"
-                  >
-                    Edit in Tab 1 &rarr;
-                  </button>
-                </div>
-                <div className="w-full sm:w-auto flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
-                  {[
-                    { val: 250, label: '0.25mg' },
-                    { val: 500, label: '0.5mg' },
-                    { val: 1000, label: '1.0mg' },
-                    { val: 1700, label: '1.7mg' },
-                    { val: 2500, label: '2.5mg' },
-                  ].map((item) => {
-                    const isSelected = safeTargetDoseMcg === item.val;
-                    return (
-                      <button
-                        key={item.val}
-                        type="button"
-                        onClick={() => {
-                          setTargetDoseMcg(item.val);
-                        }}
-                        className={`px-2.5 py-1 text-xs rounded-lg font-mono font-bold transition-all cursor-pointer shrink-0 ${
-                          isSelected
-                            ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/30'
-                            : 'bg-slate-950/80 hover:bg-slate-800 text-slate-300 border border-slate-800 hover:border-slate-700'
-                        }`}
-                      >
-                        {item.label}
-                      </button>
-                    );
-                  })}
-                  <button
-                    type="button"
-                    onClick={() => handleTabChange('calc')}
-                    className="hidden sm:inline-flex px-2 py-1 text-[11px] text-slate-400 hover:text-cyan-300 transition-colors items-center gap-0.5 cursor-pointer font-medium shrink-0"
-                    title="Switch to Reconstitution Calculator"
-                  >
-                    <span>Edit in Tab 1 &rarr;</span>
-                  </button>
-                </div>
-              </div>
-
-            </div>
-          </div>
-
-          {/* Top Toolbar: Compound & Controls (Unified 6-cell Apple-grade Instrument Grid) */}
-          <div 
-            id="step-pk-chart"
-            className={`bg-slate-900/70 border rounded-2xl p-3 sm:p-5 scroll-mt-24 transition-all ${
-              isTourActive && tourStepIndex === 5
+            className={`bg-slate-900/70 border rounded-2xl p-3.5 sm:p-5 scroll-mt-24 transition-all shadow-xl backdrop-blur-md ${
+              isTourActive && (tourStepIndex === 4 || tourStepIndex === 5)
                 ? 'border-cyan-400 ring-2 ring-cyan-400/50 shadow-cyan-500/20'
                 : 'border-slate-800'
             }`}
           >
+            {/* Sleek Live-Sync Status Bar (Zero vertical bloat, immediate visual feedback) */}
+            <div className="flex flex-wrap items-center justify-between gap-2 pb-3 mb-3.5 border-b border-slate-800/80">
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="flex h-2 w-2 relative shrink-0">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+                </span>
+                <span className="text-[11px] font-mono uppercase font-bold text-cyan-400 tracking-wider truncate">
+                  Live Linked with Reconstitution
+                </span>
+                <span className="hidden sm:inline-block text-[10px] bg-cyan-500/10 text-cyan-300 px-2 py-0.5 rounded-full border border-cyan-500/20 font-mono shrink-0">
+                  Auto-Synchronized
+                </span>
+              </div>
+              
+              <div className="flex items-center gap-2 text-xs font-mono">
+                <span className="text-slate-400 text-[11px] hidden xs:inline">Active Dose:</span>
+                <span className="text-cyan-300 font-bold bg-slate-950 px-2 py-0.5 rounded-lg border border-slate-800">
+                  {((safeTargetDoseMcg || activePreset.defaultDoseMcg) / 1000).toFixed(2)} mg ({safeTargetDoseMcg || activePreset.defaultDoseMcg} mcg)
+                </span>
+                <span className="text-slate-400 text-[11px]">
+                  ({reconResult.syringeUnits} units)
+                </span>
+              </div>
+            </div>
+
             {/* Symmetrical 6-cell Grid: 3 rows x 2 columns on mobile, 2 rows x 3 columns on tablet/desktop */}
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5 sm:gap-3.5">
+            <div id="step-pk-chart" className="grid grid-cols-2 md:grid-cols-3 gap-2.5 sm:gap-3.5">
               
               {/* Cell 1: Select Target Compound */}
               <div className="flex flex-col justify-between">
@@ -1446,6 +1379,8 @@ const splitList: InjectionEntry[] = [];
                   onChange={(e) => setSimulationDays(parseInt(e.target.value))}
                   className="w-full h-10 bg-slate-950 border border-slate-700 text-slate-100 text-xs font-semibold rounded-xl px-2.5 outline-none focus:border-cyan-500 cursor-pointer truncate"
                 >
+                  <option value={2}>48 Hours (2 Days - High-Res Pulse)</option>
+                  <option value={3}>72 Hours (3 Days)</option>
                   <option value={7}>1 Week (7 Days)</option>
                   <option value={14}>2 Weeks (14 Days)</option>
                   <option value={28}>4 Weeks (28 Days)</option>
@@ -1522,34 +1457,82 @@ const splitList: InjectionEntry[] = [];
             halfLifeHours={halfLifeHours}
           />
 
-          {/* Clinical Pharmacokinetics Callout for Specialized Peptides */}
-          {(plotCompoundId === 'bpc157' || plotCompoundId === 'tb500' || plotCompoundId === 'cagrilintide' || plotCompoundId === 'ipamorelin') && (
-            <div className="bg-gradient-to-r from-cyan-950/40 via-slate-900/60 to-slate-950/40 border border-cyan-800/40 rounded-xl p-3 sm:p-3.5 text-xs text-slate-300 leading-relaxed flex items-start gap-2.5 shadow-sm">
-              <Info className="w-4 h-4 text-cyan-400 mt-0.5 shrink-0" />
-              <div>
-                <span className="font-bold text-cyan-200 block mb-0.5">
-                  Clinical Pharmacokinetics Insight ({plotPreset.name}):
-                </span>
-                {plotCompoundId === 'bpc157' ? (
-                  <p className="text-[11.5px] text-slate-300/90 leading-snug">
-                    <strong>BPC-157</strong> has an ultra-rapid circulating plasma elimination half-life (<strong>~4 hours</strong>) as systemic peptidases metabolize the pentadecapeptide. In clinical research and athletic recovery protocols, <strong>daily administration (QD)</strong> is standard to maintain steady cellular stimulation. Downstream tissue recovery (VEGFR2 angiogenesis, focal adhesion kinase activation, and granulation tissue acceleration) continues at the cellular level for 24–48 hours post-clearance.
-                  </p>
-                ) : plotCompoundId === 'tb500' ? (
-                  <p className="text-[11.5px] text-slate-300/90 leading-snug">
-                    <strong>TB-500 (Thymosin Beta-4)</strong> exhibits a systemic plasma half-life of <strong>~24 hours (1.0 day)</strong>. While circulating blood levels peak and decline over 1–2 days, its binding to G-actin and stimulation of cell migration and anti-fibrotic remodeling in injured tissues is sustained across multi-day intervals, supporting a standard <strong>twice-weekly (every 3.5 days) loading schedule</strong>.
-                  </p>
-                ) : plotCompoundId === 'cagrilintide' ? (
-                  <p className="text-[11.5px] text-slate-300/90 leading-snug">
-                    <strong>Cagrilintide</strong> is a long-acting acylated amylin analogue with an elimination half-life of <strong>~168 hours (7.0 days)</strong> matching Semaglutide. In next-generation dual-agonist protocols (CagriSema), it activates amylin and calcitonin receptors in the area postrema to delay gastric emptying and induce profound early satiety, complementing GLP-1/GIP mechanisms without redundant receptor competition.
-                  </p>
-                ) : (
-                  <p className="text-[11.5px] text-slate-300/90 leading-snug">
-                    <strong>Ipamorelin</strong> is a highly selective growth hormone secretagogue (GHRP) with a rapid circulating half-life of <strong>~2.0 hours (120 minutes)</strong>. It binds to the ghrelin receptor to trigger a clean, pulsatile spike of endogenous somatotropin from the pituitary, replicating natural deep-sleep growth hormone secretion without stimulating cortisol, ACTH, or prolactin elevation.
-                  </p>
-                )}
+          {/* Consolidated Clinical Pharmacokinetics & Protocol Guidance */}
+          <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-lg space-y-3.5">
+            {/* Header */}
+            <div className="flex items-center justify-between pb-3 border-b border-slate-800/80">
+              <div className="flex items-center gap-2">
+                <Activity className="w-4 h-4 text-cyan-400 shrink-0" />
+                <h3 className="text-xs sm:text-sm font-bold text-slate-100 uppercase tracking-wider">
+                  Clinical Pharmacokinetics &amp; Protocol Guidance
+                </h3>
               </div>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 font-semibold">
+                {halfLifeHours <= 12 ? 'Pulsatile Kinetics' : 'Steady-State Kinetics'}
+              </span>
             </div>
-          )}
+
+            {/* Dynamic Core Mechanism: Pulsatile Secretagogue vs Steady-State Accumulation */}
+            {halfLifeHours <= 12 ? (
+              <div className="bg-cyan-950/20 border border-cyan-800/30 rounded-xl p-3 sm:p-3.5 text-xs text-slate-300 leading-relaxed flex items-start gap-2.5">
+                <Sparkles className="w-4 h-4 text-cyan-400 mt-0.5 shrink-0" />
+                <div className="space-y-1">
+                  <span className="font-bold text-cyan-200 block">
+                    Why Pulsatile Spikes Matter (Preventing Pituitary Receptor Desensitization):
+                  </span>
+                  <p className="text-[11.5px] text-slate-300/90 leading-snug">
+                    Unlike GLP-1 agonists that require steady 24/7 blood saturation, short-acting secretagogues (such as <strong>{plotPreset.name}</strong> with a <strong>{halfLifeHours >= 24 ? `${(halfLifeHours/24).toFixed(1)}d` : `${Number(halfLifeHours.toFixed(1))}h`}</strong> half-life) are engineered for <strong>isolated, pulsatile release</strong>. Each daily dose clears rapidly within 8–12 hours, mimicking the body&apos;s natural nocturnal somatotropin pulse. This rapid clearance is essential to prevent somatotroph receptor tachyphylaxis (desensitization) and avoid prolonged insulin resistance.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-cyan-950/20 border border-cyan-800/30 rounded-xl p-3 sm:p-3.5 text-xs text-slate-300 leading-relaxed flex items-start gap-2.5">
+                <TrendingUp className="w-4 h-4 text-cyan-400 mt-0.5 shrink-0" />
+                <div className="space-y-1">
+                  <span className="font-bold text-cyan-200 block">
+                    Steady-State Accumulation &amp; Split-Dosing Harm Reduction:
+                  </span>
+                  <p className="text-[11.5px] text-slate-300/90 leading-snug">
+                    Steady-state plasma equilibrium is reached over <strong>4 to 5 elimination half-lives</strong> (~4 weeks for Semaglutide/Cagrilintide, ~3–4 weeks for Tirzepatide). Splitting a large weekly dose into twice-weekly (e.g. every 3.5 days) significantly lowers the post-injection Cmax peak spike and raises the green trough floor, drastically reducing gastrointestinal nausea while maintaining sustained appetite suppression.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Compound-Specific Deep Clinical Insights (for BPC-157, TB-500, Cagrilintide, Ipamorelin) */}
+            {(plotCompoundId === 'bpc157' || plotCompoundId === 'tb500' || plotCompoundId === 'cagrilintide' || plotCompoundId === 'ipamorelin') && (
+              <div className="bg-slate-950/60 border border-slate-800/80 rounded-xl p-3 sm:p-3.5 text-xs text-slate-300 leading-relaxed flex items-start gap-2.5">
+                <Info className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" />
+                <div>
+                  <span className="font-bold text-emerald-300 block mb-0.5">
+                    Target Profile: {plotPreset.name} ({plotPreset.brandNames || 'Clinical Reference'})
+                  </span>
+                  {plotCompoundId === 'bpc157' ? (
+                    <p className="text-[11.5px] text-slate-300/90 leading-snug">
+                      <strong>BPC-157</strong> has an ultra-rapid circulating plasma elimination half-life (<strong>~4 hours</strong>) as systemic peptidases metabolize the pentadecapeptide. In clinical research and athletic recovery protocols, <strong>daily administration (QD)</strong> is standard to maintain steady cellular stimulation. Downstream tissue recovery (VEGFR2 angiogenesis, focal adhesion kinase activation, and granulation tissue acceleration) continues at the cellular level for 24–48 hours post-clearance.
+                    </p>
+                  ) : plotCompoundId === 'tb500' ? (
+                    <p className="text-[11.5px] text-slate-300/90 leading-snug">
+                      <strong>TB-500 (Thymosin Beta-4)</strong> exhibits a systemic plasma half-life of <strong>~24 hours (1.0 day)</strong>. While circulating blood levels peak and decline over 1–2 days, its binding to G-actin and stimulation of cell migration and anti-fibrotic remodeling in injured tissues is sustained across multi-day intervals, supporting a standard <strong>twice-weekly (every 3.5 days) loading schedule</strong>.
+                    </p>
+                  ) : plotCompoundId === 'cagrilintide' ? (
+                    <p className="text-[11.5px] text-slate-300/90 leading-snug">
+                      <strong>Cagrilintide</strong> is a long-acting acylated amylin analogue with an elimination half-life of <strong>~168 hours (7.0 days)</strong> matching Semaglutide. In next-generation dual-agonist protocols (CagriSema), it activates amylin and calcitonin receptors in the area postrema to delay gastric emptying and induce profound early satiety, complementing GLP-1/GIP mechanisms without redundant receptor competition.
+                    </p>
+                  ) : (
+                    <p className="text-[11.5px] text-slate-300/90 leading-snug">
+                      <strong>Ipamorelin</strong> is a highly selective growth hormone secretagogue (GHRP) with a rapid circulating half-life of <strong>~2.0 hours (120 minutes)</strong>. It binds to the ghrelin receptor to trigger a clean, pulsatile spike of endogenous somatotropin from the pituitary, replicating natural deep-sleep growth hormone secretion without stimulating cortisol, ACTH, or prolactin elevation.
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            <div className="text-[11px] text-slate-500 font-mono flex items-center gap-1.5 pt-1 border-t border-slate-800/60">
+              <span>Model Note:</span>
+              <span>First-order Bateman pharmacokinetic model with adaptive subcutaneous absorption and elimination rate constants.</span>
+            </div>
+          </div>
 
           {/* Injection Schedule Table & Manager */}
           <div className="bg-slate-900/70 border border-slate-800 rounded-2xl p-4 sm:p-5">
