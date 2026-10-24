@@ -104,7 +104,13 @@ No active injection schedule to plot.
             </h3>
           </div>
           <p className="text-xs text-slate-400 mt-0.5">
-            Half-life: <span className="text-slate-200 font-medium">{(halfLifeHours / 24).toFixed(1)} days ({halfLifeHours}h)</span> | Pharmacokinetic superposition model
+            Half-life:{' '}
+            <span className="text-slate-200 font-medium">
+              {halfLifeHours >= 24
+                ? `${(halfLifeHours / 24).toFixed(1)} days (${Number(halfLifeHours.toFixed(1))}h)`
+                : `${Number(halfLifeHours.toFixed(1))}h (${(halfLifeHours / 24).toFixed(2)}d)`}
+            </span>{' '}
+            | Pharmacokinetic superposition model
           </p>
         </div>
 

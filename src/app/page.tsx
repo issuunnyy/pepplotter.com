@@ -41,7 +41,8 @@ import {
   HeartPulse,
   MessageSquare,
   Printer,
-  Info
+  Info,
+  Mail
 } from 'lucide-react';
 
 export default function Home() {
@@ -1249,7 +1250,7 @@ const splitList: InjectionEntry[] = [];
                 {/* Clinical Relationship Callout */}
                 <p className="text-[11px] text-slate-300/90 leading-relaxed max-w-3xl pt-0.5">
                   <strong className="text-cyan-200">How PK Simulation connects to your Calculator:</strong>{' '}
-                  Your vial size ({safeVialMg}mg) and added water ({safeWaterMl}mL) determine your physical syringe draw ({reconResult.syringeUnits} units). Once injected subcutaneously, your body metabolizes the <strong className="text-white font-mono">{((safeTargetDoseMcg || activePreset.defaultDoseMcg) / 1000).toFixed(2)} mg</strong> active drug according to its <strong className="text-cyan-300">{plotPreset.halfLifeHours >= 24 ? `${(plotPreset.halfLifeHours / 24).toFixed(1)}d` : `${plotPreset.halfLifeHours}h (${(plotPreset.halfLifeHours / 24).toFixed(1)}d)`} half-life</strong>.
+                  Your vial size ({safeVialMg}mg) and added water ({safeWaterMl}mL) determine your physical syringe draw ({reconResult.syringeUnits} units). Once injected subcutaneously, your body metabolizes the <strong className="text-white font-mono">{((safeTargetDoseMcg || activePreset.defaultDoseMcg) / 1000).toFixed(2)} mg</strong> active drug according to its <strong className="text-cyan-300">{halfLifeHours >= 24 ? `${(halfLifeHours / 24).toFixed(1)}d` : `${Number(halfLifeHours.toFixed(1))}h (${(halfLifeHours / 24).toFixed(2)}d)`} half-life</strong>.
                 </p>
               </div>
 
@@ -1332,16 +1333,22 @@ const splitList: InjectionEntry[] = [];
 
               {plotCompoundId === 'custom' && (
                 <div>
-                  <label className="block text-[10px] uppercase font-bold tracking-wider text-slate-400 mb-1">
-                    Custom Half-Life (Days)
-                  </label>
+                  <div className="flex items-center justify-between gap-1 mb-1">
+                    <label className="block text-[10px] uppercase font-bold tracking-wider text-slate-400">
+                      Custom Half-Life (Days)
+                    </label>
+                    <span className="text-[10px] text-cyan-400 font-mono">
+                      ~{Number((customHalfLifeDays * 24).toFixed(1))}h
+                    </span>
+                  </div>
                   <input
                     type="number"
                     step="0.5"
-                    min="0.1"
+                    min="0.05"
+                    max="365"
                     value={customHalfLifeDays}
-                    onChange={(e) => setCustomHalfLifeDays(parseFloat(e.target.value) || 1)}
-                    className="w-28 bg-slate-950 border border-slate-700 text-slate-100 text-xs font-mono rounded-xl px-3 py-2 outline-none"
+                    onChange={(e) => setCustomHalfLifeDays(Math.max(0.05, parseFloat(e.target.value) || 1))}
+                    className="w-28 bg-slate-950 border border-slate-700 text-slate-100 text-xs font-mono font-bold rounded-xl px-3 py-2 outline-none focus:border-cyan-500"
                   />
                 </div>
               )}
@@ -1365,6 +1372,73 @@ const splitList: InjectionEntry[] = [];
                 </select>
               </div>
             </div>
+
+            {/* Custom Peptide Clinical Reference Chips & Protocol Consultation Banner */}
+            {plotCompoundId === 'custom' && (
+              <div className="space-y-3">
+                {/* Clinical Half-Life Benchmarks */}
+                <div className="bg-slate-950/70 border border-slate-800 rounded-xl p-3 space-y-2 text-xs">
+                  <div className="flex flex-wrap items-center justify-between gap-1">
+                    <span className="text-[11px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+                      Clinical Half-Life Quick Benchmarks:
+                    </span>
+                    <span className="text-[10px] text-slate-400">
+                      Click to auto-fill verified literature values
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {[
+                      { label: '4h (0.17d)', desc: 'BPC-157 / MOTS-c', days: 0.17 },
+                      { label: '24h (1.0d)', desc: 'TB-500 / Daily Peptides', days: 1.0 },
+                      { label: '2.5d (60h)', desc: 'Mod GRF 1-29', days: 2.5 },
+                      { label: '5.0d (120h)', desc: 'Tirzepatide / GIP', days: 5.0 },
+                      { label: '7.0d (168h)', desc: 'Semaglutide / CJC DAC', days: 7.0 },
+                      { label: '14.0d (336h)', desc: 'Extended Esters', days: 14.0 },
+                    ].map((chip) => {
+                      const isSelected = Math.abs(customHalfLifeDays - chip.days) < 0.05;
+                      return (
+                        <button
+                          key={chip.label}
+                          type="button"
+                          onClick={() => setCustomHalfLifeDays(chip.days)}
+                          className={`px-2.5 py-1 rounded-lg text-xs font-mono transition-all cursor-pointer border ${
+                            isSelected
+                              ? 'bg-cyan-500/20 border-cyan-400 text-cyan-300 font-bold shadow-sm'
+                              : 'bg-slate-900 hover:bg-slate-800 border-slate-800 text-slate-300 hover:text-white'
+                          }`}
+                          title={chip.desc}
+                        >
+                          <strong>{chip.label}</strong> <span className="text-[10px] text-slate-400">({chip.desc})</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Consultation & Custom Protocol Request Banner */}
+                <div className="bg-gradient-to-r from-cyan-950/40 via-slate-900 to-slate-900 border border-cyan-500/30 rounded-xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-lg animate-in fade-in duration-200">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse shrink-0" />
+                      <span className="font-bold text-slate-100 text-xs sm:text-sm">
+                        Researching an Unlisted Peptide or Custom Stack?
+                      </span>
+                    </div>
+                    <p className="text-slate-300 text-[11px] leading-relaxed max-w-2xl">
+                      Need assistance verifying the elimination half-life, titration trajectory, or reconstitution formula for a specialized compound? Contact our clinical pharmacokinetics support team for custom protocol calibration.
+                    </p>
+                  </div>
+                  <a
+                    href="mailto:support@pepplotter.com?subject=Custom%20Peptide%20Protocol%20Inquiry%20-%20PepPlotter&body=Hello%20PepPlotter%20Team%2C%0A%0AI%20am%20researching%20the%20following%20unlisted%20compound%20and%20would%20like%20assistance%20setting%20up%20a%20pharmacokinetic%20protocol%3A%0A%E2%80%A2%20Compound%20Name%3A%20%0A%E2%80%A2%20Vial%20Powder%20Size%20(mg)%3A%20%0A%E2%80%A2%20Planned%20Single%20Dose%3A%20%0A%E2%80%A2%20Desired%20Frequency%20(e.g.%20Daily%2C%20EOD%2C%20Weekly)%3A%20%0A%0APlease%20advise%20on%20the%20verified%20half-life%2C%20reconstitution%20water%2C%20and%20accumulation%20curve.%20Thank%20you!"
+                    className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded-xl transition-all shadow-md shrink-0 cursor-pointer text-xs"
+                  >
+                    <Mail className="w-3.5 h-3.5" />
+                    <span>Request Custom Protocol</span>
+                  </a>
+                </div>
+              </div>
+            )}
 
             {/* Action Buttons: Sync Current Dose & Split Dose */}
             <div className="flex flex-wrap items-center gap-2">
