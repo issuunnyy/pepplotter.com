@@ -187,13 +187,12 @@ export default function Home() {
   const [simulationDays, setSimulationDays] = useState<number>(28);
   const [isSplitDoseMode, setIsSplitDoseMode] = useState<boolean>(false);
 
-  // Default 4-week injection schedule (Day 0, Day 7, Day 14, Day 21, Day 28)
+  // Default 4-week injection schedule (4 weekly doses across 28-day cycle: Day 0, Day 7, Day 14, Day 21)
   const [injections, setInjections] = useState<InjectionEntry[]>([
     { id: '1', compoundId: 'semaglutide', day: 0, doseMg: 0.25 },
     { id: '2', compoundId: 'semaglutide', day: 7, doseMg: 0.25 },
     { id: '3', compoundId: 'semaglutide', day: 14, doseMg: 0.25 },
     { id: '4', compoundId: 'semaglutide', day: 21, doseMg: 0.25 },
-    { id: '5', compoundId: 'semaglutide', day: 28, doseMg: 0.25 },
   ]);
 
   // Current active preset object
@@ -229,7 +228,7 @@ export default function Home() {
     const defaultDoseMg = Number((preset.defaultDoseMcg / 1000).toFixed(3));
     const freq = preset.standardFrequencyDays || 7;
     const generatedInjections: InjectionEntry[] = [];
-    for (let day = 0; day <= targetSpan; day = Number((day + freq).toFixed(1))) {
+    for (let day = 0; day < targetSpan; day = Number((day + freq).toFixed(1))) {
       generatedInjections.push({
         id: crypto.randomUUID(),
         compoundId: preset.id,
@@ -267,7 +266,7 @@ export default function Home() {
     const baseFreq = activePreset.standardFrequencyDays || 7;
     const freq = isSplitDoseMode ? baseFreq / 2 : baseFreq;
     const synced: InjectionEntry[] = [];
-    for (let day = 0; day <= simulationDays; day = Number((day + freq).toFixed(1))) {
+    for (let day = 0; day < simulationDays; day = Number((day + freq).toFixed(1))) {
       synced.push({
         id: crypto.randomUUID(),
         compoundId: plotCompoundId,
@@ -1108,6 +1107,17 @@ const splitList: InjectionEntry[] = [];
                   syringeType={syringeType}
                 />
 
+                {/* Reconstitution Math Intuition Tip */}
+                {canShowDoseInstruction && (
+                  <div className="bg-slate-950/70 border border-slate-800/80 rounded-xl px-3.5 py-2.5 text-[11px] text-slate-300 flex items-start gap-2.5 shadow-sm">
+                    <Sparkles className="w-3.5 h-3.5 text-cyan-400 shrink-0 mt-0.5" />
+                    <div className="leading-relaxed">
+                      <span className="font-bold text-cyan-200">Reconstitution Math Rule:</span>{' '}
+                      Lower powder in the same water volume produces a <em>more dilute</em> solution ({reconResult.concentrationMgMl} mg/mL), requiring a <em>larger liquid draw</em> ({reconResult.syringeUnits} units) to deliver your exact active dose of <strong>{safeTargetDoseMcg} mcg</strong>. Conversely, higher powder quantity concentrates the solution, requiring fewer syringe units.
+                    </div>
+                  </div>
+                )}
+
 {/* Plain-English Dosage Recipe Card */}
       <div 
         id="step-recipe"
@@ -1423,7 +1433,10 @@ const splitList: InjectionEntry[] = [];
               <div className="flex items-center gap-2 shrink-0">
                 <CalendarDays className="w-4 h-4 text-cyan-400 shrink-0" />
                 <h3 className="text-xs sm:text-sm font-bold text-slate-100 uppercase tracking-wider whitespace-nowrap">
-                  Injection Schedule ({injections.length} Doses)
+                  Injection Schedule ({injections.length} Doses
+                  {reconResult.totalVialDoses > 0
+                    ? ` • ${(injections.length / reconResult.totalVialDoses).toFixed(1) === '1.0' ? '1 Vial' : `${(injections.length / reconResult.totalVialDoses).toFixed(1)} Vials`}`
+                    : ''})
                 </h3>
               </div>
 
