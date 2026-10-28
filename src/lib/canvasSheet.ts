@@ -1,4 +1,5 @@
 import { SyringeType, ReconstitutionResult, ConcentrationDataPoint } from './types';
+import { getQRCode } from './qrcode';
 
 export interface SheetCanvasData {
   compoundName: string;
@@ -112,7 +113,7 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
 
   // Measure exact total height needed (zero blank bottom void)
   let curY = 14;
-  curY += 38; // Header & subtitle
+  curY += 40; // Header & subtitle
   curY += stripH + 8; // Compound strip
   curY += sec1H + 8; // Section 1
   curY += sec2H + 8; // Section 2
@@ -141,9 +142,9 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
   // 1. TOP DOCUMENT HEADER
   // ============================================================
   ctx.fillStyle = '#090d16';
-  ctx.font = 'bold 11px system-ui, -apple-system, sans-serif';
+  ctx.font = 'bold 10px system-ui, -apple-system, sans-serif';
   const mainTitle = 'PEPPLOTTER CLINICAL PROTOCOL & PK REPORT';
-  ctx.fillText(mainTitle, padX, curY + 12);
+  ctx.fillText(mainTitle, padX, curY + 11);
 
   // Badge "MEMO" (dynamically placed after title to prevent collision)
   const titleW = ctx.measureText(mainTitle).width;
@@ -152,36 +153,76 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
     : 'MEMO';
   ctx.font = 'bold 7px system-ui, -apple-system, sans-serif';
   const memoW = ctx.measureText(memoText).width + 8;
-  const memoX = padX + titleW + 8;
+  const memoX = padX + titleW + 7;
   ctx.fillStyle = '#0f172a';
   ctx.beginPath();
-  ctx.roundRect(memoX, curY + 2, memoW, 12, 2.5);
+  ctx.roundRect(memoX, curY + 1, memoW, 12, 2.5);
   ctx.fill();
   ctx.fillStyle = '#ffffff';
-  ctx.fillText(memoText, memoX + 4, curY + 10.5);
+  ctx.fillText(memoText, memoX + 4, curY + 9.5);
 
   // Right date & domain
   const dateStr = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
   ctx.fillStyle = '#334155';
   ctx.font = 'bold 8px monospace';
   ctx.textAlign = 'right';
-  ctx.fillText(dateStr, width - padX, curY + 9);
+  ctx.fillText(dateStr, width - padX, curY + 8);
+  ctx.fillStyle = '#0f172a';
+  ctx.font = 'bold 7.5px system-ui, sans-serif';
+  ctx.fillText('pepplotter.com', width - padX, curY + 17.5);
+  ctx.fillStyle = '#059669';
+  ctx.font = 'bold 6.5px system-ui, sans-serif';
+  ctx.fillText('LIVE CALC • FREE', width - padX, curY + 26);
+  ctx.textAlign = 'left';
+
+  // QR Code (Mobile Scan to Open pepplotter.com in Red Box Area)
+  const qr = getQRCode('https://pepplotter.com');
+  const qrBoxW = 26;
+  const qrBoxH = 26;
+  const qrBoxX = width - padX - 58 - qrBoxW; // Located directly in the red box area
+  const qrBoxY = curY;
+
+  // QR Container background & border
+  ctx.fillStyle = '#ffffff';
+  ctx.strokeStyle = '#cbd5e1';
+  ctx.lineWidth = 0.75;
+  ctx.beginPath();
+  ctx.roundRect(qrBoxX, qrBoxY, qrBoxW, qrBoxH, 3);
+  ctx.fill();
+  ctx.stroke();
+
+  // Render QR Modules
+  ctx.fillStyle = '#090d16';
+  const modCount = qr.moduleCount; // 25
+  const modSize = 0.92; // 25 * 0.92 = 23px
+  const modOffsetX = qrBoxX + (qrBoxW - modCount * modSize) / 2;
+  const modOffsetY = qrBoxY + (qrBoxH - modCount * modSize) / 2;
+  for (let r = 0; r < modCount; r++) {
+    for (let c = 0; c < modCount; c++) {
+      if (qr.isDark(r, c)) {
+        ctx.fillRect(modOffsetX + c * modSize, modOffsetY + r * modSize, modSize, modSize);
+      }
+    }
+  }
+
+  // QR Label below box
   ctx.fillStyle = '#64748b';
-  ctx.font = '7.5px system-ui, sans-serif';
-  ctx.fillText('pepplotter.com', width - padX, curY + 19);
+  ctx.font = 'bold 5.5px system-ui, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('SCAN TOOL', qrBoxX + qrBoxW / 2, qrBoxY + qrBoxH + 5.5);
   ctx.textAlign = 'left';
 
   // Subtitle
-  curY += 23;
+  curY += 25;
   ctx.fillStyle = '#64748b';
-  ctx.font = '7.5px system-ui, sans-serif';
+  ctx.font = '7px system-ui, sans-serif';
   const subText = data.batchInfo && data.batchInfo.totalBatches > 1
     ? `Reconstitution Guide • Syringe Draw Target • PK Curve • Administration Log (Doses #${data.batchInfo.startDoseNumber}–#${data.batchInfo.startDoseNumber + rows.length - 1} of ${data.batchInfo.totalDoses})`
-    : 'Reconstitution Guide • Syringe Draw Target • Pharmacokinetic Curve • Administration Log';
+    : 'Reconstitution Guide • Syringe Draw Target • PK Curve • Administration Log';
   ctx.fillText(subText, padX, curY);
 
   // Divider
-  curY += 6;
+  curY += 7;
   ctx.strokeStyle = '#0f172a';
   ctx.lineWidth = 1.5;
   ctx.beginPath();

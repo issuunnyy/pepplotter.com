@@ -4,6 +4,7 @@ import React, { useMemo, useState, useRef } from 'react';
 import { SyringeType, ReconstitutionResult, ConcentrationDataPoint, InjectionEntry } from '@/lib/types';
 import { generateSmoothSpline, calculatePharmacokinetics } from '@/lib/calculator';
 import { renderSheetToCanvas, SheetCanvasData, formatPlannedDate, formatFullDate } from '@/lib/canvasSheet';
+import { getQRCode } from '@/lib/qrcode';
 import { Printer, X, Download, Copy, Check, Eye, Calendar } from 'lucide-react';
 
 interface PrintableProtocolSheetProps {
@@ -60,6 +61,7 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
   const [isExporting, setIsExporting] = useState(false);
   const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
   const sheetRef = useRef<HTMLDivElement>(null);
+  const qrCodeData = useMemo(() => getQRCode('https://pepplotter.com'), []);
 
   const isBlocked = reconResult.error !== null;
   const doseMg = targetDoseMcg / 1000;
@@ -360,28 +362,57 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
       }}
     >
       {/* 1. DOCUMENT HEADER */}
-      <div className="border-b-2 border-slate-900 pb-1 mb-1.5 flex items-start justify-between">
-        <div>
+      <div className="border-b-2 border-slate-900 pb-1 mb-1.5 flex items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
             <span className="text-xs sm:text-sm font-black tracking-tight text-slate-950 uppercase">
               PepPlotter Clinical Protocol &amp; PK Report
             </span>
-            <span className="px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider bg-slate-900 text-white rounded">
+            <span className="px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider bg-slate-900 text-white rounded shrink-0">
               {totalBatches > 1 ? `Memo · Batch ${safeBatchIndex + 1}/${totalBatches}` : 'Memo'}
             </span>
           </div>
           <p className="text-[9px] text-slate-600 mt-0.5">
-            Reconstitution Guide • Syringe Draw Target • Pharmacokinetic Curve • Administration Log
+            Reconstitution Guide • Syringe Draw Target • PK Curve • Administration Log
             {totalBatches > 1 ? ` (Doses #${startDoseIdx + 1}–#${endDoseIdx} of ${totalDoses})` : ''}
           </p>
         </div>
-        <div className="text-right">
-          <span className="text-[9px] font-mono font-bold text-slate-800 block">
-            {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
-          </span>
-          <span className="text-[8px] text-slate-500 uppercase tracking-wider block">
-            pepplotter.com
-          </span>
+
+        {/* Right Header Area: QR Code (Mobile Scan to pepplotter.com) + Date & Domain */}
+        <div className="flex items-center gap-2 shrink-0">
+          {/* QR Code */}
+          <div className="flex flex-col items-center">
+            <div
+              className="p-0.5 bg-white border border-slate-300 rounded shadow-2xs"
+              title="Scan QR Code with phone to open interactive tool at pepplotter.com"
+            >
+              <svg
+                viewBox={`0 0 ${qrCodeData.moduleCount} ${qrCodeData.moduleCount}`}
+                className="w-8 h-8 sm:w-8.5 sm:h-8.5 block"
+                role="img"
+                aria-label="QR Code to pepplotter.com"
+              >
+                <rect width="100%" height="100%" fill="#ffffff" />
+                <path d={qrCodeData.getSvgPath(1)} fill="#090d16" />
+              </svg>
+            </div>
+            <span className="text-[6.5px] uppercase font-bold text-slate-500 tracking-wider mt-0.5 leading-none">
+              Scan Tool
+            </span>
+          </div>
+
+          {/* Date & Domain */}
+          <div className="text-right">
+            <span className="text-[9px] font-mono font-bold text-slate-800 block">
+              {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+            </span>
+            <span className="text-[8px] text-slate-700 font-bold block leading-tight">
+              pepplotter.com
+            </span>
+            <span className="text-[7px] text-emerald-700 font-bold uppercase tracking-wider block leading-tight">
+              Live Calc &bull; Free
+            </span>
+          </div>
         </div>
       </div>
 
