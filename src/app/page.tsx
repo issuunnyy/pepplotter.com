@@ -1404,39 +1404,43 @@ const splitList: InjectionEntry[] = [];
             }`}
           >
             {/* Sleek Live-Sync Status Bar (Zero vertical bloat, immediate visual feedback) */}
-            <div className="flex flex-wrap items-center justify-between gap-2 pb-3 mb-3.5 border-b border-slate-800/80">
-              <div className="flex items-center gap-2 min-w-0">
-                <span className="flex h-2 w-2 relative shrink-0">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
-                </span>
-                <span className="text-[11px] font-mono uppercase font-bold text-cyan-400 tracking-wider truncate">
-                  Live Linked with Reconstitution
-                </span>
-                <span className="hidden sm:inline-block text-[10px] bg-cyan-500/10 text-cyan-300 px-2 py-0.5 rounded-full border border-cyan-500/20 font-mono shrink-0">
-                  Auto-Synchronized
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4 pb-3 mb-3.5 border-b border-slate-800/80">
+              <div className="flex items-center justify-between sm:justify-start gap-2 min-w-0">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="flex h-2 w-2 relative shrink-0">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+                  </span>
+                  <span className="text-[11px] font-mono uppercase font-bold text-cyan-400 tracking-wider truncate">
+                    Live Linked with Reconstitution
+                  </span>
+                </div>
+                <span className="text-[9.5px] bg-cyan-500/10 text-cyan-300 px-2 py-0.5 rounded-full border border-cyan-500/20 font-mono shrink-0">
+                  Auto-Synced
                 </span>
               </div>
               
-              <div className="flex items-center gap-2.5 text-xs font-mono">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-slate-400 text-[11px] hidden xs:inline">Active Dose:</span>
-                  <span className="text-cyan-300 font-bold bg-slate-950 px-2 py-0.5 rounded-lg border border-slate-800">
-                    {((safeTargetDoseMcg || activePreset.defaultDoseMcg) / 1000).toFixed(2)} mg ({safeTargetDoseMcg || activePreset.defaultDoseMcg} mcg)
+              {/* Row 2 on mobile: Single clean row with zero wrapping */}
+              <div className="w-full sm:w-auto flex items-center justify-between sm:justify-end gap-1.5 sm:gap-2.5 text-xs font-mono">
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <span className="text-cyan-300 font-bold bg-slate-950 px-2 py-0.5 rounded-lg border border-slate-800 whitespace-nowrap text-[11px] sm:text-xs">
+                    {((safeTargetDoseMcg || activePreset.defaultDoseMcg) / 1000).toFixed(2)} mg
+                    <span className="text-cyan-400/80 ml-1 font-normal text-[10px]">({safeTargetDoseMcg || activePreset.defaultDoseMcg}mcg)</span>
                   </span>
-                  <span className="text-slate-400 text-[11px]">
-                    ({reconResult.syringeUnits} units)
+                  <span className="text-slate-300 bg-slate-950/80 px-1.5 py-0.5 rounded-md border border-slate-800 text-[11px] whitespace-nowrap font-medium">
+                    {reconResult.syringeUnits} units
                   </span>
                 </div>
 
                 <button
                   type="button"
                   onClick={() => setIsSheetPreviewOpen(true)}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all cursor-pointer whitespace-nowrap shadow-sm group"
+                  className="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 rounded-lg text-[11px] sm:text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all cursor-pointer whitespace-nowrap shadow-sm group shrink-0 ml-auto"
                   title="Preview 1-page A4 sheet combining Tab 1 Reconstitution and Tab 2 PK curve"
                 >
                   <FileText className="w-3.5 h-3.5 text-cyan-400 group-hover:scale-110 transition-transform shrink-0" />
-                  <span>Preview A4 Sheet</span>
+                  <span className="sm:hidden">Preview A4</span>
+                  <span className="hidden sm:inline">Preview A4 Sheet</span>
                 </button>
               </div>
             </div>

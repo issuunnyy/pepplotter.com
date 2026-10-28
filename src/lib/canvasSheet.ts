@@ -113,7 +113,7 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
 
   // Measure exact total height needed (zero blank bottom void)
   let curY = 14;
-  curY += 40; // Header & subtitle
+  curY += 44; // Header & subtitle
   curY += stripH + 8; // Compound strip
   curY += sec1H + 8; // Section 1
   curY += sec2H + 8; // Section 2
@@ -177,8 +177,8 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
 
   // QR Code (Mobile Scan to Open pepplotter.com in Red Box Area)
   const qr = getQRCode('https://pepplotter.com');
-  const qrBoxW = 26;
-  const qrBoxH = 26;
+  const qrBoxW = 25;
+  const qrBoxH = 25;
   const qrBoxX = width - padX - 58 - qrBoxW; // Located directly in the red box area
   const qrBoxY = curY;
 
@@ -187,14 +187,14 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
   ctx.strokeStyle = '#cbd5e1';
   ctx.lineWidth = 0.75;
   ctx.beginPath();
-  ctx.roundRect(qrBoxX, qrBoxY, qrBoxW, qrBoxH, 3);
+  ctx.roundRect(qrBoxX, qrBoxY, qrBoxW, qrBoxH, 2.5);
   ctx.fill();
   ctx.stroke();
 
   // Render QR Modules
   ctx.fillStyle = '#090d16';
   const modCount = qr.moduleCount; // 25
-  const modSize = 0.92; // 25 * 0.92 = 23px
+  const modSize = 0.88; // 25 * 0.88 = 22px
   const modOffsetX = qrBoxX + (qrBoxW - modCount * modSize) / 2;
   const modOffsetY = qrBoxY + (qrBoxH - modCount * modSize) / 2;
   for (let r = 0; r < modCount; r++) {
@@ -205,15 +205,15 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
     }
   }
 
-  // QR Label below box
+  // QR Label below box (properly elevated so it never touches the divider line)
   ctx.fillStyle = '#64748b';
   ctx.font = 'bold 5.5px system-ui, sans-serif';
   ctx.textAlign = 'center';
-  ctx.fillText('SCAN TOOL', qrBoxX + qrBoxW / 2, qrBoxY + qrBoxH + 5.5);
+  ctx.fillText('SCAN TOOL', qrBoxX + qrBoxW / 2, qrBoxY + qrBoxH + 4.5);
   ctx.textAlign = 'left';
 
   // Subtitle
-  curY += 25;
+  curY += 27;
   ctx.fillStyle = '#64748b';
   ctx.font = '7px system-ui, sans-serif';
   const subText = data.batchInfo && data.batchInfo.totalBatches > 1
@@ -221,8 +221,8 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
     : 'Reconstitution Guide • Syringe Draw Target • PK Curve • Administration Log';
   ctx.fillText(subText, padX, curY);
 
-  // Divider
-  curY += 7;
+  // Divider (cleanly separated from SCAN TOOL by comfortable breathing margin)
+  curY += 9;
   ctx.strokeStyle = '#0f172a';
   ctx.lineWidth = 1.5;
   ctx.beginPath();
