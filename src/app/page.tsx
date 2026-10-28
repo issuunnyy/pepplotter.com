@@ -839,11 +839,11 @@ const splitList: InjectionEntry[] = [];
           aria-labelledby="tab-btn-calc"
           className={activeTab === 'calc' ? 'space-y-6' : 'hidden'}
         >
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
               {/* Left Column: Inputs & Quick Actions */}
-              <div className="lg:col-span-5 space-y-4">
+              <div className="lg:col-span-5 flex flex-col">
                 {/* Input Form Controls with Step-by-Step Numbers */}
-                <div className="bg-slate-900/70 border border-slate-800/90 rounded-2xl p-5 sm:p-6 shadow-xl space-y-5">
+                <div className="bg-slate-900/70 border border-slate-800/90 rounded-2xl p-5 sm:p-6 shadow-xl flex-1 flex flex-col justify-between gap-4">
                 <div className="flex items-center justify-between pb-3 border-b border-slate-800">
                   <h2 className="text-sm font-bold text-slate-100 uppercase tracking-wider flex items-center gap-2">
                     <Pill className="w-4 h-4 text-emerald-400" />
@@ -1309,42 +1309,20 @@ const splitList: InjectionEntry[] = [];
               </span>
             </div>
           ) : (
-            <div className="mt-2 text-[11px] text-slate-400 flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0"></span>
-              <span>Comfortable SubQ Volume: Your {reconResult.drawVolumeMl} mL draw is within the optimal clinical comfort range (≤0.5 mL).</span>
+            <div className="mt-2.5 pt-2 border-t border-slate-800/60 text-[11px] text-slate-400 flex items-center justify-between gap-2 flex-wrap">
+              <div className="flex items-center gap-1.5 min-w-0">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0"></span>
+                <span>Comfortable SubQ Volume ({reconResult.drawVolumeMl} mL &le; 0.5 mL)</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => handleTabChange('guide')}
+                className="inline-flex items-center gap-1 text-[11px] text-emerald-400 hover:text-emerald-300 font-semibold underline underline-offset-2 transition-colors cursor-pointer shrink-0 ml-auto"
+              >
+                <span>Clinical Sub-Q Guide &rarr;</span>
+              </button>
             </div>
           )}
-
-          <span className="block mt-2">
-            <button
-              type="button"
-              onClick={() => handleTabChange('guide')}
-              className="inline-flex items-center gap-1 text-xs text-emerald-400 hover:text-emerald-300 font-semibold underline underline-offset-2 decoration-emerald-500/40 hover:decoration-emerald-300 transition-colors cursor-pointer"
-            >
-              <span>First time injecting? View Step-by-Step Sub-Q Visual Guide &rarr;</span>
-            </button>
-          </span>
-
-          {/* Connected Blood Level (PK Simulator) Quick Bridge */}
-          <div className="mt-3 pt-3 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-2.5">
-            <div className="flex items-center gap-2 text-xs">
-              <Activity className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
-              <span className="text-slate-300">
-                Body Blood Level for <strong>{((safeTargetDoseMcg || activePreset.defaultDoseMcg) / 1000).toFixed(2)} mg</strong>:
-                <span className="text-cyan-300 font-mono font-bold ml-1.5">
-                  Est. Peak ~{pkResult.peakConcentration.toFixed(2)} mg / Trough ~{pkResult.troughConcentration.toFixed(2)} mg
-                </span>
-              </span>
-            </div>
-            <button
-              type="button"
-              onClick={() => handleTabChange('plotter')}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/30 text-cyan-300 hover:text-white text-xs font-bold transition-all cursor-pointer group"
-            >
-              <span>Simulate Blood Accumulation in Tab 2</span>
-              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-            </button>
-          </div>
    </>
             )}
          </p>
