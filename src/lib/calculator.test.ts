@@ -151,10 +151,17 @@ describe('calculateReconstitution — 预设数据完整性', () => {
     }
   });
 
-  it('半衰期均为正数', () => {
+  it('所有预设均包含规范的药理机制分类标签 (drugClass)', () => {
     for (const p of COMPOUND_PRESETS) {
-      expect(p.halfLifeHours, `${p.id} 半衰期`).toBeGreaterThan(0);
+      expect(p.drugClass, `${p.id} 应有分类标签`).toBeDefined();
+      expect(p.drugClass!.length).toBeGreaterThan(0);
     }
+    const sema = COMPOUND_PRESETS.find((p) => p.id === 'semaglutide');
+    const tirz = COMPOUND_PRESETS.find((p) => p.id === 'tirzepatide');
+    const reta = COMPOUND_PRESETS.find((p) => p.id === 'retatrutide');
+    expect(sema?.drugClass).toBe('GLP-1 RA');
+    expect(tirz?.drugClass).toBe('Dual GIP/GLP-1');
+    expect(reta?.drugClass).toBe('Triple G (GLP/GIP/GCG)');
   });
 });
 

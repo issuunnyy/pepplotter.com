@@ -45,6 +45,7 @@ export const COMPOUND_PRESETS: CompoundPreset[] = [
     defaultWaterMl: 2.0,
     defaultDoseMcg: 250, // 0.25 mg starting dose
     standardFrequencyDays: 7,
+    drugClass: 'GLP-1 RA',
     description: 'GLP-1 receptor agonist with ~7-day half-life. Commonly dosed once weekly or split into twice-weekly injections.',
   },
   {
@@ -56,6 +57,7 @@ export const COMPOUND_PRESETS: CompoundPreset[] = [
     defaultWaterMl: 2.0,
     defaultDoseMcg: 2500, // 2.5 mg starting dose
     standardFrequencyDays: 7,
+    drugClass: 'Dual GIP/GLP-1',
     description: 'Dual GIP/GLP-1 agonist with ~5-day half-life. Rapidly accumulating plasma profile.',
   },
   {
@@ -67,6 +69,7 @@ export const COMPOUND_PRESETS: CompoundPreset[] = [
     defaultWaterMl: 2.0,
     defaultDoseMcg: 2000, // 2.0 mg
     standardFrequencyDays: 7,
+    drugClass: 'Triple G (GLP/GIP/GCG)',
     description: 'Triple agonist peptide with ~6-day half-life in clinical trials.',
   },
   {
@@ -78,6 +81,7 @@ export const COMPOUND_PRESETS: CompoundPreset[] = [
     defaultWaterMl: 2.0,
     defaultDoseMcg: 250, // 0.25 mg starting dose
     standardFrequencyDays: 7,
+    drugClass: 'Amylin Analogue',
     description: 'Long-acting acylated amylin analogue co-targeting hunger satiety with GLP-1/GIP agonists. Dosed once weekly.',
   },
   {
@@ -89,6 +93,7 @@ export const COMPOUND_PRESETS: CompoundPreset[] = [
     defaultWaterMl: 2.5,
     defaultDoseMcg: 250, // 250 mcg
     standardFrequencyDays: 1,
+    drugClass: 'Tissue Repair',
     description: 'Regenerative pentadecapeptide with a short half-life (~4h). Commonly administered 1-2 times daily.',
   },
   {
@@ -100,6 +105,7 @@ export const COMPOUND_PRESETS: CompoundPreset[] = [
     defaultWaterMl: 2.0,
     defaultDoseMcg: 2500, // 2.5 mg
     standardFrequencyDays: 3.5,
+    drugClass: 'Tissue Repair',
     description: 'Tissue recovery synthetic peptide, typically administered twice weekly.',
   },
   {
@@ -111,6 +117,7 @@ export const COMPOUND_PRESETS: CompoundPreset[] = [
     defaultWaterMl: 2.0,
     defaultDoseMcg: 200, // 200 mcg standard bedtime dose
     standardFrequencyDays: 1,
+    drugClass: 'Selective GHRP',
     description: 'Highly selective growth hormone secretagogue with ~2h half-life, stimulating clean nighttime GH release without cortisol elevation.',
   },
   {
@@ -122,6 +129,7 @@ export const COMPOUND_PRESETS: CompoundPreset[] = [
     defaultWaterMl: 2.0,
     defaultDoseMcg: 500,
     standardFrequencyDays: 7,
+    drugClass: 'Custom PK',
     description: 'Enter your own custom parameters and half-life for any research compound.',
   },
 ];

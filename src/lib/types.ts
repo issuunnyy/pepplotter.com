@@ -10,6 +10,7 @@ export interface CompoundPreset {
   defaultDoseMcg: number;
   standardFrequencyDays: number;
   description: string;
+  drugClass?: string;
 }
 
 export interface ReconstitutionResult {

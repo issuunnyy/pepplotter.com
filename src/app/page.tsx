@@ -1463,14 +1463,11 @@ const splitList: InjectionEntry[] = [];
                           ? `${(halfLifeHours / 24).toFixed(1)}d (${Number(halfLifeHours.toFixed(1))}h)`
                           : `${Number(halfLifeHours.toFixed(1))}h (${(halfLifeHours / 24).toFixed(2)}d)`}
                       </span>
-                      <span className="text-[10px] font-sans text-slate-400 font-medium shrink-0 ml-1">
-                        {plotCompoundId === 'bpc157' || plotCompoundId === 'tb500'
-                          ? 'Tissue repair'
-                          : plotCompoundId === 'ipamorelin'
-                          ? 'GHRP / Night'
-                          : plotCompoundId === 'cagrilintide'
-                          ? 'Amylin Satiety'
-                          : 'GLP-1/GIP'}
+                      <span
+                        title={`Mechanism of Action / Class: ${plotPreset.drugClass || 'Clinical'}`}
+                        className="text-[9.5px] font-sans font-semibold px-2 py-0.5 rounded-md bg-cyan-950/60 border border-cyan-500/30 text-cyan-300 shrink-0 ml-1.5 shadow-sm"
+                      >
+                        {plotPreset.drugClass || 'Clinical'}
                       </span>
                     </div>
                   </>
