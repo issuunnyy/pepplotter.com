@@ -55,38 +55,45 @@ export const TOUR_STEPS: TourStep[] = [
   },
   {
     targetId: 'subq-guide',
-    title: 'Step 7: Visual Stage 01 — Aseptic Supplies Setup',
+    title: 'Step 7: Stage 1 — Aseptic Supplies Setup',
     description:
       'Gather your sterile vial, 31G insulin syringe, and dual 70% alcohol pads on a clean surface. Let refrigerated vials warm for 5–10 minutes.',
     tip: 'Warming to room temperature eliminates cold-fluid injection sting.',
   },
   {
     targetId: 'subq-guide',
-    title: 'Step 8: Visual Stage 02 — Site Prep & 15s Air-Dry',
+    title: 'Step 8: Stage 2 — Site Selection & Cleansing',
     description:
       'Select lower abdomen (≥2 inches from navel) or outer thigh. Wipe in an outward spiral and wait a full 15 seconds for alcohol to completely evaporate.',
     tip: 'Wet alcohol causes stinging and degrades peptides on entry.',
   },
   {
     targetId: 'subq-guide',
-    title: 'Step 9: Visual Stage 03 — Inverted Precision Draw',
+    title: 'Step 9: Stage 3 — Precision Medication Draw',
     description:
       'Invert the vial vertically. Submerge needle tip in liquid pool and draw plunger smoothly to your calculated unit mark without large air bubbles.',
     tip: 'Flick syringe gently to float bubbles to the top.',
   },
   {
     targetId: 'subq-guide',
-    title: 'Step 10: Visual Stage 04 — 90° Injection & 10s Dwell',
+    title: 'Step 10: Stage 4 — 90° Injection & 10s Dwell',
     description:
       'Pinch a 2-inch skin fold. Insert 31G needle at 90°, depress plunger steadily, and hold for a full 10-second dwell before withdrawing.',
     tip: 'The 10-second dwell prevents retrograde medication leakage.',
   },
   {
     targetId: 'step-calendar',
-    title: 'Step 11: Exact Recipe & 1-Click Calendar Sync',
+    title: 'Step 11: Exact Recipe & Calendar Sync',
     description:
-      'Your full clinical workflow is complete! Review your plain-English recipe card and click "View Protocol & Reminders" to sync recurring injection alerts to Google / Apple Calendar or print a fridge protocol.',
+      'Review your calculated recipe card and click "Sync to Calendar" to add recurring injection alerts directly to Google Calendar or Apple Calendar (.ics).',
     tip: '100% free with zero ads. Never miss an injection day or forget your exact units!',
+  },
+  {
+    targetId: 'step-calendar',
+    title: 'Step 12: Single-Page A4 Fridge Protocol & PNG Export',
+    description:
+      'Click "Preview A4 Sheet" to open the printable fridge cheat sheet with 10 doses per page, multi-batch pagination, and 1-click PNG image export.',
+    tip: 'Keep the printed sheet or photo on your fridge for quick pen checkoffs!',
   },
 ];
 

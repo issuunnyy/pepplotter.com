@@ -7,8 +7,8 @@
 - [Peptide Reconstitution Calculator](https://pepplotter.com/#calculator): Interactive math engine calculating exact injection volume (mL) and syringe tick units from vial milligrams, bacteriostatic water volume, and target dose in micrograms (mcg) or milligrams (mg).
 - [Interactive Insulin Syringe Visualizer](https://pepplotter.com/#syringe): High-precision SVG visualizer displaying exact plunger position, calibrated graduation ticks, and target dose markers on 100-unit (U-100) and 40-unit (U-40) syringes.
 - [Multi-Dose PK Accumulation Plotter](https://pepplotter.com/#pk-graph): Pharmacokinetic simulation engine modeling exponential one-compartment elimination, steady-state accumulation, peak concentration (Cmax), trough levels (Cmin), and wash-out clearance over 7, 14, 28, or 60 days.
-- [Subcutaneous Injection Guide & SOP](https://pepplotter.com/#guide): 5-step clinical photographic guide covering sterile supplies preparation, aseptic swab technique, bubble-free fluid drawing, 90-degree subcutaneous injection, and sharps disposal.
-- [Printable Fridge Protocol Sheet & Pen-Check Log](https://pepplotter.com/#printable-sheet): Single-page A4 printable fridge cheat sheet and high-definition PNG export with 5-dose injection logs, reconstitution recipe, and site rotation trackers.
+- [Subcutaneous Injection Guide & SOP](https://pepplotter.com/#guide): 4-stage clinical photographic guide — Stage 1: Aseptic Supplies Setup; Stage 2: Site Selection & Cleansing; Stage 3: Precision Medication Draw; Stage 4: 90° Injection & 10s Dwell. Optional timers: 15-second air-dry after alcohol swab, 10-second needle dwell.
+- [Printable Fridge Protocol Sheet & Pen-Check Log](https://pepplotter.com/#printable-sheet): Single-page A4 printable fridge cheat sheet and high-definition PNG export with 10-dose injection logs per page, auto-paginated past 10, reconstitution recipe, and site rotation trackers.
 
 ## Supported Compounds & Presets
 

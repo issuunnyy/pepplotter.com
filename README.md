@@ -11,7 +11,7 @@
 [![Tailwind CSS v4](https://img.shields.io/badge/Tailwind-v4.0-38bdf8.svg)](https://tailwindcss.com/)
 [![Live App](https://img.shields.io/badge/Web%20App-pepplotter.com-10b981.svg)](https://pepplotter.com)
 
-**[Visit Live Tool](https://pepplotter.com)** • **[Report an Issue](https://github.com/issuunnyy/pepplotter/issues)** • **[Documentation](https://pepplotter.com)**
+**[Visit Live Tool](https://pepplotter.com)** • **[Report an Issue](https://github.com/issuunnyy/pepplotter.com/issues)** • **[☕ Support PepPlotter](https://buymeacoffee.com/ssuunnyy)** • **[Documentation](https://pepplotter.com)**
 
 </div>
 
@@ -25,7 +25,7 @@ It eliminates dangerous dilution, drawing, and dosing errors by combining:
 1. **Precision Reconstitution Math** with real-time SVG syringe draw markers.
 2. **Pharmacokinetic (PK) Accumulation Simulator** modeling Bateman subcutaneous absorption and elimination curves.
 3. **Step-by-Step Clinical Sub-Q Visual Protocol** adhering to FITTER & ADA clinical harm-reduction standards.
-4. **Zero-Data Logging Privacy Guarantee** where all calculations are performed 100% on the client side.
+4. **Zero Dosing-Data Logs** where all calculations are performed 100% on the client side.
 
 ---
 
@@ -61,8 +61,8 @@ It eliminates dangerous dilution, drawing, and dosing errors by combining:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/issuunnyy/pepplotter.git
-   cd pepplotter
+   git clone https://github.com/issuunnyy/pepplotter.com.git
+   cd pepplotter.com
    ```
 
 2. Install dependencies:

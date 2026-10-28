@@ -507,6 +507,63 @@ const splitList: InjectionEntry[] = [];
             .replace(/&/g, '\u0026'),
         }}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'HowTo',
+            name: 'How to Reconstitute and Administer Subcutaneous Peptides Safely',
+            description:
+              'Standardized 4-stage clinical protocol for peptide reconstitution, sterile syringe measurement, and 90-degree subcutaneous injection based on FITTER and ADA guidelines.',
+            totalTime: 'PT15M',
+            tool: [
+              { '@type': 'HowToTool', name: 'U-100 Insulin Syringe (31G, 5/16-inch)' },
+              { '@type': 'HowToTool', name: 'Bacteriostatic 0.9% Benzyl Alcohol Water' },
+              { '@type': 'HowToTool', name: '70% Isopropyl Alcohol Swabs' },
+              { '@type': 'HowToTool', name: 'FDA-Cleared Sharps Disposal Container' },
+            ],
+            supply: [{ '@type': 'HowToSupply', name: 'Lyophilized Peptide Powder Vial' }],
+            step: [
+              {
+                '@type': 'HowToStep',
+                position: 1,
+                name: 'Stage 1: Aseptic Supplies Setup',
+                text: 'Gather sterile peptide vial, single-use 31G insulin syringe, and two 70% isopropyl alcohol pads on a disinfected workspace. Allow refrigerated solution to acclimate to room temperature for 5 to 10 minutes to eliminate cold-liquid injection sting.',
+                image: 'https://pepplotter.com/guide/step1-photo.jpg',
+                url: 'https://pepplotter.com/#guide',
+              },
+              {
+                '@type': 'HowToStep',
+                position: 2,
+                name: 'Stage 2: Site Selection & Cleansing',
+                text: 'Choose an injection site on the lower abdomen at least 2 inches (5 cm) away from the navel, or on the outer thigh. Cleanse the site with a 70% alcohol swab in an outward spiral and allow a full 15 seconds to air dry completely until the skin turns matte.',
+                image: 'https://pepplotter.com/guide/step2-photo.jpg',
+                url: 'https://pepplotter.com/#guide',
+              },
+              {
+                '@type': 'HowToStep',
+                position: 3,
+                name: 'Stage 3: Precision Medication Draw',
+                text: 'Inject room air equal to your target dose into the vial to equalize pressure. Invert the vial vertically 180 degrees, ensure the needle tip is submerged in liquid, draw plunger past target, tap out micro-bubbles, and align the plunger top ring exactly to your target units.',
+                image: 'https://pepplotter.com/guide/step3-photo.jpg',
+                url: 'https://pepplotter.com/#guide',
+              },
+              {
+                '@type': 'HowToStep',
+                position: 4,
+                name: 'Stage 4: 90° Injection & 10s Dwell',
+                text: 'Gently pinch a 2-inch skin fold. Insert the needle fully at a 90-degree angle like a dart without aspirating. Depress the plunger smoothly, hold the needle in place for a 10-second dwell to prevent medication backflow, withdraw smoothly, and dispose immediately in a sharps container.',
+                image: 'https://pepplotter.com/guide/step4-photo.jpg',
+                url: 'https://pepplotter.com/#guide',
+              },
+            ],
+          })
+            .replace(/</g, '\u003c')
+            .replace(/>/g, '\u003e')
+            .replace(/&/g, '\u0026'),
+        }}
+      />
 
       {/* Glow Ambient Lights — Wrapped in overflow-hidden container to prevent mobile viewport scroll */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10 max-w-[100vw] print:hidden">
@@ -636,7 +693,7 @@ const splitList: InjectionEntry[] = [];
           <div className="mt-4 sm:mt-6 w-full max-w-3xl mx-auto px-1">
             <div className="flex items-center justify-center gap-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
               <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-              <span>Fast Compound Presets (8 Clinical Protocols &amp; Custom)</span>
+              <span>Fast Compound Presets (7 Clinical Protocols + Custom)</span>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2">
               {COMPOUND_PRESETS.map((preset) => {
@@ -1059,7 +1116,7 @@ const splitList: InjectionEntry[] = [];
               <div 
                 id="step-calendar"
                 className={`mt-auto bg-slate-900/70 border p-4 sm:p-5 rounded-2xl space-y-3.5 shadow-xl transition-all scroll-mt-24 ${
-                  isTourActive && tourStepIndex === 10
+                  isTourActive && (tourStepIndex === 10 || tourStepIndex === 11)
                     ? 'border-emerald-400 ring-2 ring-emerald-400/50 shadow-emerald-500/30 bg-emerald-950/30'
                     : 'border-slate-800/90'
                 }`}
@@ -1247,7 +1304,7 @@ const splitList: InjectionEntry[] = [];
               <div 
                 id="step-recipe"
                 className={`mt-auto p-4 sm:p-5 bg-slate-900/50 border rounded-2xl text-xs text-slate-300 leading-relaxed flex items-start gap-3 transition-all scroll-mt-24 ${
-                  isTourActive && tourStepIndex === 10
+                  isTourActive && (tourStepIndex === 10 || tourStepIndex === 11)
                     ? 'border-emerald-400 ring-2 ring-emerald-400/40 bg-emerald-950/20'
                     : 'border-slate-800'
                 }`}

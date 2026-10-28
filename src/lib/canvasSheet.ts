@@ -142,7 +142,7 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
   // ============================================================
   ctx.fillStyle = '#090d16';
   ctx.font = 'bold 11px system-ui, -apple-system, sans-serif';
-  const mainTitle = 'PEPPLOTTER PROTOCOL & PK REPORT';
+  const mainTitle = 'PEPPLOTTER CLINICAL PROTOCOL & PK REPORT';
   ctx.fillText(mainTitle, padX, curY + 12);
 
   // Badge "MEMO" (dynamically placed after title to prevent collision)
@@ -279,10 +279,10 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
   const discardDateStr = formatFullDate(data.startDate, 28);
   ctx.font = '7.5px system-ui, sans-serif';
   ctx.fillStyle = '#64748b';
-  ctx.fillText('Discard: ', padX + 8 + colW * 3, subY);
+  ctx.fillText('Discard (vial): ', padX + 8 + colW * 3, subY);
   ctx.fillStyle = '#9a3412';
   ctx.font = 'bold 7.5px monospace';
-  ctx.fillText(discardDateStr, padX + 8 + colW * 3 + 36, subY);
+  ctx.fillText(discardDateStr, padX + 8 + colW * 3 + 54, subY);
 
   // ============================================================
   // 3. SECTION 1: RECONSTITUTION & SYRINGE DRAW
@@ -357,7 +357,11 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
   ctx.fillText(`(${data.reconResult.drawVolumeMl} mL on ${data.syringeType})`, padX + innerPad + badgeW + 3 + badgeW / 2, badgeRowY + 39);
   ctx.lineWidth = 1;
 
-  // Box 3: Vial Supply
+  // Box 3: Vial Supply / Vials Needed
+  const totalDosesCount = data.batchInfo ? data.batchInfo.totalDoses : rows.length;
+  const isMultiVial = totalDosesCount > data.reconResult.totalVialDoses;
+  const vialsNeededCount = Math.ceil(totalDosesCount / (data.reconResult.totalVialDoses || 1));
+
   ctx.fillStyle = '#f8fafc';
   ctx.strokeStyle = '#cbd5e1';
   ctx.beginPath();
@@ -366,13 +370,13 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
   ctx.stroke();
   ctx.fillStyle = '#64748b';
   ctx.font = 'bold 7px system-ui, sans-serif';
-  ctx.fillText('VIAL SUPPLY', padX + innerPad + (badgeW + 3) * 2 + badgeW / 2, badgeRowY + 12);
+  ctx.fillText(isMultiVial ? 'VIALS NEEDED' : 'VIAL SUPPLY', padX + innerPad + (badgeW + 3) * 2 + badgeW / 2, badgeRowY + 12);
   ctx.fillStyle = '#0f172a';
   ctx.font = 'bold 11px monospace';
-  ctx.fillText(`${data.reconResult.totalVialDoses} Doses`, padX + innerPad + (badgeW + 3) * 2 + badgeW / 2, badgeRowY + 28);
+  ctx.fillText(isMultiVial ? `${vialsNeededCount} Vials` : `${data.reconResult.totalVialDoses} Doses`, padX + innerPad + (badgeW + 3) * 2 + badgeW / 2, badgeRowY + 28);
   ctx.fillStyle = '#64748b';
   ctx.font = '6.8px system-ui, sans-serif';
-  ctx.fillText(`≈ ${Math.round((data.reconResult.totalVialDoses * data.frequencyDays) / 7)}w supply`, padX + innerPad + (badgeW + 3) * 2 + badgeW / 2, badgeRowY + 39);
+  ctx.fillText(isMultiVial ? `(${data.reconResult.totalVialDoses} doses/vial)` : `≈ ${Math.round((data.reconResult.totalVialDoses * data.frequencyDays) / 7)}w supply`, padX + innerPad + (badgeW + 3) * 2 + badgeW / 2, badgeRowY + 39);
 
   // Box 4: Storage Rules
   ctx.fillStyle = '#f8fafc';
@@ -578,7 +582,7 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
   ctx.fillStyle = '#1e293b';
   ctx.font = '7px system-ui, sans-serif';
   ctx.fillText(`Slowly inject ${data.waterMl} mL BAC Water down vial wall into ${data.vialMg} mg ${data.compoundName}.`, padX + innerPad + 6, sopY + 22);
-  ctx.fillText('Swirl gently until dissolved. Do not shake violently.', padX + innerPad + 6, sopY + 33);
+  ctx.fillText('Swirl gently until dissolved. Do not shake.', padX + innerPad + 6, sopY + 33);
 
   ctx.fillStyle = '#f8fafc';
   ctx.strokeStyle = '#e2e8f0';
@@ -593,7 +597,10 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
   ctx.fillStyle = '#1e293b';
   ctx.font = '7px system-ui, sans-serif';
   ctx.fillText(`1. Wipe stopper & site (15s). 2. Draw ${data.reconResult.syringeUnits} Units (${data.reconResult.drawVolumeMl} mL).`, padX + innerPad + sopW + 12, sopY + 22);
-  ctx.fillText('3. Pinch skin fold, 90° angle, depress steadily, hold 5–10s.', padX + innerPad + sopW + 12, sopY + 33);
+  ctx.fillText('3. Pinch skin, 90° angle, depress steadily, hold 10s.', padX + innerPad + sopW + 12, sopY + 33);
+  ctx.fillStyle = '#64748b';
+  ctx.font = '6.5px system-ui, sans-serif';
+  ctx.fillText('Full guide: pepplotter.com/#guide', padX + innerPad + sopW + 12, sopY + 42);
 
   // ============================================================
   // 4. SECTION 2: PHARMACOKINETIC ACCUMULATION & SCHEDULE
@@ -669,15 +676,15 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
   ctx.textAlign = 'right';
   ctx.font = 'bold 7px monospace';
   ctx.fillStyle = '#0369a1';
-  ctx.fillText(`Avg: ~${data.averageConcentration.toFixed(2)}mg`, width - padX - innerPad - 6, cBoxY + 12);
-  const avgW = ctx.measureText(`Avg: ~${data.averageConcentration.toFixed(2)}mg`).width + 8;
+  ctx.fillText(`Avg: ~${data.averageConcentration.toFixed(2)} mg`, width - padX - innerPad - 6, cBoxY + 12);
+  const avgW = ctx.measureText(`Avg: ~${data.averageConcentration.toFixed(2)} mg`).width + 8;
 
   ctx.fillStyle = '#047857';
-  ctx.fillText(`Trg: ~${data.troughConcentration.toFixed(2)}mg`, width - padX - innerPad - 6 - avgW, cBoxY + 12);
-  const trgW = ctx.measureText(`Trg: ~${data.troughConcentration.toFixed(2)}mg`).width + 8;
+  ctx.fillText(`Trg: ~${data.troughConcentration.toFixed(2)} mg`, width - padX - innerPad - 6 - avgW, cBoxY + 12);
+  const trgW = ctx.measureText(`Trg: ~${data.troughConcentration.toFixed(2)} mg`).width + 8;
 
   ctx.fillStyle = '#be123c';
-  ctx.fillText(`Peak: ~${data.peakConcentration.toFixed(2)}mg`, width - padX - innerPad - 6 - avgW - trgW, cBoxY + 12);
+  ctx.fillText(`Peak: ~${data.peakConcentration.toFixed(2)} mg`, width - padX - innerPad - 6 - avgW - trgW, cBoxY + 12);
   ctx.textAlign = 'left';
 
   // Draw PK Spline Curve
@@ -832,8 +839,8 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
   ctx.fillText('PROTOCOL', padX + innerPad + 40, thY + 11);
   ctx.fillText('PLANNED DATE', padX + innerPad + 92, thY + 11);
   ctx.fillText('DOSE & UNITS', padX + innerPad + 162, thY + 11);
-  ctx.fillText('INJECTION SITE', padX + innerPad + 242, thY + 11);
-  ctx.fillText('TIME', padX + innerPad + 346, thY + 11);
+  ctx.fillText('INJECTION SITE', padX + innerPad + 236, thY + 11);
+  ctx.fillText('TIME (fill)', padX + innerPad + 346, thY + 11);
   ctx.textAlign = 'center';
   ctx.fillText('DONE', width - padX - innerPad - 16, thY + 11);
   ctx.textAlign = 'left';
@@ -857,9 +864,16 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
         : 0;
 
     const doseNum = inj.doseNumber ?? (idx + 1);
+    const isNewVial = data.reconResult.totalVialDoses > 0 && (doseNum - 1) > 0 && (doseNum - 1) % data.reconResult.totalVialDoses === 0;
+
     ctx.fillStyle = '#0f172a';
     ctx.font = 'bold 7.5px monospace';
     ctx.fillText(`#${doseNum}`, padX + innerPad + 6, rY + (rowH > 18 ? 13 : 12));
+    if (isNewVial) {
+      ctx.fillStyle = '#b45309';
+      ctx.font = 'bold 5.5px system-ui, sans-serif';
+      ctx.fillText('*NEW', padX + innerPad + 22, rY + (rowH > 18 ? 13 : 12));
+    }
 
     ctx.fillStyle = '#334155';
     ctx.font = '7px system-ui, sans-serif';
@@ -875,8 +889,8 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
     ctx.fillText(`${inj.doseMg.toFixed(2)}mg • ${targetUnits}U`, padX + innerPad + 162, rY + (rowH > 18 ? 13 : 12));
 
     ctx.fillStyle = '#475569';
-    ctx.font = '6.8px system-ui, sans-serif';
-    ctx.fillText('[ ] L-Abd  [ ] R-Abd', padX + innerPad + 242, rY + (rowH > 18 ? 13 : 12));
+    ctx.font = '6.5px system-ui, sans-serif';
+    ctx.fillText('[ ] L-Abd  [ ] R-Abd  [ ] Thigh', padX + innerPad + 236, rY + (rowH > 18 ? 13 : 12));
 
     ctx.fillStyle = '#94a3b8';
     ctx.font = '7px monospace';

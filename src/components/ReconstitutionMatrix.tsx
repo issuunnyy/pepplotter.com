@@ -170,7 +170,11 @@ export const ReconstitutionMatrix: React.FC = () => {
                     )}
                   </div>
                 </td>
-                <td className="p-3 sm:p-4 text-slate-300">{row.drawMl.toFixed(2)} mL</td>
+                <td className="p-3 sm:p-4 text-slate-300">
+                  {row.drawMl < 0.1 && (row.drawMl * 100) % 1 !== 0 
+                    ? row.drawMl.toFixed(3) 
+                    : row.drawMl.toFixed(2)} mL
+                </td>
                 <td className="p-3 sm:p-4 text-[11px] font-sans text-slate-400">
                   {row.notes ? (
                     <span className="text-emerald-300/90 font-medium">{row.notes}</span>

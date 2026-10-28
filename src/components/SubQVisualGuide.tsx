@@ -93,7 +93,7 @@ export function SubQVisualGuide({
     {
       id: 1,
       stepNumber: '01',
-      title: 'Aseptic Supplies Preparation',
+      title: 'Aseptic Supplies Setup',
       shortTitle: 'Aseptic Supplies Setup',
       subtitle: 'Gather sterile supplies on a clean surface and warm refrigerated solution to room temperature.',
       imageSrc: '/guide/step1-photo.jpg',
@@ -127,7 +127,7 @@ export function SubQVisualGuide({
     {
       id: 2,
       stepNumber: '02',
-      title: 'Site Selection & 15-Second Air Evaporation',
+      title: 'Site Selection & Cleansing',
       shortTitle: 'Site Selection & Cleansing',
       subtitle: 'Target lower abdominal fat and allow 15 seconds for complete evaporation to prevent burning.',
       imageSrc: '/guide/step2-photo.jpg',
@@ -162,7 +162,7 @@ export function SubQVisualGuide({
     {
       id: 3,
       stepNumber: '03',
-      title: 'Air Equalization & Bubble-Free Precision Draw',
+      title: 'Precision Medication Draw',
       shortTitle: 'Precision Medication Draw',
       subtitle: 'Equalize vial pressure, invert completely, and align the plunger accurately to your dose.',
       imageSrc: '/guide/step3-photo.jpg',
@@ -196,7 +196,7 @@ export function SubQVisualGuide({
     {
       id: 4,
       stepNumber: '04',
-      title: '90° Dart Entry, 10s Dwell & Safe Aftercare',
+      title: '90° Injection & 10s Dwell',
       shortTitle: '90° Injection & 10s Dwell',
       subtitle: 'Smooth perpendicular entry, 10-second dwell to prevent leakage, followed by safe disposal.',
       imageSrc: '/guide/step4-photo.jpg',
@@ -504,7 +504,7 @@ export function SubQVisualGuide({
                 <h3 className="text-xl sm:text-2xl font-extrabold text-slate-100 tracking-tight leading-snug">
                   {step.title}
                 </h3>
-                <p className={`text-xs sm:text-sm text-emerald-300/90 font-medium mt-1 leading-snug ${isMobile ? '' : 'truncate'}`}>
+                <p className="text-xs sm:text-sm text-emerald-300/90 font-medium mt-1 leading-snug">
                   {step.subtitle}
                 </p>
               </div>
@@ -586,7 +586,7 @@ export function SubQVisualGuide({
                     <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
                     <span>DO (Clinical Best Practice)</span>
                   </div>
-                  <p className={`text-slate-300 text-[11px] leading-relaxed ${isMobile ? '' : 'line-clamp-2'}`}>
+                  <p className="text-slate-300 text-[11px] leading-relaxed">
                     {step.doRule}
                   </p>
                 </div>
@@ -596,7 +596,7 @@ export function SubQVisualGuide({
                     <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
                     <span>DON'T (Strict Prohibition)</span>
                   </div>
-                  <p className={`text-slate-300 text-[11px] leading-relaxed ${isMobile ? '' : 'line-clamp-2'}`}>
+                  <p className="text-slate-300 text-[11px] leading-relaxed">
                     {step.dontRule}
                   </p>
                 </div>
@@ -669,10 +669,10 @@ export function SubQVisualGuide({
                 </div>
               ) : (
                 <div className="pt-3 border-t border-slate-800 flex items-center justify-between gap-3 text-xs mt-auto">
-                  <div className="text-[11px] text-slate-400 flex items-center gap-1.5 truncate">
+                  <div className="text-[11px] text-slate-400 flex items-center gap-1.5 min-w-0">
                     <span className="w-1.5 h-1.5 rounded-full bg-slate-500 shrink-0" />
                     <span>Authority: </span>
-                    <strong className="text-slate-300 font-medium truncate">{step.citation}</strong>
+                    <strong className="text-slate-300 font-medium">{step.citation}</strong>
                   </div>
 
                   <div className="flex items-center gap-2 shrink-0">

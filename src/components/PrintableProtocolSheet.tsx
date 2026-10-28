@@ -417,7 +417,7 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
             <strong className="font-mono text-slate-900">{formatFullDate(startDate, 0)}</strong>
           </div>
           <div>
-            <span className="text-slate-500">28-Day Discard: </span>
+            <span className="text-slate-500">28-Day Discard (per vial): </span>
             <strong className="font-mono text-amber-800">{formatFullDate(startDate, 28)}</strong>
           </div>
         </div>
@@ -459,12 +459,18 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
           </div>
 
           <div className="border border-slate-300 rounded p-1 bg-slate-50 text-center">
-            <span className="text-[8px] uppercase font-bold text-slate-500 block">Vial Supply</span>
+            <span className="text-[8px] uppercase font-bold text-slate-500 block">
+              {totalDoses > reconResult.totalVialDoses ? 'Vials Needed' : 'Vial Supply'}
+            </span>
             <span className="text-[11px] font-black font-mono text-slate-900 mt-0.5 block">
-              {reconResult.totalVialDoses} Doses
+              {totalDoses > reconResult.totalVialDoses
+                ? `${Math.ceil(totalDoses / (reconResult.totalVialDoses || 1))} Vials`
+                : `${reconResult.totalVialDoses} Doses`}
             </span>
             <span className="text-[7.5px] text-slate-500">
-              ≈ {Math.round((reconResult.totalVialDoses * frequencyDays) / 7)}w supply
+              {totalDoses > reconResult.totalVialDoses
+                ? `(${reconResult.totalVialDoses} doses/vial)`
+                : `≈ ${Math.round((reconResult.totalVialDoses * frequencyDays) / 7)}w supply`}
             </span>
           </div>
 
@@ -611,7 +617,7 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
               Sub-Q 3-Step SOP:
             </span>
             <p className="leading-snug">
-              1. Wipe stopper &amp; site (wait 15s). 2. Draw <strong>{reconResult.syringeUnits} Units</strong> ({reconResult.drawVolumeMl} mL). 3. Pinch skin, 90° angle, depress steadily, hold 5–10s.
+              1. Wipe stopper &amp; site (wait 15s). 2. Draw <strong>{reconResult.syringeUnits} Units</strong> ({reconResult.drawVolumeMl} mL). 3. Pinch skin, 90° angle, depress steadily, hold 10s. (Full guide: pepplotter.com/#guide)
             </p>
           </div>
         </div>
@@ -629,13 +635,13 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
               HL: <strong>{(halfLifeHours / 24).toFixed(1)}d</strong>
             </span>
             <span className="bg-rose-50 text-rose-900 px-1 py-0.2 rounded border border-rose-200">
-              Peak: <strong>{activePeak.toFixed(2)} mg</strong>
+              Peak: <strong>~{activePeak.toFixed(2)} mg</strong>
             </span>
             <span className="bg-emerald-50 text-emerald-900 px-1 py-0.2 rounded border border-emerald-200">
-              Trough: <strong>{activeTrough.toFixed(2)} mg</strong>
+              Trough: <strong>~{activeTrough.toFixed(2)} mg</strong>
             </span>
             <span className="bg-cyan-50 text-cyan-900 px-1 py-0.2 rounded border border-cyan-200">
-              Avg: <strong>{activeAvg.toFixed(2)} mg</strong>
+              Avg: <strong>~{activeAvg.toFixed(2)} mg</strong>
             </span>
           </div>
         </div>
@@ -760,8 +766,8 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
         </div>
 
         {/* Administration Schedule & Pen-Checkoff Table */}
-        <div className="border border-slate-300 rounded overflow-hidden">
-          <div className="bg-slate-100 px-1.5 py-0.5 border-b border-slate-300 flex items-center justify-between">
+        <div className="border border-slate-300 rounded overflow-x-auto print:overflow-visible">
+          <div className="bg-slate-100 px-1.5 py-0.5 border-b border-slate-300 flex items-center justify-between min-w-[500px] print:min-w-0">
             <span className="text-[8px] uppercase font-bold text-slate-700 tracking-wider">
               Administration Schedule &amp; Physical Pen-Check Log
               {totalBatches > 1 ? ` (Batch ${safeBatchIndex + 1}/${totalBatches})` : ''}
@@ -771,7 +777,7 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
             </span>
           </div>
 
-          <table className="w-full text-left text-[9px] border-collapse">
+          <table className="w-full min-w-[500px] print:min-w-0 text-left text-[9px] border-collapse">
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50 text-[8px] uppercase text-slate-600 font-bold">
                 <th className="py-0.5 px-1.5 w-8 text-center border-r border-slate-200">Dose</th>
@@ -779,7 +785,7 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
                 <th className="py-0.5 px-1.5 w-24 border-r border-slate-200 text-slate-900 font-bold">Planned Date</th>
                 <th className="py-0.5 px-1.5 w-24 border-r border-slate-200">Dose &amp; Units</th>
                 <th className="py-0.5 px-1.5 border-r border-slate-200">Injection Site</th>
-                <th className="py-0.5 px-1.5 w-16 border-r border-slate-200">Time Given</th>
+                <th className="py-0.5 px-1.5 w-16 border-r border-slate-200">Time (fill)</th>
                 <th className="py-0.5 px-1.5 w-9 text-center">Done (✓)</th>
               </tr>
             </thead>
@@ -790,11 +796,17 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
                     ? Number(((inj.doseMg / concentrationMgMl) * (syringeType === 'U100' ? 100 : 40)).toFixed(1))
                     : 0;
                 const doseNum = inj.doseNumber ?? (startDoseIdx + idx + 1);
+                const isNewVial = reconResult.totalVialDoses > 0 && (doseNum - 1) > 0 && (doseNum - 1) % reconResult.totalVialDoses === 0;
 
                 return (
                   <tr key={inj.id || idx} className="hover:bg-slate-50">
-                    <td className="py-0.5 px-1.5 text-center font-bold text-slate-900 border-r border-slate-200">
-                      #{doseNum}
+                    <td className="py-0.5 px-1.5 text-center font-bold text-slate-900 border-r border-slate-200 whitespace-nowrap">
+                      <span>#{doseNum}</span>
+                      {isNewVial && (
+                        <span className="ml-1 px-1 py-0.2 rounded bg-amber-100 text-amber-800 text-[6.5px] font-sans font-bold uppercase border border-amber-300 inline-block">
+                          New Vial
+                        </span>
+                      )}
                     </td>
                     <td className="py-0.5 px-1.5 text-slate-700 border-r border-slate-200">
                       Day {inj.day}
@@ -821,15 +833,18 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
           </table>
 
           {totalBatches > 1 && (
-            <div className="bg-slate-50 px-2 py-0.5 border-t border-slate-200 flex items-center justify-between text-[7.5px] text-slate-500 font-sans">
+            <div className="bg-slate-50 px-2 py-0.5 border-t border-slate-200 flex items-center justify-between text-[7.5px] text-slate-500 font-sans min-w-[500px] print:min-w-0">
               <span>
-                Showing <strong>Doses #{startDoseIdx + 1}–#{endDoseIdx} of {totalDoses}</strong> (Max 10 doses per single A4 sheet for pen-check readability).
+                Batch {safeBatchIndex + 1} of {totalBatches} (Doses #{startDoseIdx + 1}–#{endDoseIdx} of {totalDoses}) • Switch batch online to export remaining doses
               </span>
               <span className="font-semibold text-slate-700">
-                Batch {safeBatchIndex + 1} of {totalBatches}
+                Batch {safeBatchIndex + 1}/{totalBatches}
               </span>
             </div>
           )}
+          <div className="sm:hidden text-[7.5px] text-slate-500 text-center py-0.5 bg-slate-50 border-t border-slate-200">
+            ← Swipe horizontally to view Time &amp; Done columns →
+          </div>
         </div>
       </div>
 
