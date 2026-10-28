@@ -155,7 +155,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose })
               </div>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} noValidate className="space-y-4">
               {/* Category selector */}
               <div>
                 <label className="block text-xs font-semibold text-slate-300 mb-2">
@@ -200,6 +200,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose })
                   onChange={(e) => setMessage(e.target.value)}
                   placeholder={activeCategoryObj.placeholder}
                   required
+                  onInvalid={(e) => e.preventDefault()}
                   className="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl p-3 text-xs text-slate-100 placeholder:text-slate-400 outline-none resize-none transition-colors"
                 />
               </div>
@@ -216,6 +217,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose })
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  onInvalid={(e) => e.preventDefault()}
                   placeholder="name@example.com (only if you would like a reply)"
                   className="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl px-3.5 py-2 text-xs text-slate-100 placeholder:text-slate-400 outline-none transition-colors"
                 />

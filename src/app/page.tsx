@@ -832,10 +832,11 @@ const splitList: InjectionEntry[] = [];
                   <div className="relative">
                     <input
                       type="number"
-                      step="0.5"
+                      step="any"
                       min="0.1"
                       max="100"
                       value={vialMg}
+                      onInvalid={(e) => e.preventDefault()}
                       onChange={(e) => {
                         const val = e.target.value;
                         if (val === '') {
@@ -900,10 +901,11 @@ const splitList: InjectionEntry[] = [];
                   <div className="relative">
                     <input
                       type="number"
-                      step="0.1"
+                      step="any"
                       min="0.1"
                       max="10"
                       value={waterMl}
+                      onInvalid={(e) => e.preventDefault()}
                       onChange={(e) => {
                         const val = e.target.value;
                         if (val === '') {
@@ -973,10 +975,11 @@ const splitList: InjectionEntry[] = [];
                   <div className="relative">
                     <input
                       type="number"
-                      step="25"
+                      step="any"
                       min="1"
                       max="50000"
                       value={targetDoseMcg}
+                      onInvalid={(e) => e.preventDefault()}
                       onChange={(e) => {
                         const val = e.target.value;
                         if (val === '') {
@@ -1439,10 +1442,11 @@ const splitList: InjectionEntry[] = [];
                     </div>
                     <input
                       type="number"
-                      step="0.5"
+                      step="any"
                       min="0.05"
                       max="365"
                       value={customHalfLifeDays}
+                      onInvalid={(e) => e.preventDefault()}
                       onChange={(e) => setCustomHalfLifeDays(Math.max(0.05, parseFloat(e.target.value) || 1))}
                       className="w-full h-10 bg-slate-950 border border-cyan-500/50 text-cyan-300 text-xs font-mono font-bold rounded-xl px-2.5 outline-none focus:border-cyan-400"
                     />
@@ -1588,18 +1592,20 @@ const splitList: InjectionEntry[] = [];
                     <div className="flex items-center gap-2 mt-1">
                       <input
                         type="number"
-                        step="0.5"
+                        step="any"
                         min="0"
                         value={inj.day}
+                        onInvalid={(e) => e.preventDefault()}
                         onChange={(e) => updateInjection(inj.id, 'day', parseFloat(e.target.value) || 0)}
                         className="w-14 bg-slate-900 border border-slate-700 text-slate-100 text-xs font-mono rounded px-1.5 py-0.5 text-center"
                       />
                       <span className="text-xs text-slate-400">Day:</span>
                       <input
                         type="number"
-                        step="0.25"
-                        min="0.05"
+                        step="any"
+                        min="0.01"
                         value={inj.doseMg}
+                        onInvalid={(e) => e.preventDefault()}
                         onChange={(e) => updateInjection(inj.id, 'doseMg', parseFloat(e.target.value) || 0)}
                         className="w-16 bg-slate-900 border border-slate-700 text-cyan-300 text-xs font-mono font-bold rounded px-1.5 py-0.5 text-center"
                       />

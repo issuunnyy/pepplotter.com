@@ -122,8 +122,9 @@ Thank you!`;
               <input
                 type="number"
                 min="0.1"
-                step="0.5"
+                step="any"
                 value={vialMg}
+                onInvalid={(e) => e.preventDefault()}
                 onChange={(e) => setVialMg(parseFloat(e.target.value) || 1)}
                 className="w-full bg-slate-950 border border-slate-700 text-slate-100 rounded-xl px-3 py-2 text-xs outline-none focus:border-cyan-500 font-mono"
               />
@@ -135,8 +136,9 @@ Thank you!`;
               <input
                 type="number"
                 min="10"
-                step="50"
+                step="any"
                 value={doseMcg}
+                onInvalid={(e) => e.preventDefault()}
                 onChange={(e) => setDoseMcg(parseFloat(e.target.value) || 100)}
                 className="w-full bg-slate-950 border border-slate-700 text-slate-100 rounded-xl px-3 py-2 text-xs outline-none focus:border-cyan-500 font-mono"
               />
