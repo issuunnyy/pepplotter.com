@@ -299,7 +299,11 @@ export const SyringeVisualizer: React.FC<SyringeVisualizerProps> = React.memo(fu
           <span>Green highlight represents exact volume to draw.</span>
         </div>
         <div className="text-slate-400">
-          Standard <strong className="text-slate-300">U-100</strong> (100 Units = 1 mL) | 1 Unit = 0.01 mL
+          {syringeType === 'U100' ? (
+            <>Standard <strong className="text-slate-300">U-100</strong> (100 Units = 1 mL) | 1 Unit = 0.01 mL</>
+          ) : (
+            <>Special <strong className="text-slate-300">U-40</strong> (40 Units = 1 mL) | 1 Unit = 0.025 mL</>
+          )}
         </div>
       </div>
     </div>
