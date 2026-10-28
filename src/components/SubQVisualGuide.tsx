@@ -355,8 +355,8 @@ export function SubQVisualGuide({
               FITTER / ADA Standard
             </span>
           </div>
-          <p className="text-xs text-slate-400 leading-normal max-w-2xl">
-            Evidence-based subcutaneous technique: aseptic prep, 45°–90° pinch, and safe sharps disposal. Click any stage to inspect.
+          <p className="text-xs text-slate-400 leading-normal max-w-3xl">
+            Evidence-based Sub-Q technique: aseptic prep, 45°–90° pinch, and safe sharps disposal.
           </p>
         </div>
 

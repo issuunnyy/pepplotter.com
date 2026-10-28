@@ -782,9 +782,9 @@ const splitList: InjectionEntry[] = [];
           aria-labelledby="tab-btn-calc"
           className={activeTab === 'calc' ? 'space-y-6' : 'hidden'}
         >
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
               {/* Left Column: Inputs & Quick Actions */}
-              <div className="lg:col-span-5 space-y-4">
+              <div className="lg:col-span-5 flex flex-col justify-between gap-4">
                 {/* Input Form Controls with Step-by-Step Numbers */}
                 <div className="bg-slate-900/70 border border-slate-800/90 rounded-2xl p-5 sm:p-6 shadow-xl space-y-5">
                 <div className="flex items-center justify-between pb-3 border-b border-slate-800">
@@ -1058,7 +1058,7 @@ const splitList: InjectionEntry[] = [];
               {/* 1-Click Protocol & Calendar Reminder Card */}
               <div 
                 id="step-calendar"
-                className={`bg-slate-900/70 border p-4 sm:p-5 rounded-2xl space-y-3.5 shadow-xl transition-all scroll-mt-24 ${
+                className={`mt-auto bg-slate-900/70 border p-4 sm:p-5 rounded-2xl space-y-3.5 shadow-xl transition-all scroll-mt-24 ${
                   isTourActive && tourStepIndex === 10
                     ? 'border-emerald-400 ring-2 ring-emerald-400/50 shadow-emerald-500/30 bg-emerald-950/30'
                     : 'border-slate-800/90'
@@ -1105,12 +1105,13 @@ const splitList: InjectionEntry[] = [];
             {/* Output Display & Syringe */}
             <div
               id="step-syringe"
-              className={`lg:col-span-7 space-y-6 transition-all ${
+              className={`lg:col-span-7 flex flex-col justify-between gap-4 transition-all ${
                   isTourActive && tourStepIndex === 3
                     ? 'ring-2 ring-emerald-500/60 rounded-2xl p-2 bg-emerald-950/10'
                     : ''
                 }`}
-              >
+            >
+              <div className="space-y-4">
 {/* SAFETY BANNER: Blocked / Over Capacity */}
                 {(isBlocked || isOverflow) && (
                   <div
@@ -1240,16 +1241,17 @@ const splitList: InjectionEntry[] = [];
                     </div>
                   </div>
                 )}
+              </div>
 
-{/* Plain-English Dosage Recipe Card */}
-      <div 
-        id="step-recipe"
-        className={`p-4 bg-slate-900/40 border rounded-xl text-xs text-slate-300 leading-relaxed flex items-start gap-3 transition-all scroll-mt-24 ${
-          isTourActive && tourStepIndex === 10
-            ? 'border-emerald-400 ring-2 ring-emerald-400/40 bg-emerald-950/20'
-            : 'border-slate-800'
-        }`}
-      >
+              {/* Plain-English Dosage Recipe Card */}
+              <div 
+                id="step-recipe"
+                className={`mt-auto p-4 sm:p-5 bg-slate-900/50 border rounded-2xl text-xs text-slate-300 leading-relaxed flex items-start gap-3 transition-all scroll-mt-24 ${
+                  isTourActive && tourStepIndex === 10
+                    ? 'border-emerald-400 ring-2 ring-emerald-400/40 bg-emerald-950/20'
+                    : 'border-slate-800'
+                }`}
+              >
           <div
             className={`w-6 h-6 rounded-md flex items-center justify-center shrink-0 font-bold ${
    isBlocked || isOverflow
@@ -1340,12 +1342,13 @@ const splitList: InjectionEntry[] = [];
       </div>
   </div>
 
-                {/* Permanent Educational Math Verification Disclaimer */}
-                <div className="py-2.5 px-4 rounded-xl bg-slate-950/60 border border-slate-800/80 text-center text-xs text-slate-400 font-medium flex items-center justify-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400/80 shrink-0" />
-                  <span>Educational &amp; laboratory math verification only. Always double-check syringe markings before administration.</span>
-                </div>
               </div>
+            </div>
+
+            {/* Permanent Educational Math Verification Disclaimer (Full-width spanning both columns) */}
+            <div className="py-2.5 px-4 rounded-xl bg-slate-950/60 border border-slate-800/80 text-center text-xs text-slate-400 font-medium flex items-center justify-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400/80 shrink-0" />
+              <span>Educational &amp; laboratory math verification only. Always double-check syringe markings before administration.</span>
             </div>
           </div>
 
@@ -1864,7 +1867,7 @@ const splitList: InjectionEntry[] = [];
             </Link>
             <span className="text-slate-700">•</span>
             <Link href="/refund" className="hover:text-emerald-400 transition-colors">
-              Refund Policy
+              Zero-Charge &amp; Refund Policy
             </Link>
             <span className="text-slate-700">•</span>
             <Link href="/disclaimer" className="hover:text-emerald-400 transition-colors">
