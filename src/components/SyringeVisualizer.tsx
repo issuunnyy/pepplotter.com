@@ -78,33 +78,26 @@ export const SyringeVisualizer: React.FC<SyringeVisualizerProps> = React.memo(fu
     <div className="w-full bg-slate-900/60 border border-slate-800 rounded-2xl p-5 shadow-xl backdrop-blur-md">
       {/* Header Info */}
       <div className="flex flex-wrap items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-800">
-        <div>
-          <span className="text-xs uppercase tracking-wider text-slate-400 font-medium">
-            Visual Syringe Draw Target ({syringeType})
+        <div className="flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+          <span className="text-xs uppercase tracking-wider text-slate-200 font-bold">
+            Interactive Syringe Calibration
           </span>
-          <div className="flex items-baseline gap-2 mt-0.5">
-            <span className="text-3xl font-extrabold text-emerald-400 font-mono tracking-tight tabular-nums">
-              {units > 0 ? units : '0.0'}
-            </span>
-            <span className="text-sm font-semibold text-emerald-500 uppercase">
-              Units
-            </span>
-            <span className="text-xs text-slate-400 tabular-nums font-mono">
-              ({drawVolumeMl > 0 ? drawVolumeMl.toFixed(3) : '0.000'} mL)
-            </span>
-          </div>
+          <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 font-semibold border border-slate-700/80">
+            {syringeType} Barrel
+          </span>
         </div>
 
         <div className="flex items-center gap-2">
           {isOverflow ? (
-            <div className="flex items-center gap-1.5 px-3 py-1 bg-rose-500/10 border border-rose-500/30 rounded-full text-rose-400 text-xs font-medium">
-<AlertCircle className="w-3.5 h-3.5" />
-    Exceeds one syringe — reduce dose or add water
-</div>
+            <div className="flex items-center gap-1.5 px-3 py-1 bg-rose-500/10 border border-rose-500/30 rounded-full text-rose-400 text-xs font-semibold">
+              <AlertCircle className="w-3.5 h-3.5" />
+              <span>Exceeds single syringe capacity</span>
+            </div>
           ) : units > 0 ? (
-            <div className="flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 border border-emerald-500/30 rounded-full text-emerald-400 text-xs font-medium">
-              <CheckCircle2 className="w-3.5 h-3.5" />
-              Target mark highlighted
+            <div className="flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 border border-emerald-500/30 rounded-full text-emerald-300 text-xs font-semibold shadow-sm">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Align Plunger to Mark {units}</span>
             </div>
           ) : (
             <span className="text-xs text-slate-400">Enter parameters to visualize</span>

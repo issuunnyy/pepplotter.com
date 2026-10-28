@@ -783,8 +783,10 @@ const splitList: InjectionEntry[] = [];
           className={activeTab === 'calc' ? 'space-y-6' : 'hidden'}
         >
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-              {/* Input Form Controls with Step-by-Step Numbers */}
-              <div className="lg:col-span-5 bg-slate-900/70 border border-slate-800/90 rounded-2xl p-6 shadow-xl space-y-6">
+              {/* Left Column: Inputs & Quick Actions */}
+              <div className="lg:col-span-5 space-y-4">
+                {/* Input Form Controls with Step-by-Step Numbers */}
+                <div className="bg-slate-900/70 border border-slate-800/90 rounded-2xl p-5 sm:p-6 shadow-xl space-y-5">
                 <div className="flex items-center justify-between pb-3 border-b border-slate-800">
                   <h2 className="text-sm font-bold text-slate-100 uppercase tracking-wider flex items-center gap-2">
                     <Pill className="w-4 h-4 text-emerald-400" />
@@ -1053,10 +1055,57 @@ const splitList: InjectionEntry[] = [];
                 </div>
               </div>
 
-              {/* Output Display & Syringe */}
-              <div
-                id="step-syringe"
-                className={`lg:col-span-7 space-y-6 transition-all ${
+              {/* 1-Click Protocol & Calendar Reminder Card */}
+              <div 
+                id="step-calendar"
+                className={`bg-slate-900/70 border p-4 sm:p-5 rounded-2xl space-y-3.5 shadow-xl transition-all scroll-mt-24 ${
+                  isTourActive && tourStepIndex === 10
+                    ? 'border-emerald-400 ring-2 ring-emerald-400/50 shadow-emerald-500/30 bg-emerald-950/30'
+                    : 'border-slate-800/90'
+                }`}
+              >
+                <div className="flex items-start gap-3 text-left">
+                  <div className="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 shrink-0 mt-0.5">
+                    <Calendar className="w-4 h-4" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-xs font-bold text-slate-100 flex items-center gap-2">
+                      <span>Sync Protocol &amp; Fridge Sheet</span>
+                      <span className="px-1.5 py-0.5 bg-emerald-500/20 text-emerald-300 text-[9px] font-bold rounded font-mono uppercase">Free</span>
+                    </div>
+                    <p className="text-[11.5px] text-slate-400 mt-1 leading-snug">
+                      Export 1-page printable clinical protocol or sync recurring dose reminders directly to Google &amp; Apple Calendar.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2.5 w-full pt-0.5">
+                  <button
+                    type="button"
+                    onClick={() => setIsSheetPreviewOpen(true)}
+                    title="Preview 1-page A4 Protocol Sheet (Screenshot & Print)"
+                    className="w-full h-10 px-2.5 bg-slate-800/90 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer group shadow-sm whitespace-nowrap"
+                  >
+                    <FileText className="w-3.5 h-3.5 text-emerald-400 group-hover:scale-110 transition-transform shrink-0" />
+                    <span>Preview A4 Sheet</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setIsReportModalOpen(true)}
+                    className="w-full h-10 px-2.5 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-slate-950 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 shadow-md shadow-emerald-500/20 transition-all cursor-pointer whitespace-nowrap"
+                  >
+                    <Calendar className="w-3.5 h-3.5 shrink-0" />
+                    <span>Sync to Calendar</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Output Display & Syringe */}
+            <div
+              id="step-syringe"
+              className={`lg:col-span-7 space-y-6 transition-all ${
                   isTourActive && tourStepIndex === 3
                     ? 'ring-2 ring-emerald-500/60 rounded-2xl p-2 bg-emerald-950/10'
                     : ''
@@ -1295,50 +1344,6 @@ const splitList: InjectionEntry[] = [];
                 <div className="py-2.5 px-4 rounded-xl bg-slate-950/60 border border-slate-800/80 text-center text-xs text-slate-400 font-medium flex items-center justify-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400/80 shrink-0" />
                   <span>Educational &amp; laboratory math verification only. Always double-check syringe markings before administration.</span>
-                </div>
-
-                {/* 1-Click Protocol & Calendar Reminder Banner */}
-                <div 
-                  id="step-calendar"
-                  className={`bg-gradient-to-r from-emerald-950/40 via-slate-900 to-cyan-950/40 border p-4 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3 shadow-lg transition-all scroll-mt-24 ${
-                    isTourActive && tourStepIndex === 10
-                      ? 'border-emerald-400 ring-2 ring-emerald-400/50 shadow-emerald-500/30 bg-emerald-950/30'
-                      : 'border-emerald-500/40 shadow-emerald-500/5'
-                  }`}
-                >
-                  <div className="flex items-center gap-3 text-left">
-                    <div className="w-9 h-9 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 shrink-0">
-                      <Calendar className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <div className="text-xs font-bold text-slate-100 flex items-center gap-2">
-                        <span>Sync Administration Protocol to Calendar</span>
-                        <span className="px-1.5 py-0.5 bg-emerald-500/20 text-emerald-300 text-[9px] font-bold rounded font-mono uppercase">Free</span>
-                      </div>
-                      <p className="text-[11px] text-slate-400 mt-0.5">
-                        Get recurring dose alerts in Google Calendar (Gmail) or Apple Calendar, plus printable fridge protocol.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-                    <button
-                      onClick={() => setIsSheetPreviewOpen(true)}
-                      title="Preview 1-page A4 Protocol Sheet (Screenshot & Print)"
-                      className="flex-1 sm:flex-initial px-3.5 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition-all shrink-0 cursor-pointer group"
-                    >
-                      <FileText className="w-3.5 h-3.5 text-emerald-400 group-hover:scale-110 transition-transform" />
-                      <span>Preview A4 Sheet</span>
-                    </button>
-
-                    <button
-                      onClick={() => setIsReportModalOpen(true)}
-                      className="flex-1 sm:flex-initial px-4 py-2 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-slate-950 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 shadow-md shadow-emerald-500/20 transition-all shrink-0 cursor-pointer"
-                    >
-                      <FileText className="w-3.5 h-3.5" />
-                      <span>View Protocol &amp; Reminders</span>
-                    </button>
-                  </div>
                 </div>
               </div>
             </div>

@@ -344,22 +344,19 @@ export function SubQVisualGuide({
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] bg-emerald-500/5 blur-[120px] pointer-events-none -z-10 rounded-full" />
 
       {/* Header & Mode Switcher */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 pb-3 border-b border-slate-800/80">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-full text-xs font-semibold mb-2 shadow-sm">
-            <ShieldCheck className="w-3.5 h-3.5" />
-            <span>Clinical Sub-Q Harm Reduction Protocol</span>
-            <span className="w-1 h-1 rounded-full bg-emerald-400" />
-            <span className="text-slate-400 font-normal">FITTER &amp; ADA Standard of Care</span>
-          </div>
-          <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-100">
-            Visual Masterclass:{' '}
-            <span className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
-              Step-by-Step Sub-Q Protocol
+          <div className="flex flex-wrap items-center gap-2 mb-1">
+            <h2 className="text-lg sm:text-xl font-bold tracking-tight text-slate-100 flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+              <span>Sub-Q Injection Visual Protocol</span>
+            </h2>
+            <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] font-mono font-semibold uppercase tracking-wider">
+              FITTER / ADA Standard
             </span>
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-400 mt-1 max-w-2xl leading-relaxed">
-            High-definition macro clinical imagery matched with symmetrical, concise clinical directives. Click any stage to inspect.
+          </div>
+          <p className="text-xs text-slate-400 leading-normal max-w-2xl">
+            Evidence-based subcutaneous technique: aseptic prep, 45°–90° pinch, and safe sharps disposal. Click any stage to inspect.
           </p>
         </div>
 
@@ -371,16 +368,16 @@ export function SubQVisualGuide({
                 window.print();
               }
             }}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 transition-all shadow-sm cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 transition-all shadow-sm cursor-pointer whitespace-nowrap"
             title="Save as PDF or print injection guide"
           >
             <Camera className="w-3.5 h-3.5 text-emerald-400" />
-            <span className="hidden sm:inline">Save / Print</span>
+            <span>Save / Print</span>
           </button>
 
           <button
             onClick={() => setIsCheatSheetMode(!isCheatSheetMode)}
-            className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all border ${
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border whitespace-nowrap cursor-pointer ${
               isCheatSheetMode
                 ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/50 shadow-sm'
                 : 'bg-slate-900 hover:bg-slate-800 text-slate-300 border-slate-800 hover:border-slate-700'
@@ -388,7 +385,7 @@ export function SubQVisualGuide({
             title="Toggle between Interactive Dual-Column View and 4-Card Bento Grid"
           >
             {isCheatSheetMode ? <ListOrdered className="w-3.5 h-3.5" /> : <LayoutGrid className="w-3.5 h-3.5" />}
-            <span>{isCheatSheetMode ? 'Interactive View' : '📋 Cheat Sheet View (Save)'}</span>
+            <span>{isCheatSheetMode ? 'Interactive View' : 'Cheat Sheet'}</span>
           </button>
         </div>
       </div>
