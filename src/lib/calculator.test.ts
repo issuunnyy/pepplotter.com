@@ -5,6 +5,7 @@ import {
   COMPOUND_PRESETS,
   SYRINGE_CAPACITY,
   INPUT_LIMITS,
+  getRecommendedWaterMl,
 } from './calculator';
 
 // ---------------------------------------------------------------------------
@@ -252,5 +253,28 @@ describe('calculatePharmacokinetics — 采样密度', () => {
     );
     expect(r.dataPoints).toHaveLength((28 * 24) / 6 + 1);
     expect(r.dataPoints[r.dataPoints.length - 1].hour).toBe(28 * 24);
+  });
+});
+
+describe('getRecommendedWaterMl — 临床智能加水量推荐', () => {
+  it('2mg 西林瓶默认推荐 1.0 mL 水，避免抽满筒', () => {
+    expect(getRecommendedWaterMl(2)).toBe(1.0);
+  });
+
+  it('5mg 和 10mg 西林瓶默认推荐 2.0 mL 水', () => {
+    expect(getRecommendedWaterMl(5)).toBe(2.0);
+    expect(getRecommendedWaterMl(10)).toBe(2.0);
+  });
+
+  it('15mg 大规格西林瓶默认推荐 3.0 mL 水', () => {
+    expect(getRecommendedWaterMl(15)).toBe(3.0);
+  });
+
+  it('2mg 瓶打 1000mcg (1mg) 时，动态推荐 1.0 mL 水达到 50 单位舒适体积', () => {
+    expect(getRecommendedWaterMl(2, 1000)).toBe(1.0);
+  });
+
+  it('5mg 瓶打 2500mcg (2.5mg) 时，动态推荐 1.0 mL 水达到 50 单位舒适体积', () => {
+    expect(getRecommendedWaterMl(5, 2500)).toBe(1.0);
   });
 });

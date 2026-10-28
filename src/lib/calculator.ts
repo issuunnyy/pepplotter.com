@@ -188,6 +188,23 @@ export function calculateReconstitution(
 }
 
 /**
+ * Computes clinically recommended bacteriostatic water volume based on vial size and optional target dose.
+ * Standard subcutaneous (SubQ) comfort guidelines recommend 0.1 - 0.5 mL per injection.
+ */
+export function getRecommendedWaterMl(vialMg: number, targetDoseMcg?: number): number {
+  if (targetDoseMcg && targetDoseMcg > 0 && vialMg > 0) {
+    const targetComfortMl = 0.5; // Target comfortable 50 units (0.5 mL)
+    const targetDoseMg = targetDoseMcg / 1000;
+    const rawWater = (targetComfortMl * vialMg) / targetDoseMg;
+    const rounded = Math.round(rawWater * 2) / 2; // round to nearest 0.5 mL
+    return Math.max(0.5, Math.min(3.0, rounded));
+  }
+  if (vialMg <= 2) return 1.0;
+  if (vialMg <= 10) return 2.0;
+  return 3.0;
+}
+
+/**
  * Pharmacokinetics Subcutaneous Absorption & Elimination (Bateman Model)
  * Models first-order subcutaneous depot uptake (ka) and systemic elimination (ke):
  * C(t) = sum_{i: t_i <= t} D_i * ((e^(-ke*(t-t_i)) - e^(-ka*(t-t_i))) / peakFactor)

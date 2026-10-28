@@ -18,7 +18,7 @@ import { SeoGuide } from '@/components/SeoGuide';
 import { SubQVisualGuide } from '@/components/SubQVisualGuide';
 import { ReconstitutionMatrix } from '@/components/ReconstitutionMatrix';
 import { FAQS } from '@/lib/faqs';
-import { COMPOUND_PRESETS, calculateReconstitution, calculatePharmacokinetics, safeCopyToClipboard } from '@/lib/calculator';
+import { COMPOUND_PRESETS, calculateReconstitution, calculatePharmacokinetics, safeCopyToClipboard, getRecommendedWaterMl } from '@/lib/calculator';
 import { BLOCK_MESSAGES } from '@/lib/messages';
 import { CompoundPreset, SyringeType, InjectionEntry } from '@/lib/types';
 import { 
@@ -31,6 +31,7 @@ import {
   Trash2, 
   ShieldAlert, 
   ShieldCheck,
+  AlertTriangle,
   Split, 
   CalendarDays,
   Pill,
@@ -289,6 +290,22 @@ export default function Home() {
   const isBlocked = reconResult.error !== null;
   const isOverflow = !isBlocked && reconResult.overCapacity;
   const canShowDoseInstruction = !isBlocked;
+
+  // --- 临床舒适度评估：皮下注射推荐单次容量 0.1 - 0.5 mL，抽取 >= 0.8 mL 或满筒属于临床非推荐高容量 ---
+  const isHighVolumeSubQ =
+    !isBlocked &&
+    !isOverflow &&
+    (reconResult.drawVolumeMl >= 0.8 || reconResult.syringeUnits >= reconResult.syringeCapacity);
+
+  // 针对当前药粉与目标剂量动态计算的黄金稀释水量（以 0.5 mL 舒适体积为基准）
+  const optimalWater = useMemo(() => {
+    return getRecommendedWaterMl(safeVialMg, safeTargetDoseMcg);
+  }, [safeVialMg, safeTargetDoseMcg]);
+
+  // 针对药瓶规格的基础推荐水量
+  const recommendedWaterByVial = useMemo(() => {
+    return getRecommendedWaterMl(safeVialMg);
+  }, [safeVialMg]);
 
   const pkResult = useMemo(() => {
     // Dynamic adaptive sampling:
@@ -840,7 +857,13 @@ const splitList: InjectionEntry[] = [];
                     {[2, 5, 10, 15].map((val) => (
                       <button
                         key={val}
-                        onClick={() => setVialMg(val)}
+                        onClick={() => {
+                          setVialMg(val);
+                          // 智能临床预设联动：当选择 2mg 药瓶时，如果当前水量为 2mL 或 3mL，自动适配推荐的 1.0mL，避免抽满筒
+                          if (val <= 2 && (waterMl === 2 || waterMl === 3 || waterMl === '')) {
+                            setWaterMl(1.0);
+                          }
+                        }}
                         className={`px-2.5 py-1 text-xs rounded-lg font-mono font-semibold transition-all ${
                           vialMg === val
                             ? 'bg-emerald-500/25 text-emerald-300 border border-emerald-500/60 shadow-sm shadow-emerald-500/20'
@@ -898,20 +921,32 @@ const splitList: InjectionEntry[] = [];
                     <span className="absolute right-3 top-2 text-xs text-slate-400 font-semibold">mL</span>
                   </div>
                   <div className="grid grid-cols-3 gap-1.5 mt-2">
-                    {[1.0, 2.0, 3.0].map((val) => (
-                      <button
-                        key={val}
-                        onClick={() => setWaterMl(val)}
-                        className={`w-full py-1 text-center text-xs rounded-lg font-mono font-semibold transition-all ${
-                          waterMl === val
-                            ? 'bg-emerald-500/25 text-emerald-300 border border-emerald-500/60 shadow-sm shadow-emerald-500/20'
-                            : 'bg-slate-900/90 border border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700'
-                        }`}
-                      >
-                        {val}mL
-                      </button>
-                    ))}
+                    {[1.0, 2.0, 3.0].map((val) => {
+                      const isRec = val === recommendedWaterByVial;
+                      return (
+                        <button
+                          key={val}
+                          onClick={() => setWaterMl(val)}
+                          className={`relative w-full py-1.5 text-center text-xs rounded-lg font-mono font-semibold transition-all ${
+                            waterMl === val
+                              ? 'bg-emerald-500/25 text-emerald-300 border border-emerald-500/60 shadow-sm shadow-emerald-500/20'
+                              : 'bg-slate-900/90 border border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700'
+                          }`}
+                        >
+                          <span>{val}mL</span>
+                          {isRec && (
+                            <span className="absolute -top-1.5 -right-1 text-[8px] bg-emerald-500 text-slate-950 font-sans font-extrabold px-1 py-0.2 rounded-full uppercase tracking-tight shadow-sm">
+                              Rec
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
                   </div>
+                  <p className="text-[10px] text-slate-400 mt-2 flex items-center gap-1">
+                    <span className="text-cyan-400 font-semibold">💡 SubQ Comfort:</span>
+                    <span>Target 0.1 – 0.5 mL per injection for virtually painless administration.</span>
+                  </p>
                 </div>
 
                 {/* STEP 3: Desired Target Dose (mcg) */}
@@ -1061,6 +1096,42 @@ const splitList: InjectionEntry[] = [];
                   </div>
                 )}
 
+                {/* CLINICAL COMFORT ALERT: High Subcutaneous Volume (Not Recommended) */}
+                {isHighVolumeSubQ && (
+                  <div className="p-4 rounded-xl border bg-amber-950/30 border-amber-500/50 shadow-lg shadow-amber-950/30 flex items-start gap-3 transition-all">
+                    <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+                    <div className="text-xs leading-relaxed w-full">
+                      <div className="font-bold text-amber-300 text-sm flex items-center justify-between gap-2 mb-1">
+                        <span className="flex items-center gap-1.5">
+                          ⚠️ Clinical Practice Alert: High Injection Volume
+                        </span>
+                        <span className="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-mono uppercase font-semibold">
+                          {reconResult.drawVolumeMl >= 1 ? '100% Full Syringe' : `${reconResult.syringeUnits} ${syringeType} Units`}
+                        </span>
+                      </div>
+                      <p className="text-amber-200/90 leading-relaxed">
+                        Drawing <strong className="text-amber-100 font-mono">{reconResult.syringeUnits} Units ({reconResult.drawVolumeMl} mL)</strong> fills the syringe to {reconResult.drawVolumeMl >= 1 ? 'maximum capacity' : 'near maximum'}. In clinical subcutaneous administration, drawing a completely full barrel leaves <strong>zero headspace for purging micro air bubbles</strong> and frequently causes <strong>painful skin distension, localized burning, or subcutaneous nodules</strong>.
+                      </p>
+                      <div className="mt-3 pt-2.5 border-t border-amber-500/20 flex flex-wrap items-center justify-between gap-2">
+                        <div className="text-[11px] text-amber-200/90 flex items-center gap-1.5">
+                          <Sparkles className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                          <span>
+                            Clinical Sweet Spot: Reconstitute with <strong className="text-amber-100 font-mono font-bold">{optimalWater} mL</strong> BAC water instead.
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setWaterMl(optimalWater)}
+                          className="px-3 py-1 bg-amber-500/25 hover:bg-amber-500/40 text-amber-200 hover:text-white border border-amber-500/50 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 shadow-sm active:scale-95 cursor-pointer"
+                        >
+                          <Sparkles className="w-3 h-3 text-amber-300" />
+                          <span>Apply Recommended {optimalWater} mL</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Result KPI Cards */}
        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   <div className="bg-slate-900/70 border border-slate-800 p-3.5 rounded-xl text-center">
@@ -1166,6 +1237,21 @@ const splitList: InjectionEntry[] = [];
        {reconResult.syringeUnits} unit mark
           </strong>{' '}
           ({reconResult.drawVolumeMl} mL) on your {syringeType} syringe.
+
+          {isHighVolumeSubQ ? (
+            <div className="mt-2.5 p-2 rounded-lg bg-amber-500/15 border border-amber-500/30 text-[11px] text-amber-200 flex items-start gap-2">
+              <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
+              <span>
+                <strong>Clinical Volume Notice:</strong> A {reconResult.drawVolumeMl} mL draw fills the syringe to the brim and may cause uncomfortable abdominal tightness. Diluting with <strong className="font-mono text-amber-100">{optimalWater} mL</strong> water instead delivers a smoother 50-unit (0.5 mL) injection.
+              </span>
+            </div>
+          ) : (
+            <div className="mt-2 text-[11px] text-slate-400 flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0"></span>
+              <span>Comfortable SubQ Volume: Your {reconResult.drawVolumeMl} mL draw is within the optimal clinical comfort range (≤0.5 mL).</span>
+            </div>
+          )}
+
           <span className="block mt-2">
             <button
               type="button"
