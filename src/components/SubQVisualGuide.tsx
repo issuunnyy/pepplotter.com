@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { renderSubQToCanvas } from '@/lib/canvasSubQ';
+import { PrintableSubQSheet } from '@/components/PrintableSubQSheet';
 import {
   ShieldCheck,
   Timer,
@@ -17,11 +17,6 @@ import {
   ChevronDown,
   ChevronUp,
   Sparkles,
-  Camera,
-  Printer,
-  Download,
-  Check,
-  X,
   FileText
 } from 'lucide-react';
 
@@ -32,6 +27,7 @@ interface SubQVisualGuideProps {
   compoundName?: string;
   activeStep?: number;
   onStepChange?: (step: number) => void;
+  onPreviewA4?: () => void;
 }
 
 interface StepDetail {
@@ -66,6 +62,7 @@ export function SubQVisualGuide({
   compoundName = 'Subcutaneous Peptide',
   activeStep: controlledActiveStep,
   onStepChange,
+  onPreviewA4,
 }: SubQVisualGuideProps) {
   const [internalActiveStep, setInternalActiveStep] = useState<number>(1);
   const activeStep = controlledActiveStep !== undefined ? controlledActiveStep : internalActiveStep;
@@ -87,62 +84,8 @@ export function SubQVisualGuide({
   };
 
   const [isCheatSheetMode, setIsCheatSheetMode] = useState<boolean>(false);
-  const [isSaveMenuOpen, setIsSaveMenuOpen] = useState<boolean>(false);
-  const [isExporting, setIsExporting] = useState<boolean>(false);
-  const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
-  const saveMenuRef = useRef<HTMLDivElement>(null);
-
-  // Close save dropdown on outside click
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (saveMenuRef.current && !saveMenuRef.current.contains(e.target as Node)) {
-        setIsSaveMenuOpen(false);
-      }
-    }
-    if (isSaveMenuOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
-    }
-  }, [isSaveMenuOpen]);
-
-  const handleExportPng = async () => {
-    setIsExporting(true);
-    try {
-      const canvas = document.createElement('canvas');
-      await renderSubQToCanvas(canvas, {
-        compoundName,
-        syringeUnits,
-        drawVolumeMl,
-        syringeType,
-      });
-
-      const pngUrl = canvas.toDataURL('image/png');
-      const filename = `pepplotter-subq-protocol.png`;
-
-      setPreviewImageUrl(pngUrl);
-
-      try {
-        const a = document.createElement('a');
-        a.href = pngUrl;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-      } catch {
-        // Handled via mobile preview modal
-      }
-    } catch (err) {
-      console.error('Sub-Q Canvas export error:', err);
-    } finally {
-      setIsExporting(false);
-    }
-  };
-
-  const handlePrintPdf = () => {
-    if (typeof window !== 'undefined') {
-      window.print();
-    }
-  };
+  const [isA4ModalOpen, setIsA4ModalOpen] = useState<boolean>(false);
+  const handleOpenA4 = onPreviewA4 || (() => setIsA4ModalOpen(true));
 
   // Live Timer Controller (Step 2: 15s Air-Dry; Step 4: 10s Needle Dwell)
   const [timerCount, setTimerCount] = useState<number>(0);
@@ -422,71 +365,17 @@ export function SubQVisualGuide({
           </p>
         </div>
 
-        {/* View Switcher & Quick Save Action */}
+        {/* View Switcher & A4 Protocol Preview Action */}
         <div className="flex items-center gap-2 shrink-0">
-          <div className="relative" ref={saveMenuRef}>
-            <button
-              type="button"
-              onClick={() => setIsSaveMenuOpen(!isSaveMenuOpen)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 transition-all shadow-sm cursor-pointer whitespace-nowrap active:scale-95"
-              title="Save as PNG image or print/save to PDF"
-            >
-              <Camera className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Save / Print</span>
-              <ChevronDown className={`w-3 h-3 text-emerald-400/80 transition-transform ${isSaveMenuOpen ? 'rotate-180' : ''}`} />
-            </button>
-
-            {/* Dropdown Menu for Save/Print Choice */}
-            {isSaveMenuOpen && (
-              <div className="absolute right-0 top-full mt-1.5 w-60 bg-slate-900 border border-slate-700/90 rounded-xl shadow-2xl p-1.5 z-40 text-left backdrop-blur-md animate-in fade-in zoom-in-95 duration-150">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsSaveMenuOpen(false);
-                    handleExportPng();
-                  }}
-                  disabled={isExporting}
-                  className="w-full flex items-start gap-2.5 p-2 rounded-lg hover:bg-slate-800 text-slate-200 transition-colors cursor-pointer group text-left"
-                >
-                  <div className="w-7 h-7 rounded-md bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-emerald-500 group-hover:text-slate-950 transition-colors">
-                    <Download className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <div className="text-xs font-bold text-slate-100 flex items-center gap-1.5">
-                      <span>Export Image (PNG)</span>
-                      <span className="text-[9px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.2 rounded font-mono font-semibold">HD</span>
-                    </div>
-                    <p className="text-[10px] text-slate-400 leading-tight mt-0.5">
-                      Save 4-stage visual cheat sheet for camera roll or sharing
-                    </p>
-                  </div>
-                </button>
-
-                <div className="my-1 border-t border-slate-800" />
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsSaveMenuOpen(false);
-                    handlePrintPdf();
-                  }}
-                  className="w-full flex items-start gap-2.5 p-2 rounded-lg hover:bg-slate-800 text-slate-200 transition-colors cursor-pointer group text-left"
-                >
-                  <div className="w-7 h-7 rounded-md bg-cyan-500/20 text-cyan-400 flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-cyan-500 group-hover:text-slate-950 transition-colors">
-                    <Printer className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <div className="text-xs font-bold text-slate-100">
-                      Print / Save as PDF
-                    </div>
-                    <p className="text-[10px] text-slate-400 leading-tight mt-0.5">
-                      Standard A4 clinical protocol or vector PDF
-                    </p>
-                  </div>
-                </button>
-              </div>
-            )}
-          </div>
+          <button
+            type="button"
+            onClick={handleOpenA4}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 transition-all shadow-sm cursor-pointer whitespace-nowrap active:scale-95"
+            title="Preview 1-page A4 Sub-Q Injection Protocol (Export Image & Print PDF)"
+          >
+            <FileText className="w-3.5 h-3.5 text-emerald-400" />
+            <span>Preview A4 Sheet</span>
+          </button>
 
           <button
             onClick={() => setIsCheatSheetMode(!isCheatSheetMode)}
@@ -581,23 +470,12 @@ export function SubQVisualGuide({
             <div className="flex items-center gap-2.5 shrink-0 flex-wrap">
               <button
                 type="button"
-                onClick={handleExportPng}
-                disabled={isExporting}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold transition-all shadow-md shadow-emerald-500/20 cursor-pointer active:scale-95"
-                title="Save high-res PNG image to your photo gallery"
+                onClick={handleOpenA4}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-slate-950 text-xs font-bold transition-all shadow-md shadow-emerald-500/20 cursor-pointer active:scale-95"
+                title="Preview 1-page A4 Sub-Q Injection Protocol (Export Image & Print PDF)"
               >
-                <Download className="w-3.5 h-3.5" />
-                <span>Export Image (PNG)</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={handlePrintPdf}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold transition-all shadow-sm cursor-pointer active:scale-95"
-                title="Print protocol or save as vector PDF"
-              >
-                <Printer className="w-3.5 h-3.5 text-cyan-400" />
-                <span>Print / Save PDF</span>
+                <FileText className="w-4 h-4 text-slate-950" />
+                <span>Preview A4 Sheet</span>
               </button>
             </div>
           </div>
@@ -1038,54 +916,16 @@ export function SubQVisualGuide({
         </div>
       </div>
 
-      {/* Mobile Image Preview & Long-Press Save Modal */}
-      {previewImageUrl && (
-        <div
-          className="print:hidden fixed inset-0 z-50 flex items-center justify-center p-3 bg-slate-950/90 backdrop-blur-lg animate-in fade-in duration-200"
-          onClick={() => setPreviewImageUrl(null)}
-        >
-          <div
-            className="w-full max-w-[560px] bg-slate-900 border border-slate-700 rounded-2xl p-4 shadow-2xl flex flex-col max-h-[92vh]"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-800">
-              <div className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-emerald-400" />
-                <span className="font-bold text-sm text-slate-100">
-                  Sub-Q Protocol Image Ready (2x HD)
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <a
-                  href={previewImageUrl}
-                  download="pepplotter-subq-protocol.png"
-                  className="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-lg text-xs transition-colors cursor-pointer"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  <span>Download</span>
-                </a>
-                <button
-                  onClick={() => setPreviewImageUrl(null)}
-                  className="p-1 text-slate-400 hover:text-slate-200 rounded-lg cursor-pointer"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-
-            <div className="overflow-y-auto flex-1 rounded-lg border border-slate-800 bg-slate-950/80 p-2 flex items-center justify-center">
-              <img
-                src={previewImageUrl}
-                alt="PepPlotter Sub-Q Injection Protocol Sheet"
-                className="max-w-full h-auto rounded shadow-md object-contain"
-              />
-            </div>
-
-            <p className="mt-2 text-center text-xs text-slate-400">
-              💡 <strong>Mobile Tip:</strong> Tap &amp; hold the image above to save directly to your Photos / Camera Roll.
-            </p>
-          </div>
-        </div>
+      {/* Standalone Fallback A4 Preview Modal (if parent does not pass onPreviewA4) */}
+      {!onPreviewA4 && (
+        <PrintableSubQSheet
+          isOpen={isA4ModalOpen}
+          onClose={() => setIsA4ModalOpen(false)}
+          compoundName={compoundName}
+          syringeUnits={syringeUnits}
+          drawVolumeMl={drawVolumeMl}
+          syringeType={syringeType}
+        />
       )}
     </section>
   );

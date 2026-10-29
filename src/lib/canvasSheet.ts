@@ -175,11 +175,11 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
   ctx.fillText('LIVE CALC • FREE', width - padX, curY + 26);
   ctx.textAlign = 'left';
 
-  // QR Code (Mobile Scan to Open pepplotter.com in Red Box Area)
+  // QR Code (Mobile Scan to Open pepplotter.com in Red Box Area with comfortable breathing room)
   const qr = getQRCode('https://pepplotter.com');
   const qrBoxW = 25;
   const qrBoxH = 25;
-  const qrBoxX = width - padX - 58 - qrBoxW; // Located directly in the red box area
+  const qrBoxX = width - padX - 74 - qrBoxW; // Generous breathing room between QR code and right text
   const qrBoxY = curY;
 
   // QR Container background & border

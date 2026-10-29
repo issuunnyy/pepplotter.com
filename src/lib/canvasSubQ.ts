@@ -156,11 +156,11 @@ export async function renderSubQToCanvas(
   ctx.fillText('CLINICAL GUIDE • FREE', width - padX, curY + 26);
   ctx.textAlign = 'left';
 
-  // QR Code linking to pepplotter.com/#guide
+  // QR Code linking to pepplotter.com/#guide with generous breathing room
   const qr = getQRCode('https://pepplotter.com/#guide');
   const qrBoxW = 25;
   const qrBoxH = 25;
-  const qrBoxX = width - padX - 60 - qrBoxW;
+  const qrBoxX = width - padX - 76 - qrBoxW;
   const qrBoxY = curY;
 
   ctx.fillStyle = '#ffffff';

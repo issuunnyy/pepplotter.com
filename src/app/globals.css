@@ -68,8 +68,9 @@ body {
     visibility: hidden !important;
   }
 
-  /* 2. Show ONLY the dedicated Printable Fridge Sheet */
-  #printable-sheet-modal-overlay {
+  /* 2. Modal Overlay Resets for Print */
+  #printable-sheet-modal-overlay,
+  #printable-subq-sheet-modal-overlay {
     position: static !important;
     display: block !important;
     padding: 0 !important;
@@ -79,6 +80,35 @@ body {
     height: auto !important;
     min-height: 0 !important;
     max-height: none !important;
+  }
+
+  /* 3. PRINT TARGET ISOLATION (Strict Mutual Exclusion between Sheets) */
+  /* Target Sub-Q Guide ONLY */
+  body[data-print-target="subq"] #printable-fridge-sheet,
+  body[data-print-target="subq"] #printable-sheet-modal-overlay,
+  body[data-print-target="subq"] .print-protocol-sheet,
+  body:has(#printable-subq-sheet-modal-overlay) #printable-fridge-sheet,
+  body:has(#printable-subq-sheet-modal-overlay) #printable-sheet-modal-overlay,
+  body:has(#printable-subq-sheet-modal-overlay) .print-protocol-sheet,
+  body[data-active-tab="guide"]:not([data-print-target="protocol"]):not(:has(#printable-sheet-modal-overlay)) #printable-fridge-sheet,
+  body[data-active-tab="guide"]:not([data-print-target="protocol"]):not(:has(#printable-sheet-modal-overlay)) #printable-sheet-modal-overlay,
+  body[data-active-tab="guide"]:not([data-print-target="protocol"]):not(:has(#printable-sheet-modal-overlay)) .print-protocol-sheet {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  /* Target Protocol & PK Sheet ONLY */
+  body[data-print-target="protocol"] #printable-subq-sheet,
+  body[data-print-target="protocol"] #printable-subq-sheet-modal-overlay,
+  body[data-print-target="protocol"] .print-subq-sheet,
+  body:has(#printable-sheet-modal-overlay) #printable-subq-sheet,
+  body:has(#printable-sheet-modal-overlay) #printable-subq-sheet-modal-overlay,
+  body:has(#printable-sheet-modal-overlay) .print-subq-sheet,
+  body:not([data-active-tab="guide"]):not([data-print-target="subq"]):not(:has(#printable-subq-sheet-modal-overlay)) #printable-subq-sheet,
+  body:not([data-active-tab="guide"]):not([data-print-target="subq"]):not(:has(#printable-subq-sheet-modal-overlay)) #printable-subq-sheet-modal-overlay,
+  body:not([data-active-tab="guide"]):not([data-print-target="subq"]):not(:has(#printable-subq-sheet-modal-overlay)) .print-subq-sheet {
+    display: none !important;
+    visibility: hidden !important;
   }
 
   /* ============================================================ */
@@ -102,7 +132,8 @@ body {
     break-after: avoid !important;
   }
 
-  #printable-fridge-sheet {
+  #printable-fridge-sheet,
+  #printable-subq-sheet {
     display: block !important;
     visibility: visible !important;
     position: static !important;
@@ -276,7 +307,8 @@ body {
   }
 
   /* Ensure ink-friendly crisp text and borders */
-  #printable-fridge-sheet * {
+  #printable-fridge-sheet *,
+  #printable-subq-sheet * {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
     box-shadow: none !important;

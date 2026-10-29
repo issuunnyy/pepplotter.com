@@ -12,6 +12,7 @@ import { ProtocolReportModal } from '@/components/ProtocolReportModal';
 import { FeedbackModal } from '@/components/FeedbackModal';
 import { CustomProtocolModal } from '@/components/CustomProtocolModal';
 import { PrintableProtocolSheet } from '@/components/PrintableProtocolSheet';
+import { PrintableSubQSheet } from '@/components/PrintableSubQSheet';
 import { HarmReductionManifesto } from '@/components/HarmReductionManifesto';
 import { ComparisonTable } from '@/components/ComparisonTable';
 import { SeoGuide } from '@/components/SeoGuide';
@@ -64,6 +65,7 @@ export default function Home() {
   const [isReportModalOpen, setIsReportModalOpen] = useState<boolean>(false);
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState<boolean>(false);
   const [isSheetPreviewOpen, setIsSheetPreviewOpen] = useState<boolean>(false);
+  const [isSubQSheetPreviewOpen, setIsSubQSheetPreviewOpen] = useState<boolean>(false);
   const [isCustomProtocolModalOpen, setIsCustomProtocolModalOpen] = useState<boolean>(false);
 
   // --- GUIDED TOUR STATE ---
@@ -452,6 +454,13 @@ const splitList: InjectionEntry[] = [];
       copyTimerRef.current = setTimeout(() => setCopied(false), 2000);
     });
   };
+
+  // Sync active tab to body attribute for instant Ctrl+P print sheet isolation
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.body.setAttribute('data-active-tab', activeTab);
+    }
+  }, [activeTab]);
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col items-center overflow-x-hidden w-full max-w-[100vw]">
@@ -1836,6 +1845,7 @@ const splitList: InjectionEntry[] = [];
             syringeType={syringeType}
             compoundName={activePreset.name}
             activeStep={isTourActive && tourStepIndex >= 6 && tourStepIndex <= 9 ? tourStepIndex - 5 : undefined}
+            onPreviewA4={() => setIsSubQSheetPreviewOpen(true)}
           />
         </div>
 
@@ -1965,6 +1975,16 @@ const splitList: InjectionEntry[] = [];
         dataPoints={pkResult.dataPoints}
         injections={injections}
         frequencyDays={activePreset.standardFrequencyDays}
+      />
+
+      {/* Dedicated Printable Sub-Q Injection Protocol (A4 Single-Page Patient Guide & Interactive Modal) */}
+      <PrintableSubQSheet
+        isOpen={isSubQSheetPreviewOpen}
+        onClose={() => setIsSubQSheetPreviewOpen(false)}
+        compoundName={activePreset.name}
+        syringeUnits={reconResult.syringeUnits}
+        drawVolumeMl={reconResult.drawVolumeMl}
+        syringeType={syringeType}
       />
 
       {/* Custom Peptide Clinical Protocol Request Modal */}

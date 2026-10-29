@@ -351,6 +351,18 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
     }
   };
 
+  // Safe print trigger with data attribute isolation
+  const handlePrint = () => {
+    if (typeof window === 'undefined') return;
+    document.body.setAttribute('data-print-target', 'protocol');
+    window.print();
+    const handleAfterPrint = () => {
+      document.body.removeAttribute('data-print-target');
+      window.removeEventListener('afterprint', handleAfterPrint);
+    };
+    window.addEventListener('afterprint', handleAfterPrint);
+  };
+
   // --- Pure White Sheet Content (Shared between Modal Preview and Print) ---
   const sheetContent = (
     <div
@@ -379,7 +391,7 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
         </div>
 
         {/* Right Header Area: QR Code (Mobile Scan to pepplotter.com) + Date & Domain */}
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-4 sm:gap-6 shrink-0 pl-2">
           {/* QR Code */}
           <div className="flex flex-col items-center">
             <div
@@ -894,7 +906,7 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
   // If modal is closed, still keep sheet in DOM for background print readiness (Ctrl+P)
   if (!isOpen) {
     return (
-      <div className="hidden print:block">
+      <div className="hidden print:block print-protocol-sheet">
         {sheetContent}
       </div>
     );
@@ -993,7 +1005,7 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
 
             {/* PRINT / PDF BUTTON */}
             <button
-              onClick={() => window.print()}
+              onClick={handlePrint}
               title="Print or save as PDF"
               className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-lg transition-colors cursor-pointer text-xs shadow-sm shadow-emerald-500/20 active:scale-95"
             >
