@@ -216,14 +216,13 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
   ctx.fillText('SCAN TOOL', qrBoxX + qrBoxW / 2, qrBoxY + qrBoxH + 4.5);
   ctx.textAlign = 'left';
 
-  // Subtitle
+  // Subtitle (safely constrained to end before the centered QR code)
   curY += 27;
   ctx.fillStyle = '#64748b';
   ctx.font = '7px system-ui, sans-serif';
-  const subText = data.batchInfo && data.batchInfo.totalBatches > 1
-    ? `Reconstitution Guide • Syringe Draw Target • PK Curve • Administration Log (Doses #${data.batchInfo.startDoseNumber}–#${data.batchInfo.startDoseNumber + rows.length - 1} of ${data.batchInfo.totalDoses})`
-    : 'Reconstitution Guide • Syringe Draw Target • PK Curve • Administration Log';
-  ctx.fillText(subText, padX, curY);
+  const subText = 'Reconstitution Guide • Syringe Target • PK Curve • Administration Log';
+  const maxSubTextW = qrBoxX - padX - 16;
+  ctx.fillText(subText, padX, curY, maxSubTextW);
 
   // Divider (cleanly separated from SCAN TOOL by comfortable breathing margin)
   curY += 9;

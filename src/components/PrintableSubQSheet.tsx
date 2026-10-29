@@ -179,7 +179,7 @@ export const PrintableSubQSheet: React.FC<PrintableSubQSheetProps> = ({
               </span>
             </div>
             <p className="text-[8px] sm:text-[9px] text-slate-500 mt-0.5 leading-snug">
-              Evidence-Based Sub-Q Protocol: Aseptic Prep, 45°–90° Pinch, &amp; Safe Sharps Disposal
+              Aseptic Preparation • 45°–90° Sub-Q Technique • Safe Disposal
             </p>
           </div>
 

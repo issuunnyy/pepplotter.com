@@ -214,11 +214,13 @@ export async function renderSubQToCanvas(
   ctx.fillText('SCAN GUIDE', qrBoxX + qrBoxW / 2, qrBoxY + qrBoxH + 4.5);
   ctx.textAlign = 'left';
 
-  // Subtitle
+  // Subtitle (safely constrained to end before the centered QR code)
   curY += 27;
   ctx.fillStyle = '#64748b';
   ctx.font = '7px system-ui, sans-serif';
-  ctx.fillText('Evidence-Based Sub-Q Protocol: Aseptic Prep, 45°–90° Pinch, & Safe Sharps Disposal', padX, curY);
+  const subText = 'Aseptic Preparation • 45°–90° Sub-Q Technique • Safe Disposal';
+  const maxSubTextW = qrBoxX - padX - 16;
+  ctx.fillText(subText, padX, curY, maxSubTextW);
 
   // Divider
   curY += 9;

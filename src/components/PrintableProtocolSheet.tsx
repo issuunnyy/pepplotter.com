@@ -386,8 +386,7 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
               </span>
             </div>
             <p className="text-[8px] sm:text-[9px] text-slate-600 mt-0.5 leading-snug">
-              Reconstitution Guide • Syringe Draw Target • PK Curve • Administration Log
-              {totalBatches > 1 ? ` (Doses #${startDoseIdx + 1}–#${endDoseIdx} of ${totalDoses})` : ''}
+              Reconstitution Guide • Syringe Target • PK Curve • Administration Log
             </p>
           </div>
 
