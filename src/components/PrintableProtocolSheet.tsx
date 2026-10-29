@@ -379,10 +379,10 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
               <span className="text-[11px] sm:text-sm font-black tracking-tight text-slate-950 uppercase whitespace-nowrap">
-                PepPlotter Clinical Protocol &amp; PK Report
+                PepPlotter • Protocol &amp; PK Report
               </span>
               <span className="px-1.5 py-0.5 text-[7px] sm:text-[8px] font-bold uppercase tracking-wider bg-slate-900 text-white rounded shrink-0">
-                {totalBatches > 1 ? `Memo · Batch ${safeBatchIndex + 1}/${totalBatches}` : 'Memo'}
+                {totalBatches > 1 ? `Batch ${safeBatchIndex + 1}/${totalBatches}` : 'Memo'}
               </span>
             </div>
             <p className="text-[8px] sm:text-[9px] text-slate-600 mt-0.5 leading-snug">
@@ -790,16 +790,17 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
               if (!pt.isInjectionPoint) return null;
               const cx = getX(pt.day);
               const cy = getY(pt.concentration);
+              const isNearRight = cx + 18 > padLeft + chartW;
               return (
                 <g key={idx}>
-                  <circle cx={cx} cy={cy} r="3" fill="#059669" stroke="#ffffff" strokeWidth="1.2" />
+                  <circle cx={cx} cy={cy} r="2.8" fill="#059669" stroke="#ffffff" strokeWidth="1.2" />
                   <text
-                    x={cx}
-                    y={Math.max(cy - 4, padTop + 6)}
-                    fontSize="6.5"
+                    x={isNearRight ? cx - 4 : cx + 4.5}
+                    y={Math.max(cy - 1.5, padTop + 6)}
+                    fontSize="6"
                     fontWeight="bold"
                     fill="#059669"
-                    textAnchor="middle"
+                    textAnchor={isNearRight ? 'end' : 'start'}
                     fontFamily="monospace"
                   >
                     Inj

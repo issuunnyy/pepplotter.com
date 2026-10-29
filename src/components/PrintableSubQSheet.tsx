@@ -172,7 +172,7 @@ export const PrintableSubQSheet: React.FC<PrintableSubQSheetProps> = ({
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
               <span className="text-[11px] sm:text-sm font-black tracking-tight text-slate-950 uppercase whitespace-nowrap">
-                PEPPLOTTER • SUB-Q INJECTION PROTOCOL
+                PEPPLOTTER • SUB-Q PROTOCOL
               </span>
               <span className="px-1.5 py-0.5 text-[7px] sm:text-[8px] font-bold uppercase tracking-wider bg-slate-900 text-white rounded shrink-0">
                 ADA / FITTER S.O.P.

@@ -143,14 +143,14 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
   // ============================================================
   ctx.fillStyle = '#090d16';
   ctx.font = 'bold 10px system-ui, -apple-system, sans-serif';
-  const mainTitle = 'PEPPLOTTER CLINICAL PROTOCOL & PK REPORT';
+  const mainTitle = 'PEPPLOTTER • PROTOCOL & PK REPORT';
   ctx.fillText(mainTitle, padX, curY + 11);
 
-  // Badge "MEMO" (dynamically placed after title to prevent collision)
+  // Badge "MEMO" / "BATCH" (dynamically placed after title)
   const titleW = ctx.measureText(mainTitle).width;
   const memoText = data.batchInfo && data.batchInfo.totalBatches > 1
-    ? `MEMO • BATCH ${data.batchInfo.currentBatch}/${data.batchInfo.totalBatches}`
-    : 'MEMO';
+    ? `BATCH ${data.batchInfo.currentBatch}/${data.batchInfo.totalBatches}`
+    : 'CLINICAL MEMO';
   ctx.font = 'bold 7px system-ui, -apple-system, sans-serif';
   const memoW = ctx.measureText(memoText).width + 8;
   const memoX = padX + titleW + 7;
@@ -175,12 +175,15 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
   ctx.fillText('LIVE CALC • FREE', width - padX, curY + 26);
   ctx.textAlign = 'left';
 
-  // QR Code (Mobile Scan to Open pepplotter.com in Red Box Area with comfortable breathing room)
+  // QR Code: Dynamically centered between left badge and right text
   const qr = getQRCode('https://pepplotter.com');
   const qrBoxW = 25;
   const qrBoxH = 25;
-  // Width of right text is ~70px; leave a generous 26px breathing room gap
-  const qrBoxX = width - padX - 70 - 26 - qrBoxW;
+  const leftEnd = memoX + memoW;
+  const rightTextW = 76; // Safe width of right text block
+  const rightStart = width - padX - rightTextW;
+  const availableGap = rightStart - leftEnd;
+  const qrBoxX = Math.round(leftEnd + (availableGap - qrBoxW) / 2);
   const qrBoxY = curY;
 
   // QR Container background & border
@@ -827,7 +830,7 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
     }
     ctx.stroke();
 
-    // Injection Dots
+    // Injection Dots & Shifted Non-Overlapping 'Inj' Labels
     data.dataPoints.forEach((pt) => {
       if (!pt.isInjectionPoint) return;
       const dotX = cLeft + ((pt.day - startDay) / spanDays) * cW;
@@ -841,10 +844,15 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
       ctx.fill();
       ctx.stroke();
 
+      // Shift 'Inj' label to the right of the dot, staggered from the rising curve
+      const isNearRight = dotX + 16 > cLeft + cW;
+      const labelX = isNearRight ? dotX - 4 : dotX + 4;
+      const labelY = Math.max(dotY - 1.5, cTop + 6);
+
       ctx.fillStyle = '#059669';
       ctx.font = 'bold 5.5px monospace';
-      ctx.textAlign = 'center';
-      ctx.fillText('Inj', dotX, Math.max(dotY - 4, cTop + 6));
+      ctx.textAlign = isNearRight ? 'right' : 'left';
+      ctx.fillText('Inj', labelX, labelY);
     });
     ctx.textAlign = 'left';
   }
