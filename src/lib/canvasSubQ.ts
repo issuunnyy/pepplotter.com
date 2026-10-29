@@ -64,13 +64,31 @@ const SUBQ_STAGES = [
 
 function loadImage(src: string): Promise<HTMLImageElement | null> {
   if (typeof window === 'undefined') return Promise.resolve(null);
+
+  // 1. Check if the image element is already loaded in the DOM (e.g. from the preview modal)
+  const domImg = document.querySelector(`img[src="${src}"]`) as HTMLImageElement | null;
+  if (domImg && domImg.complete && domImg.naturalWidth > 0) {
+    return Promise.resolve(domImg);
+  }
+
+  // 2. Load via Image object (do NOT require anonymous CORS on same-origin local files)
   return new Promise((resolve) => {
     const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.onload = () => resolve(img);
-    img.onerror = () => resolve(null);
+    if (src.startsWith('http') && !src.startsWith(window.location.origin)) {
+      img.crossOrigin = 'anonymous';
+    }
+    img.onload = () => {
+      if (img.naturalWidth > 0) resolve(img);
+      else resolve(null);
+    };
+    img.onerror = () => {
+      console.warn('Canvas image load fallback for:', src);
+      resolve(null);
+    };
     img.src = src;
-    if (img.complete) resolve(img);
+    if (img.complete && img.naturalWidth > 0) {
+      resolve(img);
+    }
   });
 }
 

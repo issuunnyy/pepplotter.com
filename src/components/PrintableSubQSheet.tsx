@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState, useRef, useMemo, useEffect } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import { getQRCode } from '@/lib/qrcode';
 import { renderSubQToCanvas } from '@/lib/canvasSubQ';
-import { Printer, X, Download, Copy, Check, FileText, ShieldCheck, AlertTriangle } from 'lucide-react';
+import { Printer, X, Download, Copy, Check } from 'lucide-react';
 
 interface PrintableSubQSheetProps {
   isOpen?: boolean;
@@ -14,66 +14,75 @@ interface PrintableSubQSheetProps {
   syringeType?: string;
 }
 
-const SUBQ_STAGES_A4 = [
+interface SubQStageItem {
+  num: string;
+  title: string;
+  subtitle: string;
+  photoSrc: string;
+  points: string[];
+  doRule: string;
+  dontRule: string;
+}
+
+const SUBQ_STAGES_DATA: SubQStageItem[] = [
   {
     num: '01',
-    stageName: 'STAGE 01 • PREPARATION',
-    title: 'Aseptic Supplies Setup & Acclimation',
-    objective: 'Prepare sterile workstation and warm refrigerated peptide solution to room temperature.',
+    title: 'Aseptic Supplies Setup',
+    subtitle: 'Gather sterile supplies on clean surface and warm refrigerated solution to room temperature.',
+    photoSrc: '/guide/step1-photo.jpg',
     points: [
-      { label: 'Vial Temperature Acclimation', text: 'Let refrigerated vial sit 5–10 min at room temperature to eliminate cold-liquid injection sting.' },
-      { label: 'Single-Use Syringe Verification', text: 'Inspect unopened 31G ultra-fine syringe (8mm / 5/16"). Verify intact tamper seal. Never reuse needles.' },
-      { label: 'Dual Alcohol Swab Setup', text: 'Prepare 2 separate 70% isopropyl alcohol pads: 1 dedicated to the vial stopper, 1 for the skin site.' },
+      'Vial Acclimation: 5–10 min room temp to prevent sting',
+      'Syringe: 31G ultra-fine single-use sterile syringe',
+      'Antisepsis: 2 separate 70% isopropyl alcohol prep pads',
     ],
-    doRule: 'Allow solution to reach ambient room temperature before drawing to eliminate stinging.',
-    dontRule: 'Never microwave, boil, freeze, or vigorously shake peptide solutions (protein denatures).',
+    doRule: 'Allow vial to reach room temperature before drawing liquid.',
+    dontRule: 'Never microwave, freeze, or shake peptide vials vigorously.',
   },
   {
     num: '02',
-    stageName: 'STAGE 02 • SITE PREPARATION',
-    title: 'Site Selection & Mandatory 15s Air-Dry',
-    objective: 'Select appropriate subcutaneous tissue zone and achieve sterile, non-irritating skin surface.',
+    title: 'Site Selection & Cleansing',
+    subtitle: 'Select lower abdomen (≥2" from navel) or outer thigh; allow alcohol to air-dry 15 seconds.',
+    photoSrc: '/guide/step2-photo.jpg',
     points: [
-      { label: 'Optimal Injection Zones', text: 'Lower abdomen (≥2 inches / 5 cm from navel) or outer mid-thigh. Rotate injection sites weekly.' },
-      { label: 'Centrifugal Cleansing', text: 'Cleanse the skin using firm outward spiral motion from center to perimeter. Do not retrace back.' },
-      { label: 'Mandatory 15s Air-Dry', text: 'Allow full 15 seconds for alcohol to completely evaporate until skin surface appears matte.' },
+      'Site Selection: Lower abdomen or outer thigh fat fold',
+      'Cleanse: Spiral outward from center with alcohol pad',
+      'Evaporation: Full 15s air-dry until skin turns matte',
     ],
-    doRule: 'Allow full 15s evaporation before puncture (wet alcohol causes intense sting and degrades peptides).',
-    dontRule: 'Never fan with hands, blow breath, or wipe sterilized skin dry with tissue.',
+    doRule: 'Wait 15s for alcohol to air-dry completely before puncture.',
+    dontRule: 'Never fan, wipe dry, or blow breath onto sterilized skin.',
   },
   {
     num: '03',
-    stageName: 'STAGE 03 • MEDICATION DRAW',
-    title: 'Precision Pressure Balance & Unit Alignment',
-    objective: 'Draw exact target units bubble-free with zero vacuum resistance inside the vial.',
+    title: 'Precision Medication Draw',
+    subtitle: 'Invert vial vertically 180°, submerge needle tip in liquid pool, and align plunger to exact mark.',
+    photoSrc: '/guide/step3-photo.jpg',
     points: [
-      { label: 'Pressure Equalization', text: 'Pull plunger to target dose in room air, inject air smoothly into upright vial to balance internal pressure.' },
-      { label: '180° Vertical Inversion', text: 'Invert vial 180° vertically. Ensure needle bevel tip is fully submerged beneath the liquid surface.' },
-      { label: 'Microbubble Expulsion', text: 'Draw plunger slightly past target units. Flick barrel gently to float bubbles to top; push plunger to exact mark.' },
+      'Air Equalization: Inject room air equal to dose volume',
+      'Inversion: Hold vial 180° vertical to keep needle tip submerged',
+      'Plunger Alignment: Align top ring of black plunger to target mark',
     ],
-    doRule: 'Keep vial fully inverted vertically while pulling plunger to ensure bubble-free liquid intake.',
-    dontRule: 'Never draw medication while vial is sitting upright flat on a table (draws air vacuum).',
+    doRule: 'Flick syringe barrel gently to dislodge micro air bubbles.',
+    dontRule: 'Never draw medication while vial is sitting upright on a table.',
   },
   {
     num: '04',
-    stageName: 'STAGE 04 • ADMINISTRATION',
-    title: '90° Dart Insertion & Mandatory 10s Dwell',
-    objective: 'Deliver medication into subcutaneous fat layer with zero skin leakage and safe disposal.',
+    title: '90° Injection & 10s Dwell',
+    subtitle: 'Pinch 2-inch skin fold, insert at 90°, depress smoothly, and hold 10 seconds before withdrawal.',
+    photoSrc: '/guide/step4-photo.jpg',
     points: [
-      { label: '2-Inch Sub-Q Pinch', text: 'Gently fold 2 inches (5 cm) of skin and subcutaneous fat between thumb and index finger.' },
-      { label: '90° Dart Insertion', text: 'Insert 31G needle fully at a 90-degree angle with a quick, smooth dart-like motion. Do not aspirate.' },
-      { label: 'Mandatory 10s Dwell', text: 'Depress plunger steadily. Maintain needle fully inserted for a full 10-second dwell before withdrawal.' },
-      { label: 'Immediate Sharps Disposal', text: 'Withdraw smoothly along the insertion angle. Dispose immediately into an FDA-cleared sharps bin.' },
+      'Grip & Angle: Gentle 2-inch fold, insert at 90° like a dart',
+      'Smooth Plunger: Depress plunger steadily without hesitating',
+      '10s Dwell: Hold needle in place 10 seconds to stop backflow',
     ],
-    doRule: 'Maintain 10-second needle dwell to ensure full depot absorption and prevent retrograde backflow.',
-    dontRule: 'Never rub, massage, or apply direct heat to the injection site post-injection.',
+    doRule: 'Maintain 10-second needle dwell to ensure full depot absorption.',
+    dontRule: 'Never rub, massage, or apply direct heat to the injection site.',
   },
 ];
 
 export const PrintableSubQSheet: React.FC<PrintableSubQSheetProps> = ({
   isOpen = false,
   onClose,
-  compoundName = 'Subcutaneous Peptide',
+  compoundName = 'Semaglutide',
   syringeUnits = 10,
   drawVolumeMl = 0.1,
   syringeType = 'U100',
@@ -121,7 +130,7 @@ export const PrintableSubQSheet: React.FC<PrintableSubQSheetProps> = ({
         a.click();
         document.body.removeChild(a);
       } catch {
-        // Fallback for restricted mobile in-app browsers
+        // Fallback for mobile in-app browsers
       }
     } catch (err) {
       console.error('Sub-Q Canvas export error:', err);
@@ -131,15 +140,14 @@ export const PrintableSubQSheet: React.FC<PrintableSubQSheetProps> = ({
   };
 
   const handleCopySummary = () => {
-    const summary = `💉 PepPlotter Sub-Q Injection Protocol (1-Page Patient Guide)
+    const summary = `💉 PepPlotter Sub-Q Injection Protocol (Patient Guide)
 • Medication: ${compoundName}
 • Target Dose: ${syringeUnits} Units (${drawVolumeMl} mL on ${syringeType})
-• Needle Standard: 31G Ultra-Fine (8mm) Single-Use
-• Step 1: Acclimate vial 5–10 min; verify 31G sterile syringe & dual 70% alcohol pads.
-• Step 2: Cleanse lower abdomen / thigh in outward spiral; wait full 15s to air-dry matte.
-• Step 3: Invert vial 180° vertical, inject air equal to dose, tap microbubbles, align plunger.
-• Step 4: Pinch 2" fold, insert at 90°, depress steadily, hold 10s dwell before withdrawal.
-• Free live visual guide: https://pepplotter.com/#guide`;
+• Step 1: Aseptic Supplies Setup - Gather sterile supplies, acclimate vial to room temp, inspect 31G syringe.
+• Step 2: Site Selection & Cleansing - Lower abdomen or outer thigh, spiral outward, wait full 15s to air-dry matte.
+• Step 3: Precision Medication Draw - Equal room air in, invert vial vertically 180°, flick microbubbles, align plunger.
+• Step 4: 90° Injection & 10s Dwell - Pinch 2" fold, insert at 90°, depress steadily, hold 10s dwell before withdrawal.
+• Live visual guide: https://pepplotter.com/#guide`;
 
     navigator.clipboard?.writeText(summary).then(() => {
       setCopied(true);
@@ -158,18 +166,18 @@ export const PrintableSubQSheet: React.FC<PrintableSubQSheetProps> = ({
       }}
     >
       {/* 1. DOCUMENT HEADER */}
-      <div className="border-b-2 border-slate-900 pb-1 mb-1.5 flex items-start justify-between gap-3">
+      <div className="border-b-2 border-slate-900 pb-1.5 mb-2 flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2">
             <span className="text-xs sm:text-sm font-black tracking-tight text-slate-950 uppercase">
-              PepPlotter Sub-Q Injection Protocol &amp; Patient Guide
+              PEPPLOTTER • SUB-Q INJECTION PROTOCOL
             </span>
             <span className="px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider bg-slate-900 text-white rounded shrink-0">
-              Clinical S.O.P. · ADA/FITTER
+              ADA / FITTER S.O.P.
             </span>
           </div>
-          <p className="text-[9px] text-slate-600 mt-0.5">
-            Standardized 4-Stage Subcutaneous Administration Protocol for First-Time Users
+          <p className="text-[9px] text-slate-500 mt-0.5">
+            Evidence-Based Sub-Q Protocol: Aseptic Prep, 45°–90° Pinch, &amp; Safe Sharps Disposal
           </p>
         </div>
 
@@ -205,88 +213,75 @@ export const PrintableSubQSheet: React.FC<PrintableSubQSheetProps> = ({
               pepplotter.com
             </span>
             <span className="text-[7px] text-emerald-700 font-bold uppercase tracking-wider block leading-tight">
-              Live Guide &bull; Free
+              CLINICAL GUIDE • FREE
             </span>
           </div>
         </div>
       </div>
 
-      {/* 2. COMPOUND & TARGET DOSE SPECIFICATION STRIP */}
-      <div className="bg-slate-50 border border-slate-300 rounded p-1 mb-1.5">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 text-[9px]">
-          <div>
-            <span className="text-slate-500">Medication: </span>
-            <strong className="text-slate-900 font-bold">{compoundName}</strong>
-          </div>
-          <div>
-            <span className="text-slate-500">Target Dose: </span>
-            <strong className="text-emerald-700 font-mono font-bold">
-              {syringeUnits} Units ({drawVolumeMl} mL on {syringeType})
-            </strong>
-          </div>
-          <div>
-            <span className="text-slate-500">Needle Spec: </span>
-            <strong className="text-slate-900 font-mono">31G Ultra-Fine (8mm)</strong>
-          </div>
-          <div>
-            <span className="text-slate-500">Storage Rules: </span>
-            <strong className="text-cyan-800 font-bold">36°F–46°F (Refrigerate 2–8°C)</strong>
-          </div>
+      {/* 2. TARGET DOSE SPECIFICATION STRIP */}
+      <div className="bg-slate-50 border border-slate-300 rounded-lg px-3 py-1.5 mb-2.5 flex items-center justify-between text-[9px]">
+        <div className="flex items-center gap-1.5">
+          <span className="text-slate-500 font-bold uppercase tracking-wide">MEDICATION:</span>
+          <span className="text-slate-950 font-black text-[10px]">{compoundName}</span>
+        </div>
+        <div className="flex items-center gap-1.5 font-mono">
+          <span className="text-slate-500 font-bold uppercase tracking-wide">TARGET DOSE:</span>
+          <span className="text-slate-950 font-bold text-[10px]">
+            {syringeUnits} Units ({drawVolumeMl} mL on {syringeType})
+          </span>
         </div>
       </div>
 
-      {/* 3. 4-STAGE CLINICAL INJECTION PROTOCOL */}
-      <div className="space-y-1.5 mb-1.5">
-        {SUBQ_STAGES_A4.map((stage) => (
+      {/* 3. 4 STAGE CARDS WITH CLINICAL PHOTOS (Exact Reference Design) */}
+      <div className="space-y-2 mb-2.5">
+        {SUBQ_STAGES_DATA.map((stage) => (
           <div
             key={stage.num}
-            className="border border-slate-300 rounded-lg p-1.5 bg-white flex flex-col justify-between"
+            className="border border-slate-200/90 rounded-xl p-2 sm:p-2.5 bg-slate-50/50 flex flex-col sm:flex-row gap-2.5 sm:gap-3 items-start sm:items-center"
           >
-            <div>
-              {/* Stage Header */}
-              <div className="flex items-center justify-between pb-0.5 border-b border-slate-200 mb-1">
-                <div className="flex items-center gap-1.5">
-                  <span className="px-1.5 py-0.2 rounded text-[7.5px] font-mono font-bold bg-emerald-600 text-white uppercase">
-                    STEP {stage.num}
-                  </span>
-                  <span className="text-[9.5px] font-black text-slate-950 uppercase tracking-tight">
-                    {stage.title}
-                  </span>
-                </div>
-                <span className="text-[8px] font-mono text-slate-500 uppercase">
-                  {stage.stageName}
-                </span>
-              </div>
+            {/* Left Column: Photo Thumbnail with STEP badge */}
+            <div className="relative w-28 sm:w-32 h-20 sm:h-22 shrink-0 rounded-lg overflow-hidden border border-slate-200 bg-slate-900">
+              <img
+                src={stage.photoSrc}
+                alt={stage.title}
+                className="w-full h-full object-cover"
+                loading="eager"
+              />
+              <span className="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-slate-950/85 text-emerald-400 font-mono font-bold text-[7.5px] uppercase tracking-wider shadow-sm">
+                STEP {stage.num}
+              </span>
+            </div>
 
-              {/* Subtitle / Objective */}
-              <p className="text-[8.5px] text-slate-600 italic mb-1 leading-snug">
-                {stage.objective}
+            {/* Right Column: Title, Subtitle, 3 Bullets, DO & DON'T */}
+            <div className="flex-1 min-w-0">
+              <div className="font-extrabold text-slate-950 text-[10.5px] sm:text-[11.5px] leading-tight">
+                {stage.num}. {stage.title}
+              </div>
+              <p className="text-[8.5px] text-slate-500 mt-0.5 mb-1 leading-snug">
+                {stage.subtitle}
               </p>
 
-              {/* 3 Key Clinical Points */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 mb-1 text-[8.5px]">
+              {/* 3 Bullet points */}
+              <div className="space-y-0.5 mb-1 text-[8px] sm:text-[8.5px] text-slate-700 leading-tight">
                 {stage.points.map((pt, pIdx) => (
-                  <div key={pIdx} className="bg-slate-50 border border-slate-200 rounded p-1">
-                    <strong className="text-slate-900 block font-semibold text-[8px] mb-0.5">
-                      • {pt.label}:
-                    </strong>
-                    <span className="text-slate-700 leading-tight block">
-                      {pt.text}
-                    </span>
+                  <div key={pIdx} className="flex items-start gap-1">
+                    <span className="text-emerald-600 font-bold shrink-0">•</span>
+                    <span>{pt}</span>
                   </div>
                 ))}
               </div>
-            </div>
 
-            {/* DO & DON'T Rules */}
-            <div className="pt-1 border-t border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-1 text-[8px] leading-tight">
-              <div className="text-emerald-800 font-medium flex items-start gap-1 bg-emerald-50/60 p-0.5 rounded border border-emerald-200/60">
-                <span className="font-bold shrink-0">✓ DO:</span>
-                <span>{stage.doRule}</span>
-              </div>
-              <div className="text-rose-800 font-medium flex items-start gap-1 bg-rose-50/60 p-0.5 rounded border border-rose-200/60">
-                <span className="font-bold shrink-0">✗ DON&apos;T:</span>
-                <span>{stage.dontRule}</span>
+              {/* DO & DON'T Rules */}
+              <div className="text-[8px] sm:text-[8.5px] leading-tight space-y-0.5">
+                <div className="text-emerald-700 font-bold flex items-start gap-1">
+                  <span className="shrink-0">✓ DO:</span>
+                  <span>{stage.doRule}</span>
+                </div>
+                <div className="text-rose-600 font-bold flex items-start gap-1">
+                  <span className="shrink-0">✕ DON&apos;T:</span>
+                  <span>{stage.dontRule}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -294,12 +289,12 @@ export const PrintableSubQSheet: React.FC<PrintableSubQSheetProps> = ({
       </div>
 
       {/* 4. FOOTER & CLINICAL COMPLIANCE */}
-      <div className="border-t border-slate-300 pt-1 flex items-center justify-between text-[7px] text-slate-500 leading-tight">
+      <div className="border-t border-slate-200 pt-1.5 text-[7px] text-slate-500 leading-normal">
         <div>
-          <strong>PepPlotter (pepplotter.com)</strong> • Evidence-Based Sub-Q Protocol (ADA &amp; FITTER Harm-Reduction Standard).
+          PepPlotter.com • Harm-reduction clinical protocol based on FITTER and ADA subcutaneous injection guidelines.
         </div>
-        <div className="text-right">
-          For educational &amp; personal logging only. Not medical prescription advice. Always dispose needles in an FDA-cleared sharps bin.
+        <div className="text-slate-400 mt-0.5">
+          For educational and personal logging only. Not medical prescription advice. Always dispose needles in an FDA-cleared sharps container.
         </div>
       </div>
     </div>
