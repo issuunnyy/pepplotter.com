@@ -160,72 +160,75 @@ export const PrintableSubQSheet: React.FC<PrintableSubQSheetProps> = ({
     <div
       ref={sheetRef}
       id="printable-subq-sheet"
-      className="bg-white text-slate-900 p-4 sm:p-5 rounded-xl shadow-2xl border border-slate-300 print:border print:border-slate-300 print:shadow-none print:rounded-lg print:p-4 select-none text-[10px] leading-tight w-full max-w-[700px] mx-auto print:max-w-none"
+      className="bg-white text-slate-900 p-2.5 sm:p-5 rounded-xl shadow-2xl border border-slate-300 print:border print:border-slate-300 print:shadow-none print:rounded-lg print:p-4 select-none text-[10px] leading-tight w-full max-w-[700px] mx-auto print:max-w-none"
       style={{
         fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       }}
     >
-      {/* 1. DOCUMENT HEADER */}
-      <div className="border-b-2 border-slate-900 pb-1.5 mb-2 flex items-start justify-between gap-3">
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <span className="text-xs sm:text-sm font-black tracking-tight text-slate-950 uppercase">
-              PEPPLOTTER • SUB-Q INJECTION PROTOCOL
-            </span>
-            <span className="px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider bg-slate-900 text-white rounded shrink-0">
-              ADA / FITTER S.O.P.
-            </span>
-          </div>
-          <p className="text-[9px] text-slate-500 mt-0.5">
-            Evidence-Based Sub-Q Protocol: Aseptic Prep, 45°–90° Pinch, &amp; Safe Sharps Disposal
-          </p>
-        </div>
-
-        {/* Right Header Area: QR Code with Generous Breathing Room */}
-        <div className="flex items-center gap-4 sm:gap-6 shrink-0 pl-2">
-          {/* QR Code */}
-          <div className="flex flex-col items-center">
-            <div
-              className="p-0.5 bg-white border border-slate-300 rounded shadow-2xs"
-              title="Scan QR Code with phone to open interactive guide at pepplotter.com/#guide"
-            >
-              <svg
-                viewBox={`0 0 ${qrCodeData.moduleCount} ${qrCodeData.moduleCount}`}
-                className="w-8 h-8 sm:w-8.5 sm:h-8.5 block"
-                role="img"
-                aria-label="QR Code to pepplotter.com/#guide"
-              >
-                <rect width="100%" height="100%" fill="#ffffff" />
-                <path d={qrCodeData.getSvgPath(1)} fill="#090d16" />
-              </svg>
+      {/* 1. DOCUMENT HEADER (Responsive on Mobile, Single Row on Desktop/Print) */}
+      <div className="border-b-2 border-slate-900 pb-1.5 mb-2">
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-1.5 sm:gap-4">
+          {/* Left Title Area */}
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+              <span className="text-[11px] sm:text-sm font-black tracking-tight text-slate-950 uppercase whitespace-nowrap">
+                PEPPLOTTER • SUB-Q INJECTION PROTOCOL
+              </span>
+              <span className="px-1.5 py-0.5 text-[7px] sm:text-[8px] font-bold uppercase tracking-wider bg-slate-900 text-white rounded shrink-0">
+                ADA / FITTER S.O.P.
+              </span>
             </div>
-            <span className="text-[6.5px] uppercase font-bold text-slate-500 tracking-wider mt-0.5 leading-none">
-              Scan Guide
-            </span>
+            <p className="text-[8px] sm:text-[9px] text-slate-500 mt-0.5 leading-snug">
+              Evidence-Based Sub-Q Protocol: Aseptic Prep, 45°–90° Pinch, &amp; Safe Sharps Disposal
+            </p>
           </div>
 
-          {/* Date & Domain */}
-          <div className="text-right">
-            <span className="text-[9px] font-mono font-bold text-slate-800 block">
-              {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
-            </span>
-            <span className="text-[8px] text-slate-700 font-bold block leading-tight">
-              pepplotter.com
-            </span>
-            <span className="text-[7px] text-emerald-700 font-bold uppercase tracking-wider block leading-tight">
-              CLINICAL GUIDE • FREE
-            </span>
+          {/* Right Header Area: QR Code + Date & Domain */}
+          <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-5 shrink-0 pt-1 sm:pt-0 border-t sm:border-t-0 border-slate-100">
+            {/* QR Code */}
+            <div className="flex items-center gap-1.5 sm:flex-col sm:gap-0">
+              <div
+                className="p-0.5 bg-white border border-slate-300 rounded shadow-2xs"
+                title="Scan QR Code with phone to open interactive guide at pepplotter.com/#guide"
+              >
+                <svg
+                  viewBox={`0 0 ${qrCodeData.moduleCount} ${qrCodeData.moduleCount}`}
+                  className="w-7 h-7 sm:w-8.5 sm:h-8.5 block"
+                  role="img"
+                  aria-label="QR Code to pepplotter.com/#guide"
+                >
+                  <rect width="100%" height="100%" fill="#ffffff" />
+                  <path d={qrCodeData.getSvgPath(1)} fill="#090d16" />
+                </svg>
+              </div>
+              <span className="text-[6.5px] uppercase font-bold text-slate-500 tracking-wider sm:mt-0.5 leading-none">
+                Scan Guide
+              </span>
+            </div>
+
+            {/* Date & Domain */}
+            <div className="text-right">
+              <span className="text-[8.5px] sm:text-[9px] font-mono font-bold text-slate-800 block">
+                {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+              </span>
+              <span className="text-[7.5px] sm:text-[8px] text-slate-700 font-bold block leading-tight">
+                pepplotter.com
+              </span>
+              <span className="text-[6.5px] sm:text-[7px] text-emerald-700 font-bold uppercase tracking-wider block leading-tight">
+                CLINICAL GUIDE • FREE
+              </span>
+            </div>
           </div>
         </div>
       </div>
 
       {/* 2. TARGET DOSE SPECIFICATION STRIP */}
-      <div className="bg-slate-50 border border-slate-300 rounded-lg px-3 py-1.5 mb-2.5 flex items-center justify-between text-[9px]">
-        <div className="flex items-center gap-1.5">
+      <div className="bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1 mb-2 flex flex-wrap sm:flex-nowrap items-center justify-between gap-1 text-[9px]">
+        <div className="flex items-center gap-1.5 whitespace-nowrap">
           <span className="text-slate-500 font-bold uppercase tracking-wide">MEDICATION:</span>
           <span className="text-slate-950 font-black text-[10px]">{compoundName}</span>
         </div>
-        <div className="flex items-center gap-1.5 font-mono">
+        <div className="flex items-center gap-1.5 font-mono whitespace-nowrap">
           <span className="text-slate-500 font-bold uppercase tracking-wide">TARGET DOSE:</span>
           <span className="text-slate-950 font-bold text-[10px]">
             {syringeUnits} Units ({drawVolumeMl} mL on {syringeType})
@@ -233,37 +236,37 @@ export const PrintableSubQSheet: React.FC<PrintableSubQSheetProps> = ({
         </div>
       </div>
 
-      {/* 3. 4 STAGE CARDS WITH CLINICAL PHOTOS (Exact Reference Design) */}
-      <div className="space-y-2 mb-2.5">
+      {/* 3. 4 STAGE CARDS WITH CLINICAL PHOTOS (Exact Reference Design, Horizontal on all screens) */}
+      <div className="space-y-2 mb-2">
         {SUBQ_STAGES_DATA.map((stage) => (
           <div
             key={stage.num}
-            className="border border-slate-200/90 rounded-xl p-2 sm:p-2.5 bg-slate-50/50 flex flex-col sm:flex-row gap-2.5 sm:gap-3 items-start sm:items-center"
+            className="border border-slate-200/90 rounded-xl p-2 sm:p-2.5 bg-slate-50/50 flex flex-row gap-2.5 sm:gap-3 items-center"
           >
             {/* Left Column: Photo Thumbnail with STEP badge */}
-            <div className="relative w-28 sm:w-32 h-20 sm:h-22 shrink-0 rounded-lg overflow-hidden border border-slate-200 bg-slate-900">
+            <div className="relative w-20 h-16 sm:w-28 sm:h-20 md:w-32 md:h-22 shrink-0 rounded-lg overflow-hidden border border-slate-200 bg-slate-900">
               <img
                 src={stage.photoSrc}
                 alt={stage.title}
                 className="w-full h-full object-cover"
                 loading="eager"
               />
-              <span className="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-slate-950/85 text-emerald-400 font-mono font-bold text-[7.5px] uppercase tracking-wider shadow-sm">
+              <span className="absolute top-0.5 left-0.5 sm:top-1 sm:left-1 px-1 py-0.2 sm:px-1.5 sm:py-0.5 rounded bg-slate-950/85 text-emerald-400 font-mono font-bold text-[6.5px] sm:text-[7.5px] uppercase tracking-wider shadow-sm">
                 STEP {stage.num}
               </span>
             </div>
 
             {/* Right Column: Title, Subtitle, 3 Bullets, DO & DON'T */}
             <div className="flex-1 min-w-0">
-              <div className="font-extrabold text-slate-950 text-[10.5px] sm:text-[11.5px] leading-tight">
+              <div className="font-extrabold text-slate-950 text-[10px] sm:text-[11.5px] leading-tight">
                 {stage.num}. {stage.title}
               </div>
-              <p className="text-[8.5px] text-slate-500 mt-0.5 mb-1 leading-snug">
+              <p className="text-[7.5px] sm:text-[8.5px] text-slate-500 mt-0.5 mb-1 leading-snug">
                 {stage.subtitle}
               </p>
 
               {/* 3 Bullet points */}
-              <div className="space-y-0.5 mb-1 text-[8px] sm:text-[8.5px] text-slate-700 leading-tight">
+              <div className="space-y-0.5 mb-1 text-[7.5px] sm:text-[8.5px] text-slate-700 leading-tight">
                 {stage.points.map((pt, pIdx) => (
                   <div key={pIdx} className="flex items-start gap-1">
                     <span className="text-emerald-600 font-bold shrink-0">•</span>
@@ -273,7 +276,7 @@ export const PrintableSubQSheet: React.FC<PrintableSubQSheetProps> = ({
               </div>
 
               {/* DO & DON'T Rules */}
-              <div className="text-[8px] sm:text-[8.5px] leading-tight space-y-0.5">
+              <div className="text-[7.5px] sm:text-[8.5px] leading-tight space-y-0.5">
                 <div className="text-emerald-700 font-bold flex items-start gap-1">
                   <span className="shrink-0">✓ DO:</span>
                   <span>{stage.doRule}</span>

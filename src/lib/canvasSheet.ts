@@ -179,7 +179,8 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
   const qr = getQRCode('https://pepplotter.com');
   const qrBoxW = 25;
   const qrBoxH = 25;
-  const qrBoxX = width - padX - 74 - qrBoxW; // Generous breathing room between QR code and right text
+  // Width of right text is ~70px; leave a generous 26px breathing room gap
+  const qrBoxX = width - padX - 70 - 26 - qrBoxW;
   const qrBoxY = curY;
 
   // QR Container background & border

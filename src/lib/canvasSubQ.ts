@@ -178,7 +178,8 @@ export async function renderSubQToCanvas(
   const qr = getQRCode('https://pepplotter.com/#guide');
   const qrBoxW = 25;
   const qrBoxH = 25;
-  const qrBoxX = width - padX - 76 - qrBoxW;
+  // Width of 'CLINICAL GUIDE • FREE' is ~82px; leave a generous 26px breathing room gap
+  const qrBoxX = width - padX - 82 - 26 - qrBoxW;
   const qrBoxY = curY;
 
   ctx.fillStyle = '#ffffff';
