@@ -11,6 +11,7 @@ import { GuidedTour, TOUR_STEPS } from '@/components/GuidedTour';
 import { ProtocolReportModal } from '@/components/ProtocolReportModal';
 import { FeedbackModal } from '@/components/FeedbackModal';
 import { CustomProtocolModal } from '@/components/CustomProtocolModal';
+import { ShareModal } from '@/components/ShareModal';
 import { PrintableProtocolSheet } from '@/components/PrintableProtocolSheet';
 import { PrintableSubQSheet } from '@/components/PrintableSubQSheet';
 import { HarmReductionManifesto } from '@/components/HarmReductionManifesto';
@@ -37,6 +38,7 @@ import {
   CalendarDays,
   Pill,
   Share2,
+  QrCode,
   Check,
   Compass,
   ArrowRight,
@@ -67,6 +69,7 @@ export default function Home() {
   const [isSheetPreviewOpen, setIsSheetPreviewOpen] = useState<boolean>(false);
   const [isSubQSheetPreviewOpen, setIsSubQSheetPreviewOpen] = useState<boolean>(false);
   const [isCustomProtocolModalOpen, setIsCustomProtocolModalOpen] = useState<boolean>(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState<boolean>(false);
 
   // --- GUIDED TOUR STATE ---
   const [isTourActive, setIsTourActive] = useState<boolean>(false);
@@ -443,16 +446,22 @@ const splitList: InjectionEntry[] = [];
     }
   };
 
-  // Copy clean, permanent interactive deep link
-  const copyShareUrl = () => {
-    const shareUrl = `https://pepplotter.com/?preset=${selectedPresetId}&vial=${safeVialMg}&water=${safeWaterMl}&dose=${safeTargetDoseMcg}&syringe=${syringeType}${activeTab === 'plotter' ? '&tab=plotter' : activeTab === 'guide' ? '&tab=guide' : ''}`;
+  // Generate clean, permanent interactive deep link
+  const getShareUrl = () => {
+    return `https://pepplotter.com/?preset=${selectedPresetId}&vial=${safeVialMg}&water=${safeWaterMl}&dose=${safeTargetDoseMcg}&syringe=${syringeType}${activeTab === 'plotter' ? '&tab=plotter' : activeTab === 'guide' ? '&tab=guide' : ''}`;
+  };
 
+  // Copy share URL and open visual QR Code card modal
+  const handleOpenShareModal = () => {
+    const shareUrl = getShareUrl();
     safeCopyToClipboard(shareUrl).then((ok) => {
-      if (!ok) return;
-      setCopied(true);
-      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
-      copyTimerRef.current = setTimeout(() => setCopied(false), 2000);
+      if (ok) {
+        setCopied(true);
+        if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+        copyTimerRef.current = setTimeout(() => setCopied(false), 2500);
+      }
     });
+    setIsShareModalOpen(true);
   };
 
   // Sync active tab to body attribute for instant Ctrl+P print sheet isolation
@@ -661,13 +670,13 @@ const splitList: InjectionEntry[] = [];
 
             <button
               type="button"
-              onClick={copyShareUrl}
+              onClick={handleOpenShareModal}
               className="flex-1 sm:flex-none flex items-center justify-center gap-1 sm:gap-1.5 px-1 sm:px-3 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 rounded-lg text-[10px] sm:text-xs text-slate-300 font-semibold transition-colors cursor-pointer min-w-0"
-              title="Copy shareable link with current dosage parameters"
+              title="Share live protocol & QR code with current dosage parameters"
             >
-              {copied ? <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" /> : <Share2 className="w-3.5 h-3.5 text-slate-400 shrink-0" />}
+              {copied ? <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" /> : <QrCode className="w-3.5 h-3.5 text-slate-400 shrink-0" />}
               <span className="whitespace-nowrap">
-                <span className="hidden sm:inline">{copied ? 'Link Copied!' : 'Copy Link'}</span>
+                <span className="hidden sm:inline">{copied ? 'Link Copied!' : 'Copy Link & QR'}</span>
                 <span className="sm:hidden">{copied ? 'Copied' : 'Share'}</span>
               </span>
             </button>
@@ -1994,6 +2003,20 @@ const splitList: InjectionEntry[] = [];
         defaultCompoundName={plotCompoundId === 'custom' ? 'Custom Peptide / Research Compound' : activePreset.name}
         defaultVialMg={safeVialMg}
         defaultDoseMcg={safeTargetDoseMcg || activePreset.defaultDoseMcg}
+      />
+
+      {/* Visual Share & Live Deep Link QR Code Modal */}
+      <ShareModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        shareUrl={getShareUrl()}
+        compoundName={activePreset.name}
+        vialMg={safeVialMg}
+        waterMl={safeWaterMl}
+        doseMcg={safeTargetDoseMcg}
+        syringeUnits={reconResult.syringeUnits}
+        drawVolumeMl={reconResult.drawVolumeMl}
+        syringeType={syringeType}
       />
     </div>
   );
