@@ -64,6 +64,8 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
   const qrCodeData = useMemo(() => getQRCode('https://pepplotter.com'), []);
 
   const isBlocked = reconResult.error !== null;
+  const isOverflow = !isBlocked && reconResult.overCapacity;
+  const isFractionalUnit = !isBlocked && !isOverflow && reconResult.syringeUnits > 0 && reconResult.syringeUnits % 1 !== 0;
   const doseMg = targetDoseMcg / 1000;
   const doseDisplay = targetDoseMcg >= 1000 ? `${doseMg.toFixed(2)} mg` : `${targetDoseMcg} mcg`;
   const concentrationMgMl = waterMl > 0 ? vialMg / waterMl : 0;
@@ -535,8 +537,12 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
             <span className="text-[8px] font-bold uppercase tracking-wider text-slate-700">
               Syringe Visual Draw Guide ({syringeType})
             </span>
-            <span className="text-[8px] font-bold font-mono text-emerald-800">
-              Target Level: {reconResult.syringeUnits} Units ({reconResult.drawVolumeMl} mL)
+            <span className={`text-[8px] font-bold font-mono ${isOverflow ? 'text-rose-700 font-black' : isFractionalUnit ? 'text-amber-800' : 'text-emerald-800'}`}>
+              {isOverflow
+                ? `Target Level: Exceeds Capacity (${reconResult.syringeUnits} U > ${maxSyringeUnits} U)`
+                : isFractionalUnit
+                ? `Target Level: ~${reconResult.syringeUnits} Units (approx • ${reconResult.drawVolumeMl} mL)`
+                : `Target Level: ${reconResult.syringeUnits} Units (${reconResult.drawVolumeMl} mL)`}
             </span>
           </div>
 
@@ -622,26 +628,57 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
             {/* Graduation Ticks */}
             {syringeTicks}
 
+            {/* Fractional Unit Dashed Line */}
+            {isFractionalUnit && (
+              <line
+                x1={plungerX}
+                y1={barrelY}
+                x2={plungerX}
+                y2={barrelY + barrelHeight}
+                stroke="#d97706"
+                strokeWidth="1.2"
+                strokeDasharray="2,2"
+              />
+            )}
+
             {/* Target Marker Arrow & Label */}
-            {!isBlocked && clampedUnits > 0 && (
+            {!isBlocked && isOverflow ? (
+              <g>
+                <polygon
+                  points={`${barrelStart + barrelWidth},${barrelY + barrelHeight + 1} ${barrelStart + barrelWidth - 3.5},${barrelY + barrelHeight + 7} ${barrelStart + barrelWidth + 3.5},${barrelY + barrelHeight + 7}`}
+                  fill="#e11d48"
+                />
+                <text
+                  x={barrelStart + barrelWidth}
+                  y={barrelY + barrelHeight + 15}
+                  fontSize="7.5"
+                  fontWeight="900"
+                  fill="#e11d48"
+                  textAnchor="end"
+                  fontFamily="monospace"
+                >
+                  ▲ Exceeds capacity (&gt;{maxSyringeUnits} U)
+                </text>
+              </g>
+            ) : !isBlocked && clampedUnits > 0 ? (
               <g>
                 <polygon
                   points={`${plungerX},${barrelY + barrelHeight + 1} ${plungerX - 3.5},${barrelY + barrelHeight + 7} ${plungerX + 3.5},${barrelY + barrelHeight + 7}`}
-                  fill="#059669"
+                  fill={isFractionalUnit ? '#d97706' : '#059669'}
                 />
                 <text
                   x={plungerX}
                   y={barrelY + barrelHeight + 15}
                   fontSize="8"
                   fontWeight="900"
-                  fill="#059669"
+                  fill={isFractionalUnit ? '#d97706' : '#059669'}
                   textAnchor="middle"
                   fontFamily="monospace"
                 >
-                  ▲ {reconResult.syringeUnits} U
+                  ▲ {isFractionalUnit ? `~${reconResult.syringeUnits} U` : `${reconResult.syringeUnits} U`}
                 </text>
               </g>
-            )}
+            ) : null}
           </svg>
         </div>
 
@@ -828,7 +865,7 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
                 <th className="py-0.5 px-1.5 w-8 text-center border-r border-slate-200">Dose</th>
                 <th className="py-0.5 px-1.5 w-14 border-r border-slate-200">Protocol</th>
                 <th className="py-0.5 px-1.5 w-24 border-r border-slate-200 text-slate-900 font-bold">Planned Date</th>
-                <th className="py-0.5 px-1.5 w-24 border-r border-slate-200">Dose &amp; Units</th>
+                <th className="py-0.5 px-1.5 w-28 border-r border-slate-200">Dose &amp; Units (mL)</th>
                 <th className="py-0.5 px-1.5 border-r border-slate-200">Injection Site</th>
                 <th className="py-0.5 px-1.5 w-16 border-r border-slate-200">Time (fill)</th>
                 <th className="py-0.5 px-1.5 w-9 text-center">Done (✓)</th>
@@ -839,6 +876,10 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
                 const targetUnits =
                   concentrationMgMl > 0
                     ? Number(((inj.doseMg / concentrationMgMl) * (syringeType === 'U100' ? 100 : 40)).toFixed(1))
+                    : 0;
+                const drawVolumeMl =
+                  concentrationMgMl > 0
+                    ? Number((inj.doseMg / concentrationMgMl).toFixed(3))
                     : 0;
                 const doseNum = inj.doseNumber ?? (startDoseIdx + idx + 1);
                 const isNewVial = reconResult.totalVialDoses > 0 && (doseNum - 1) > 0 && (doseNum - 1) % reconResult.totalVialDoses === 0;
@@ -860,7 +901,7 @@ export const PrintableProtocolSheet: React.FC<PrintableProtocolSheetProps> = ({
                       {formatPlannedDate(startDate, inj.day)}
                     </td>
                     <td className="py-0.5 px-1.5 font-bold text-slate-900 border-r border-slate-200 whitespace-nowrap">
-                      {inj.doseMg.toFixed(2)}mg • {targetUnits} U
+                      {inj.doseMg.toFixed(2)}mg • {targetUnits} U • {drawVolumeMl} mL
                     </td>
                     <td className="py-0.5 px-1.5 text-slate-600 border-r border-slate-200 font-sans text-[7.5px] whitespace-nowrap">
                       [ ] L-Abd &nbsp; [ ] R-Abd &nbsp; [ ] Thigh

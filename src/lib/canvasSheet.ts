@@ -455,10 +455,26 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
   ctx.fillStyle = '#475569';
   ctx.font = 'bold 7.5px system-ui, sans-serif';
   ctx.fillText(`Syringe Visual Draw Guide (${data.syringeType})`, padX + innerPad + 6, syrBoxY + 12);
+
+  const maxUnits = data.syringeType === 'U100' ? 100 : 40;
+  const clampedUnits = Math.min(Math.max(data.reconResult.syringeUnits, 0), maxUnits);
+  const isOverflow = Boolean(data.reconResult.overCapacity);
+  const isFractional = !isOverflow && data.reconResult.syringeUnits > 0 && data.reconResult.syringeUnits % 1 !== 0;
+
   ctx.textAlign = 'right';
-  ctx.fillStyle = '#047857';
-  ctx.font = 'bold 8px monospace';
-  ctx.fillText(`Target Level: ${data.reconResult.syringeUnits} Units (${data.reconResult.drawVolumeMl} mL)`, width - padX - innerPad - 6, syrBoxY + 12);
+  if (isOverflow) {
+    ctx.fillStyle = '#dc2626';
+    ctx.font = 'bold 8px monospace';
+    ctx.fillText(`Target Level: Exceeds Capacity (${data.reconResult.syringeUnits} U > ${maxUnits} U)`, width - padX - innerPad - 6, syrBoxY + 12);
+  } else if (isFractional) {
+    ctx.fillStyle = '#d97706';
+    ctx.font = 'bold 8px monospace';
+    ctx.fillText(`Target Level: ~${data.reconResult.syringeUnits} Units (approx • ${data.reconResult.drawVolumeMl} mL)`, width - padX - innerPad - 6, syrBoxY + 12);
+  } else {
+    ctx.fillStyle = '#047857';
+    ctx.font = 'bold 8px monospace';
+    ctx.fillText(`Target Level: ${data.reconResult.syringeUnits} Units (${data.reconResult.drawVolumeMl} mL)`, width - padX - innerPad - 6, syrBoxY + 12);
+  }
   ctx.textAlign = 'left';
 
   // Syringe Geometry (Barrel starts lower so numbers sit cleanly above it)
@@ -466,8 +482,6 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
   const bWidth = 280; // 0 to 100 units
   const bHeight = 24;
   const bY = syrBoxY + 32; // Top of barrel
-  const maxUnits = data.syringeType === 'U100' ? 100 : 40;
-  const clampedUnits = Math.min(Math.max(data.reconResult.syringeUnits, 0), maxUnits);
   const fillW = (clampedUnits / maxUnits) * bWidth;
   const pX = bStart + fillW;
 
@@ -511,6 +525,18 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
   if (fillW > 0) {
     ctx.fillStyle = 'rgba(16, 185, 129, 0.45)';
     ctx.fillRect(bStart, bY + 1.2, fillW, bHeight - 2.4);
+  }
+
+  // Dashed line inside barrel for fractional units
+  if (isFractional) {
+    ctx.strokeStyle = '#d97706';
+    ctx.lineWidth = 1.2;
+    ctx.setLineDash([2, 2]);
+    ctx.beginPath();
+    ctx.moveTo(pX, bY + 2);
+    ctx.lineTo(pX, bY + bHeight - 2);
+    ctx.stroke();
+    ctx.setLineDash([]);
   }
 
   // 6. Plunger Rubber Stopper Head
@@ -594,8 +620,23 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
   ctx.textAlign = 'left';
 
   // 10. Target Indicator Arrow & Label (Below the barrel)
-  if (clampedUnits > 0) {
-    ctx.fillStyle = '#047857';
+  if (isOverflow) {
+    const overX = bStart + bWidth;
+    ctx.fillStyle = '#dc2626';
+    ctx.beginPath();
+    ctx.moveTo(overX, bY + bHeight + 2);
+    ctx.lineTo(overX - 3, bY + bHeight + 7);
+    ctx.lineTo(overX + 3, bY + bHeight + 7);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.font = 'bold 7px system-ui, sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText(`▲ Exceeds capacity (>${maxUnits} U)`, width - padX - innerPad - 6, bY + bHeight + 14);
+    ctx.textAlign = 'left';
+  } else if (clampedUnits > 0) {
+    const arrowColor = isFractional ? '#d97706' : '#047857';
+    ctx.fillStyle = arrowColor;
     ctx.beginPath();
     ctx.moveTo(pX, bY + bHeight + 2);
     ctx.lineTo(pX - 3, bY + bHeight + 7);
@@ -605,7 +646,8 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
 
     ctx.font = 'bold 7px monospace';
     ctx.textAlign = 'center';
-    ctx.fillText(`▲ ${data.reconResult.syringeUnits} U`, pX, bY + bHeight + 14);
+    const labelText = isFractional ? `▲ ~${data.reconResult.syringeUnits} U (approx)` : `▲ ${data.reconResult.syringeUnits} U`;
+    ctx.fillText(labelText, pX, bY + bHeight + 14);
     ctx.textAlign = 'left';
   }
 
@@ -887,8 +929,8 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
   ctx.fillText('DOSE', padX + innerPad + 6, thY + 11);
   ctx.fillText('PROTOCOL', padX + innerPad + 40, thY + 11);
   ctx.fillText('PLANNED DATE', padX + innerPad + 92, thY + 11);
-  ctx.fillText('DOSE & UNITS', padX + innerPad + 162, thY + 11);
-  ctx.fillText('INJECTION SITE', padX + innerPad + 236, thY + 11);
+  ctx.fillText('DOSE & UNITS (mL)', padX + innerPad + 158, thY + 11);
+  ctx.fillText('INJECTION SITE', padX + innerPad + 248, thY + 11);
   ctx.fillText('TIME (fill)', padX + innerPad + 346, thY + 11);
   ctx.textAlign = 'center';
   ctx.fillText('DONE', width - padX - innerPad - 16, thY + 11);
@@ -910,6 +952,10 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
     const targetUnits =
       data.concentrationMgMl > 0
         ? Number(((inj.doseMg / data.concentrationMgMl) * (data.syringeType === 'U100' ? 100 : 40)).toFixed(1))
+        : 0;
+    const drawMl =
+      data.concentrationMgMl > 0
+        ? Number((inj.doseMg / data.concentrationMgMl).toFixed(3))
         : 0;
 
     const doseNum = inj.doseNumber ?? (idx + 1);
@@ -934,12 +980,12 @@ export function renderSheetToCanvas(canvas: HTMLCanvasElement, data: SheetCanvas
     ctx.fillText(plannedDateStr, padX + innerPad + 92, rY + (rowH > 18 ? 13 : 12));
 
     ctx.fillStyle = '#0f172a';
-    ctx.font = 'bold 7px monospace';
-    ctx.fillText(`${inj.doseMg.toFixed(2)}mg • ${targetUnits}U`, padX + innerPad + 162, rY + (rowH > 18 ? 13 : 12));
+    ctx.font = 'bold 6.8px monospace';
+    ctx.fillText(`${inj.doseMg.toFixed(2)}mg • ${targetUnits}U • ${drawMl}mL`, padX + innerPad + 158, rY + (rowH > 18 ? 13 : 12));
 
     ctx.fillStyle = '#475569';
     ctx.font = '6.5px system-ui, sans-serif';
-    ctx.fillText('[ ] L-Abd  [ ] R-Abd  [ ] Thigh', padX + innerPad + 236, rY + (rowH > 18 ? 13 : 12));
+    ctx.fillText('[ ] L-Abd  [ ] R-Abd  [ ] Thigh', padX + innerPad + 248, rY + (rowH > 18 ? 13 : 12));
 
     ctx.fillStyle = '#94a3b8';
     ctx.font = '7px monospace';

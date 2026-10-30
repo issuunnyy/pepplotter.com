@@ -85,7 +85,9 @@ export default function Home() {
   const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Safe numeric derivatives for calculations & UI
-  const safeVialMg = typeof vialMg === 'number' ? vialMg : 0;
+  const isVialCapped = typeof vialMg === 'number' && vialMg > 100;
+  const convertedMgFromMcg = typeof vialMg === 'number' ? Number((vialMg / 1000).toFixed(3)) : 0;
+  const safeVialMg = typeof vialMg === 'number' ? (isVialCapped ? 100 : vialMg) : 0;
   const safeWaterMl = typeof waterMl === 'number' ? waterMl : 0;
   const safeTargetDoseMcg = typeof targetDoseMcg === 'number' ? targetDoseMcg : 0;
 
@@ -295,6 +297,12 @@ export default function Home() {
   const isBlocked = reconResult.error !== null;
   const isOverflow = !isBlocked && reconResult.overCapacity;
   const canShowDoseInstruction = !isBlocked;
+
+  // 刻度间非整数剂量（P1-1：如 0.5U, 2.5U）
+  const isFractionalUnit =
+    !isBlocked &&
+    reconResult.syringeUnits > 0 &&
+    reconResult.syringeUnits % 1 !== 0;
 
   // --- 临床舒适度评估：皮下注射推荐单次容量 0.1 - 0.5 mL，抽取 >= 0.8 mL 或满筒属于临床非推荐高容量 ---
   const isHighVolumeSubQ =
@@ -911,7 +919,6 @@ const splitList: InjectionEntry[] = [];
                       type="number"
                       step="any"
                       min="0.1"
-                      max="100"
                       value={vialMg}
                       onInvalid={(e) => e.preventDefault()}
                       onChange={(e) => {
@@ -920,7 +927,7 @@ const splitList: InjectionEntry[] = [];
                           setVialMg('');
                         } else {
                           const parsed = parseFloat(val);
-                          setVialMg(isNaN(parsed) ? '' : Math.min(100, Math.max(0, parsed)));
+                          setVialMg(isNaN(parsed) ? '' : Math.max(0, parsed));
                         }
                       }}
                       onBlur={() => {
@@ -930,6 +937,30 @@ const splitList: InjectionEntry[] = [];
                     />
                     <span className="absolute right-3 top-2 text-xs text-slate-400 font-semibold">mg</span>
                   </div>
+
+                  {/* P1-3: mg 栏 mcg 误填提示 + 显性钳制警告 */}
+                  {isVialCapped && (
+                    <div className="mt-2.5 p-2.5 rounded-xl bg-amber-500/15 border border-amber-500/40 text-xs text-amber-200 space-y-1.5 animate-in fade-in">
+                      <div className="flex items-start gap-1.5 font-semibold text-amber-300">
+                        <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-amber-400" />
+                        <span>
+                          {vialMg} mg is far above normal vial sizes. Did you mean {vialMg} mcg (= {convertedMgFromMcg} mg)?
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-amber-500/20 text-[11px]">
+                        <span className="text-amber-200/80">
+                          Maximum vial size is 100 mg — your entry was capped at 100 mg for calculation.
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setVialMg(convertedMgFromMcg)}
+                          className="px-2.5 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg text-xs transition-colors shrink-0 shadow-sm cursor-pointer"
+                        >
+                          Use {convertedMgFromMcg} mg
+                        </button>
+                      </div>
+                    </div>
+                  )}
                   {/* Quick Pill Buttons */}
                   <div className="flex gap-1.5 mt-2">
                     {[2, 5, 10, 15].map((val) => (
@@ -1252,6 +1283,19 @@ const splitList: InjectionEntry[] = [];
          </div>
        </div>
 
+                {/* BETWEEN-MARKS PRECISION WARNING (P1-1) */}
+                {isFractionalUnit && !isOverflow && !isBlocked && (
+                  <div className="p-3.5 rounded-xl border bg-amber-950/25 border-amber-500/40 text-xs text-amber-200 flex items-start gap-2.5 shadow-sm">
+                    <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                    <div className="leading-relaxed">
+                      <span className="font-bold text-amber-300">
+                        ⚠️ Between-Marks Dose Warning ({reconResult.syringeUnits} Units):
+                      </span>{' '}
+                      This dose lands between syringe marks ({reconResult.syringeUnits} U). A standard {syringeType === 'U100' ? 'U-100' : 'U-40'} barrel cannot measure half units precisely — consider adjusting the water volume or dose so the draw lands on a whole-unit mark.
+                    </div>
+                  </div>
+                )}
+
                 {/* Live SVG Syringe Visualizer */}
                 <SyringeVisualizer
                   units={reconResult.syringeUnits}
@@ -1315,7 +1359,7 @@ const splitList: InjectionEntry[] = [];
        your target dose of <strong className="text-slate-200">{targetDoseMcg} mcg</strong>, draw to
         the{' '}
           <strong className="text-emerald-400 font-mono font-bold">
-       {reconResult.syringeUnits} unit mark
+       {isFractionalUnit ? `~${reconResult.syringeUnits} unit mark (approx.)` : `${reconResult.syringeUnits} unit mark`}
           </strong>{' '}
           ({reconResult.drawVolumeMl} mL) on your {syringeType} syringe.
 

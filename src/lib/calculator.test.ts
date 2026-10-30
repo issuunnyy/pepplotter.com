@@ -285,3 +285,45 @@ describe('getRecommendedWaterMl — 临床智能加水量推荐', () => {
     expect(getRecommendedWaterMl(5, 2500)).toBe(1.0);
   });
 });
+
+describe('Reddit 社区实测边界工单回归验证 (P1-1, P1-2, P1-3, P2-1)', () => {
+  it('P1-1: 识别刻度间分数单位（如 0.5U, 2.5U）', () => {
+    // 5mg / 2mL = 2.5 mg/mL = 2500 mcg/mL
+    // 12.5 mcg -> (12.5 / 2500) * 100 = 0.5 Units
+    const r1 = calculateReconstitution(5, 2, 12.5, 'U100');
+    expect(r1.syringeUnits).toBe(0.5);
+    expect(r1.syringeUnits % 1 !== 0).toBe(true);
+
+    // 62.5 mcg -> (62.5 / 2500) * 100 = 2.5 Units
+    const r2 = calculateReconstitution(5, 2, 62.5, 'U100');
+    expect(r2.syringeUnits).toBe(2.5);
+    expect(r2.syringeUnits % 1 !== 0).toBe(true);
+
+    // 整单位 250 mcg -> 10 Units
+    const r3 = calculateReconstitution(5, 2, 250, 'U100');
+    expect(r3.syringeUnits).toBe(10);
+    expect(r3.syringeUnits % 1 === 0).toBe(true);
+  });
+
+  it('P2-1: 针筒容量溢出标记 (overCapacity)', () => {
+    // 5mg / 2mL = 2.5 mg/mL, 3000 mcg (3mg) -> 1.2 mL -> 120 Units > 100 Units
+    const r = calculateReconstitution(5, 2, 3000, 'U100');
+    expect(r.syringeUnits).toBe(120);
+    expect(r.overCapacity).toBe(true);
+    expect(r.drawVolumeMl).toBe(1.2);
+  });
+
+  it('P1-3: 用户误将 mcg 当 mg 输入时的转换换算 (5000 mcg -> 5 mg)', () => {
+    const userEnteredVal = 5000;
+    const isCapped = userEnteredVal > 100;
+    const convertedMg = userEnteredVal / 1000;
+    expect(isCapped).toBe(true);
+    expect(convertedMg).toBe(5);
+
+    // 转换后 5mg 稀释计算正常运行
+    const r = calculateReconstitution(convertedMg, 2, 250, 'U100');
+    expect(r.error).toBeNull();
+    expect(r.syringeUnits).toBe(10);
+  });
+});
+

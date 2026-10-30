@@ -18,6 +18,7 @@ export const SyringeVisualizer: React.FC<SyringeVisualizerProps> = React.memo(fu
   maxUnits = syringeType === 'U100' ? 100 : 40,
 }) {
   const isOverflow = units > maxUnits;
+  const isFractional = !isOverflow && units > 0 && units % 1 !== 0;
   const clampedUnits = Math.min(Math.max(units, 0), maxUnits);
 
   // Barrel dimensions
@@ -93,6 +94,11 @@ export const SyringeVisualizer: React.FC<SyringeVisualizerProps> = React.memo(fu
             <div className="flex items-center gap-1.5 px-3 py-1 bg-rose-500/10 border border-rose-500/30 rounded-full text-rose-400 text-xs font-semibold">
               <AlertCircle className="w-3.5 h-3.5" />
               <span>Exceeds single syringe capacity</span>
+            </div>
+          ) : isFractional ? (
+            <div className="flex items-center gap-1.5 px-3 py-1 bg-amber-500/15 border border-amber-500/40 rounded-full text-amber-300 text-xs font-semibold shadow-sm">
+              <AlertCircle className="w-3.5 h-3.5 text-amber-400" />
+              <span>Between marks (~{units} U approx.)</span>
             </div>
           ) : units > 0 ? (
             <div className="flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 border border-emerald-500/30 rounded-full text-emerald-300 text-xs font-semibold shadow-sm">
@@ -265,23 +271,55 @@ export const SyringeVisualizer: React.FC<SyringeVisualizerProps> = React.memo(fu
             rx="2"
           />
 
+          {/* Fractional / Half-Unit dashed guide line across barrel */}
+          {isFractional && (
+            <line
+              x1={plungerX}
+              y1={barrelY}
+              x2={plungerX}
+              y2={barrelY + barrelHeight}
+              stroke="#f59e0b"
+              strokeWidth="1.5"
+              strokeDasharray="3,2"
+              style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.9))' }}
+            />
+          )}
+
           {/* Marker Indicator Arrow pointing at current units */}
-          {clampedUnits > 0 && (
+          {isOverflow ? (
+            <g transform={`translate(${barrelStart + barrelWidth}, ${barrelY + barrelHeight + 8})`}>
+              <polygon points="0,0 -5,8 5,8" fill="#f43f5e" />
+              <text
+                x="0"
+                y="22"
+                fontSize="10"
+                fontWeight="700"
+                fill="#f43f5e"
+                textAnchor="end"
+                fontFamily="monospace"
+              >
+                Exceeds capacity (&gt;{maxUnits} U)
+              </text>
+            </g>
+          ) : clampedUnits > 0 ? (
             <g transform={`translate(${plungerX}, ${barrelY + barrelHeight + 8})`}>
-              <polygon points="0,0 -5,8 5,8" fill="#10b981" />
+              <polygon
+                points="0,0 -5,8 5,8"
+                fill={isFractional ? '#f59e0b' : '#10b981'}
+              />
               <text
                 x="0"
                 y="22"
                 fontSize="11"
                 fontWeight="700"
-                fill="#10b981"
+                fill={isFractional ? '#f59e0b' : '#10b981'}
                 textAnchor="middle"
                 fontFamily="monospace"
               >
-                {units} U
+                {isFractional ? `~${units} U (approx)` : `${units} U`}
               </text>
             </g>
-          )}
+          ) : null}
         </svg>
       </div>
 
