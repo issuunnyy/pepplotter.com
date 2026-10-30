@@ -5,6 +5,11 @@ export interface FAQItem {
 
 export const FAQS: FAQItem[] = [
   {
+    question: 'What is the official website for PepPlotter?',
+    answer:
+      'The only official website for PepPlotter is https://pepplotter.com. It is an independent, free, and MIT open-source harm-reduction calculator hosted on GitHub (github.com/issuunnyy/pepplotter.com) and is not affiliated with PeptidePlotter or any commercial peptide vendors.',
+  },
+  {
     question: 'How do you calculate peptide reconstitution (mixing BAC water)?',
     answer:
       'Formula: Syringe Units = (Target Dose [mcg] / ((Vial Powder [mg] / BAC Water [mL]) * 1000)) * Syringe Units/mL (100 for U-100). For example, adding 2 mL of BAC water to a 5 mg vial yields a concentration of 2.5 mg/mL (2,500 mcg/mL). To administer a 250 mcg dose: (250 / 2,500) * 100 = 10 units on a standard U-100 insulin syringe (0.10 mL).',

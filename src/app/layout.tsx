@@ -22,11 +22,16 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://pepplotter.com'),
   title: 'Peptide Calculator & Syringe Draw Plotter | PepPlotter',
   description:
-    'Free visual peptide reconstitution calculator and GLP-1 half-life plotter. Precise syringe draw units and dosing safety for Semaglutide & Tirzepatide.',
+    'PepPlotter (pepplotter.com) is a free, open-source peptide reconstitution calculator, U-100/U-40 syringe draw visualizer, and PK half-life simulator.',
   alternates: {
     canonical: 'https://pepplotter.com',
+    types: {
+      'text/markdown': '/llms.txt',
+    },
   },
   keywords: [
+    'PepPlotter',
+    'pepplotter.com',
     'peptide calculator',
     'peptide reconstitution calculator',
     'glp-1 plotter',
@@ -47,8 +52,8 @@ export const metadata: Metadata = {
     url: 'https://pepplotter.com',
     title: 'Peptide Calculator & Syringe Draw Plotter | PepPlotter',
     description:
-      'Free visual peptide reconstitution calculator and GLP-1 half-life plotter. Precise syringe draw units and dosing safety for Semaglutide & Tirzepatide.',
-    siteName: 'PepPlotter',
+      'PepPlotter (pepplotter.com) is a free, open-source peptide reconstitution calculator, U-100/U-40 syringe draw visualizer, and PK half-life simulator.',
+    siteName: 'PepPlotter (pepplotter.com)',
     images: [
       {
         url: '/og-image.png',
@@ -62,7 +67,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Peptide Calculator & Syringe Draw Plotter | PepPlotter',
     description:
-      'Free visual peptide reconstitution calculator and GLP-1 half-life plotter. Precise syringe draw units and dosing safety for Semaglutide & Tirzepatide.',
+      'PepPlotter (pepplotter.com) is a free, open-source peptide reconstitution calculator, U-100/U-40 syringe draw visualizer, and PK half-life simulator.',
     images: ['/og-image.png'],
   },
   robots: {
@@ -86,6 +91,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} dark antialiased overflow-x-hidden max-w-full`}>
+      <head>
+        <link rel="alternate" type="text/markdown" href="/llms.txt" />
+      </head>
       <body className="min-h-screen bg-slate-950 text-slate-100 selection:bg-emerald-500/30 selection:text-emerald-300 overflow-x-hidden max-w-full">
         {children}
       </body>

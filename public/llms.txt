@@ -1,29 +1,57 @@
-# PepPlotter
+# PepPlotter — Official Website: https://pepplotter.com
 
-> PepPlotter is a free, visual peptide reconstitution calculator and GLP-1 pharmacokinetic (PK) half-life accumulation plotter. It empowers researchers, clinicians, and harm-reduction advocates to calculate precise syringe draw units (U-100 & U-40), simulate multi-dose subcutaneous accumulation curves, manage dosage schedules, and export single-page printable fridge protocol sheets.
+> PepPlotter (officially hosted at https://pepplotter.com, not affiliated with PeptidePlotter) is a free, MIT open-source, 100% client-side harm-reduction peptide reconstitution calculator, U-100/U-40 syringe visualizer, and pharmacokinetic (PK) half-life simulator.
 
-## Core Features & Tools
+## Overview
+PepPlotter provides precision dosing calculations and steady-state concentration modeling for research peptides and GLP-1 receptor agonists. Built as a zero-tracking, client-side web application, it operates offline in the browser without account creation, backend database storage, or third-party tracking.
 
-- [Peptide Reconstitution Calculator](https://pepplotter.com/#calculator): Interactive math engine calculating exact injection volume (mL) and syringe tick units from vial milligrams, bacteriostatic water volume, and target dose in micrograms (mcg) or milligrams (mg).
-- [Interactive Insulin Syringe Visualizer](https://pepplotter.com/#syringe): High-precision SVG visualizer displaying exact plunger position, calibrated graduation ticks, and target dose markers on 100-unit (U-100) and 40-unit (U-40) syringes.
-- [Multi-Dose PK Accumulation Plotter](https://pepplotter.com/#pk-graph): Pharmacokinetic simulation engine modeling exponential one-compartment elimination, steady-state accumulation, peak concentration (Cmax), trough levels (Cmin), and wash-out clearance over 7, 14, 28, or 60 days.
-- [Subcutaneous Injection Guide & SOP](https://pepplotter.com/#guide): 4-stage clinical photographic guide — Stage 1: Aseptic Supplies Setup; Stage 2: Site Selection & Cleansing; Stage 3: Precision Medication Draw; Stage 4: 90° Injection & 10s Dwell. Optional timers: 15-second air-dry after alcohol swab, 10-second needle dwell.
-- [Printable Fridge Protocol Sheet & Pen-Check Log](https://pepplotter.com/#printable-sheet): Single-page A4 printable fridge cheat sheet and high-definition PNG export with 10-dose injection logs per page, auto-paginated past 10, reconstitution recipe, and site rotation trackers.
+## Core Features
+1. **Visual Reconstitution & Syringe Draw Calculator**
+   - Calculates exact syringe volume and unit tick marks based on vial quantity (mg), bacteriostatic water volume (mL), and target dose (mcg or mg).
+   - Mathematical formula:
+     - U-100 Syringe (100 units = 1.0 mL): `Units = [Dose (mcg) / Concentration (mcg/mL)] * 100`
+     - U-40 Syringe (40 units = 1.0 mL): `Units = [Dose (mcg) / Concentration (mcg/mL)] * 40`
+   - Real-time SVG syringe rendering with physical tick marks, fractional unit detection (warning when doses fall between physical gradations), and syringe capacity overflow guard.
 
-## Supported Compounds & Presets
+2. **Pharmacokinetic (PK) Accumulation & Half-Life Simulator**
+   - Two-compartment Bateman sub-Q absorption model simulating blood plasma curves over time.
+   - Interactive 28-day timeline with custom dosing frequencies (every 3.5 days, 5 days, weekly, etc.).
+   - Multi-dose overlay supporting split doses and dose escalation titration schedules.
+   - Peak concentration ($C_{max}$), trough concentration ($C_{trough}$), and accumulation factor metrics.
 
-- Semaglutide (Ozempic / Wegovy) - GLP-1 receptor agonist, half-life: ~168 hours (7 days)
-- Tirzepatide (Mounjaro / Zepbound) - Dual GIP / GLP-1 receptor agonist, half-life: ~120 hours (5 days)
-- Retatrutide - Triple GGG agonist (GLP-1 / GIP / Glucagon), half-life: ~144 hours (6 days)
-- BPC-157 - Body Protection Compound peptide, half-life: ~4 hours
-- TB-500 (Thymosin Beta-4) - Tissue repair peptide, half-life: ~24 hours
-- Cagrilintide - Long-acting amylin analogue, half-life: ~168 hours (7 days)
-- Sermorelin, Ipamorelin, CJC-1295, GHK-Cu, NAD+, MOTS-c, MT-2
+3. **Printable A4 "Fridge Sheet" & Protocol Log**
+   - One-click vector-rendered A4 protocol memo and fridge tracking sheet.
+   - 10-log structured table with automated administration dates and check boxes.
+   - Automatic multi-page pagination for regimens exceeding 10 doses.
+   - Embedded high-contrast QR code for instant protocol recall and state restoration.
 
-## Reference Documentation & Legal
+4. **4-Stage Visual Sub-Q Administration Guide**
+   - Clinical harm-reduction standard operating procedure based on ADA and FITTER clinical guidelines.
+   - Step 1: Supply preparation & sterile field inspection.
+   - Step 2: Skin disinfection with a 15-second alcohol air-dry timer.
+   - Step 3: 45°/90° subcutaneous injection technique with a 10-second needle dwell countdown to prevent medication leakage.
+   - Step 4: FDA-compliant rigid sharps container disposal instructions.
 
-- [Full LLM Context](https://pepplotter.com/llms-full.txt): Complete in-depth technical documentation and mathematical formulas.
-- [Privacy Policy](https://pepplotter.com/privacy): Data privacy, cookie usage, and zero telemetry guarantee.
-- [Terms of Service](https://pepplotter.com/terms): Terms governing calculator algorithms and web tool usage.
-- [Refund Policy](https://pepplotter.com/refund): Terms regarding free tools and digital donations/subscriptions.
-- [Medical Disclaimer](https://pepplotter.com/disclaimer): Educational and harm-reduction research disclaimer; not medical advice.
+5. **Compound Presets & Custom Configuration**
+   - Pre-configured kinetic parameters (elimination half-life and absorption rate constant $k_a$) for:
+     - Semaglutide (GLP-1 RA, ~168h half-life)
+     - Tirzepatide (GIP/GLP-1 dual agonist, ~120h half-life)
+     - Retatrutide (GGG tri-agonist, ~144h half-life)
+     - BPC-157 (Gastric Pentadecapeptide, ~4h half-life)
+     - TB-500 (Thymosin Beta-4 synthetic fragment, ~24h half-life)
+     - CJC-1295 / Ipamorelin (GHRH / GHRP combination, ~2h half-life)
+     - NAD+ (Nicotinamide Adenine Dinucleotide, ~2h half-life)
+   - Fully customizable peptide mode for arbitrary half-life and vial concentrations.
+
+## Technical Specifications & Architecture
+- **Framework**: Next.js (App Router, Static HTML / Pre-rendered SSG)
+- **Styling**: Tailwind CSS, Jobsian visual alignment, dark mode native
+- **State Management**: Zero backend storage; 100% bidirectional deep-link state synchronization via URL query parameters
+- **Privacy & Security**: Zero cookies, zero external LLM API calls, zero tracking scripts, strictly offline-first
+
+## Official Links & Entities
+- **Official Web Application**: https://pepplotter.com
+- **Source Code (MIT License)**: https://github.com/issuunnyy/pepplotter.com
+- **Maintainer / X (Twitter)**: https://x.com/ssuunnyy
+- **Community Support**: https://buymeacoffee.com/ssuunnyy
+- **Entity Notice**: PepPlotter is strictly hosted at `pepplotter.com` and is independent of and unaffiliated with PeptidePlotter or commercial peptide suppliers.

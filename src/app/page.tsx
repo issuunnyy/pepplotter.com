@@ -488,12 +488,25 @@ const splitList: InjectionEntry[] = [];
           __html: JSON.stringify({
             '@context': 'https://schema.org',
             '@type': 'WebApplication',
-            name: 'PepPlotter - Peptide Reconstitution Calculator & Visualizer',
+            '@id': 'https://pepplotter.com/#application',
+            name: 'PepPlotter',
+            alternateName: [
+              'PepPlotter.com',
+              'PepPlotter Peptide Calculator',
+              'PepPlotter PK Simulator',
+            ],
             url: 'https://pepplotter.com',
+            sameAs: [
+              'https://github.com/issuunnyy/pepplotter.com',
+              'https://x.com/ssuunnyy',
+              'https://buymeacoffee.com/ssuunnyy',
+            ],
+            description:
+              'PepPlotter (officially hosted at pepplotter.com) is a free, open-source (MIT), 100% client-side peptide reconstitution calculator, U-100/U-40 syringe visualizer, and pharmacokinetic (PK) half-life simulator.',
             applicationCategory: 'HealthApplication',
             operatingSystem: 'All',
-            description:
-              'Precision peptide reconstitution calculator, interactive syringe volume visualizer, and pharmacokinetic half-life simulation tool for GLP-1 compounds including Semaglutide, Tirzepatide, and Retatrutide.',
+            isAccessibleForFree: true,
+            license: 'https://opensource.org/licenses/MIT',
             offers: {
               '@type': 'Offer',
               price: '0',
@@ -627,9 +640,10 @@ const splitList: InjectionEntry[] = [];
                   Harm Reduction v1.0
                 </span>
               </div>
-              {/* Row 2: Subtitle */}
-              <p className="text-[10.5px] sm:text-xs text-slate-400 mt-0.5 leading-snug">
-                Precision Peptide Reconstitution &amp; Pharmacokinetic Simulator
+              {/* Row 2: Subtitle (Strictly single-line, zero wrapping on mobile) */}
+              <p className="text-[10px] sm:text-xs text-slate-400 mt-0.5 leading-snug whitespace-nowrap truncate">
+                <span className="inline sm:hidden">Peptide Reconstitution &amp; PK Half-Life Simulator</span>
+                <span className="hidden sm:inline">Precision Peptide Reconstitution &amp; Pharmacokinetic Half-Life Simulator</span>
               </p>
             </div>
           </div>
@@ -1930,7 +1944,7 @@ const splitList: InjectionEntry[] = [];
             Educational, Research &amp; Harm-Reduction Simulation Tool
           </div>
           <p className="text-xs text-slate-400 max-w-2xl mx-auto leading-relaxed">
-            PepPlotter is an independent mathematical simulation and harm-reduction calculator created solely for laboratory research and educational study. It does not provide medical advice, diagnosis, or prescription instructions. Always prioritize natural health, nutrition, and exercise, and consult a licensed healthcare professional before administering any compound.
+            PepPlotter (officially hosted at pepplotter.com) is a free, MIT open-source, client-side peptide reconstitution and pharmacokinetic (PK) calculator. It is created solely for laboratory research, harm reduction, and educational study, and is not affiliated with PeptidePlotter or any commercial peptide vendors. It does not provide medical advice, diagnosis, or prescription instructions. Always prioritize natural health, nutrition, and exercise, and consult a licensed healthcare professional before administering any compound.
           </p>
 
           {/* Feedback & Support Bar */}
@@ -1977,8 +1991,17 @@ const splitList: InjectionEntry[] = [];
             </a>
           </div>
 
-          <div className="mt-4 text-[11px] text-slate-400">
-            © 2026 PepPlotter • Public Health &amp; Precision Pharmacokinetic Systems. All rights reserved.
+          <div className="mt-4 text-[11px] text-slate-400 flex flex-wrap items-center justify-center gap-2">
+            <span>© 2026 PepPlotter • Public Health &amp; Precision Pharmacokinetic Systems.</span>
+            <span className="hidden sm:inline text-slate-700">•</span>
+            <a
+              href="https://github.com/issuunnyy/pepplotter.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-emerald-400/90 hover:text-emerald-300 underline underline-offset-2 transition-colors"
+            >
+              GitHub (MIT Open Source)
+            </a>
           </div>
         </footer>
       </main>

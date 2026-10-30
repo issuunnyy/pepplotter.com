@@ -1,4 +1,27 @@
+Content-Signal: search=yes, ai-train=yes, ai-input=yes
+
 User-agent: *
+Allow: /
+Allow: /llms.txt
+Allow: /index.md
+Allow: /auth.md
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: CCBot
 Allow: /
 
 Sitemap: https://pepplotter.com/sitemap.xml

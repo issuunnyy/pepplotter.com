@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 /**
- * 安全响应头。
+ * 安全响应头与 AI Agent 发现头。
  * 站点无鉴权、无用户数据存储，核心诉求是防点击劫持、防 MIME 嗅探、限制 referrer 泄露
  * （本页会把剂量数据放进 Google Calendar 的 URL query，Referrer-Policy 必须收紧）。
  */
@@ -16,6 +16,10 @@ const securityHeaders = [
   {
     key: "Strict-Transport-Security",
     value: "max-age=63072000; includeSubDomains; preload",
+  },
+  {
+    key: "Link",
+    value: '</llms.txt>; rel="alternate"; type="text/markdown", </auth.md>; rel="service-doc"',
   },
 ];
 

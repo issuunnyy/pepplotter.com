@@ -16,34 +16,33 @@
 # next.js
 /.next/
 /out/
-# 临时验证用的构建目录（见 FIXLOG「环境坑」）
 /.next-v*/
 /.next-verify/
 
-# backup archives produced by scripts/backup.sh
+# backup archives
 /backups/
 *.tar.gz
 *.zip
 
-# workbuddy local runtime data
+# local runtime data
 /.workbuddy/
 
 # production
 /build
 
-# misc
+# misc & os
 .DS_Store
 *.pem
 /node
 /node.exe
 
-# debug
+# debug logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# environment variables
 .env*
 
 # vercel
@@ -52,3 +51,18 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# editor and ide workspace settings
+.vscode/
+.idea/
+.cursor/
+*.sublime-workspace
+*.swp
+*.swo
+
+# local drafts, notes and scratchpads
+_*/
+*.local
+*.local.*
+*.draft.*
+*.notes.*
