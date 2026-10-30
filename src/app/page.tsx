@@ -610,7 +610,7 @@ const splitList: InjectionEntry[] = [];
       {/* Main Container (Strictly hidden during printing to isolate Fridge Sheet) */}
       <main className="w-full max-w-5xl px-4 sm:px-6 py-8 md:py-12 print:hidden">
         {/* Top Brand Header */}
-        <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-3.5 lg:gap-4 pb-4 sm:pb-6 mb-4 sm:mb-8 border-b border-slate-800/80">
+        <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 sm:pb-6 mb-4 sm:mb-8 border-b border-slate-800/80">
           <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-cyan-500 p-0.5 shadow-lg shadow-emerald-500/20 shrink-0">
               <div className="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
@@ -619,19 +619,17 @@ const splitList: InjectionEntry[] = [];
             </div>
             <div className="min-w-0">
               {/* Row 1: Brand name + Badge */}
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-lg sm:text-xl font-extrabold tracking-tight bg-gradient-to-r from-slate-100 via-emerald-200 to-cyan-300 bg-clip-text text-transparent shrink-0">
                   PepPlotter
                 </span>
                 <span className="px-2 py-0.5 text-[8.5px] sm:text-[10px] uppercase font-bold tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded-full whitespace-nowrap shrink-0">
-                  <span className="inline lg:hidden">Harm Reduction v1.0</span>
-                  <span className="hidden lg:inline">Harm Reduction &amp; Simulation v1.0</span>
+                  Harm Reduction v1.0
                 </span>
               </div>
               {/* Row 2: Subtitle */}
               <p className="text-[10.5px] sm:text-xs text-slate-400 mt-0.5 leading-snug">
-                <span className="inline md:hidden">Peptide Reconstitution &amp; PK Half-Life Simulator</span>
-                <span className="hidden md:inline">Precision Peptide Reconstitution &amp; Pharmacokinetic Accumulation Simulator</span>
+                Precision Peptide Reconstitution &amp; Pharmacokinetic Simulator
               </p>
             </div>
           </div>
@@ -640,12 +638,12 @@ const splitList: InjectionEntry[] = [];
           <div className="w-full lg:w-auto grid grid-cols-4 sm:flex sm:items-center sm:justify-start lg:justify-end gap-1.5 sm:gap-2 shrink-0">
             <button
               onClick={startTour}
-              className="flex-1 sm:flex-none flex items-center justify-center gap-1 sm:gap-1.5 px-1 sm:px-3 py-1.5 bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 text-emerald-300 rounded-lg text-[10px] sm:text-xs font-semibold transition-all shadow-sm shadow-emerald-500/10 cursor-pointer min-w-0 shrink-0"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-1 sm:gap-1.5 px-1.5 sm:px-3 py-1.5 bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 text-emerald-300 rounded-lg text-[10px] sm:text-xs font-semibold transition-all shadow-sm shadow-emerald-500/10 cursor-pointer min-w-0 shrink-0"
               title="Interactive Guided Walkthrough"
             >
               <Compass className="w-3.5 h-3.5 shrink-0" />
               <span className="whitespace-nowrap">
-                <span className="hidden sm:inline">How to Use (Tour)</span>
+                <span className="hidden sm:inline">How to Use</span>
                 <span className="sm:hidden">Tour</span>
               </span>
             </button>
@@ -653,12 +651,12 @@ const splitList: InjectionEntry[] = [];
             <button
               type="button"
               onClick={() => setIsReportModalOpen(true)}
-              className="flex-1 sm:flex-none flex items-center justify-center gap-1 sm:gap-1.5 px-1 sm:px-3 py-1.5 bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 text-emerald-300 rounded-lg text-[10px] sm:text-xs font-semibold transition-all shadow-sm shadow-emerald-500/10 cursor-pointer min-w-0 shrink-0"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-1 sm:gap-1.5 px-1.5 sm:px-3 py-1.5 bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 text-emerald-300 rounded-lg text-[10px] sm:text-xs font-semibold transition-all shadow-sm shadow-emerald-500/10 cursor-pointer min-w-0 shrink-0"
               title="Sync Administration Protocol to Google/Apple Calendar or Print Fridge Sheet"
             >
               <Calendar className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
               <span className="whitespace-nowrap">
-                <span className="hidden sm:inline">Reminders &amp; Protocol</span>
+                <span className="hidden sm:inline">Reminders</span>
                 <span className="sm:hidden">Remind</span>
               </span>
             </button>
@@ -666,7 +664,7 @@ const splitList: InjectionEntry[] = [];
             <button
               type="button"
               onClick={() => setIsFeedbackModalOpen(true)}
-              className="flex-1 sm:flex-none flex items-center justify-center gap-1 sm:gap-1.5 px-1 sm:px-3 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-700/80 hover:border-emerald-500/50 rounded-lg text-[10px] sm:text-xs font-semibold text-slate-200 transition-all shadow-sm cursor-pointer min-w-0 shrink-0"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-1 sm:gap-1.5 px-1.5 sm:px-3 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-700/80 hover:border-emerald-500/50 rounded-lg text-[10px] sm:text-xs font-semibold text-slate-200 transition-all shadow-sm cursor-pointer min-w-0 shrink-0"
               title="Request Custom Peptide or Feedback"
             >
               <MessageSquare className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
@@ -679,12 +677,12 @@ const splitList: InjectionEntry[] = [];
             <button
               type="button"
               onClick={handleOpenShareModal}
-              className="flex-1 sm:flex-none flex items-center justify-center gap-1 sm:gap-1.5 px-1 sm:px-3 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 rounded-lg text-[10px] sm:text-xs text-slate-300 font-semibold transition-colors cursor-pointer min-w-0 shrink-0"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-1 sm:gap-1.5 px-1.5 sm:px-3 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 rounded-lg text-[10px] sm:text-xs text-slate-300 font-semibold transition-colors cursor-pointer min-w-0 shrink-0"
               title="Share live protocol & QR code with current dosage parameters"
             >
               {copied ? <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" /> : <QrCode className="w-3.5 h-3.5 text-slate-400 shrink-0" />}
               <span className="whitespace-nowrap">
-                <span className="hidden sm:inline">{copied ? 'Link Copied!' : 'Copy Link & QR'}</span>
+                <span className="hidden sm:inline">{copied ? 'Link Copied!' : 'Share & QR'}</span>
                 <span className="sm:hidden">{copied ? 'Copied' : 'Share'}</span>
               </span>
             </button>
